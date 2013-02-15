@@ -8,6 +8,6 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         opencv:show_fps="true"
-        opencv:camera_id="front"/>
+        opencv:camera_id="any"/>
 
 </LinearLayout>
