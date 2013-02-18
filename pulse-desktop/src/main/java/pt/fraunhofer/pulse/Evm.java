@@ -1,6 +1,9 @@
 package pt.fraunhofer.pulse;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
@@ -37,8 +40,7 @@ public class Evm {
 
     private static final float MIN_FACE_SIZE = 0.3f;
     private static final int PYR_DOWN_LEVEL = 4;
-    private static final int WINDOW_SIZE = 300;
-    private static final int WINDOW_INCREMENT = 10;
+    private static final int WINDOW_SIZE = 100; // TODO alter to have a MIN and MAX window size
 
     private int t;
     private Mat gray;
@@ -96,13 +98,16 @@ public class Evm {
             point(frame, output, point);
         }
 
-        // blur and downsample
+        // apply spatial filter: blur and downsample
         frame.copyTo(blurred);
         for (int i = 0; i < PYR_DOWN_LEVEL; i++) {
             Imgproc.pyrDown(blurred, blurred);
         }
 
         if (t < WINDOW_SIZE) {
+            if (window.empty()) {
+                window.create(blurred.width() * blurred.height(), WINDOW_SIZE, blurred.type());
+            }
             putToWindow(window, blurred, t);
         } else {
             // shift window
@@ -111,11 +116,47 @@ public class Evm {
             }
             putToWindow(window, blurred, WINDOW_SIZE - 1);
 
-            // TODO resize Mat to optimal dft size
-            // Core.getOptimalDFTSize(...);
-            // Core.dft(window, dftResult, Core.DFT_ROWS);
-            // int dftFlags = Core.DFT_ROWS + Core.DFT_INVERSE + Core.DFT_REAL_OUTPUT;
-            // Core.dft(dftResult, dftInverseResult, dftFlags);
+            List<Mat> windowChannels = new ArrayList<Mat>();
+            Core.split(window, windowChannels);
+            for (int i = 0; i < windowChannels.size(); i++) {
+                System.out.println("...");
+                System.out.flush();
+                Mat channel = windowChannels.get(i);
+                Mat floatChannel = new Mat(channel.size(), CvType.CV_32FC1);
+                channel.convertTo(floatChannel, floatChannel.type());
+                System.out.println("!!!");
+                System.out.flush();
+
+                // TODO resize Mat to optimal dft size
+                // Core.getOptimalDFTSize(...);
+                Mat dftWindow = new Mat();
+                Core.dft(floatChannel, dftWindow, Core.DFT_ROWS, floatChannel.rows());
+                System.out.println("???");
+                System.out.flush();
+
+                // apply ideal temporal filter
+                Mat dftMaskL = new Mat();
+                Mat dftMaskH = new Mat();
+                Mat dftMask = new Mat();
+                // FIXME mask needs tiling ?
+                Core.compare(dftWindow, Scalar.all(50/60), dftMaskL, Core.CMP_LT);
+                Core.compare(dftWindow, Scalar.all(60/60), dftMaskH, Core.CMP_GT);
+                Core.bitwise_or(dftMaskL, dftMaskH, dftMask);
+                Core.bitwise_and(dftWindow, dftMask, dftWindow);
+
+                Mat idftWindow = new Mat();
+                Core.idft(dftWindow, idftWindow, Core.DFT_ROWS + Core.DFT_REAL_OUTPUT, 0);
+
+                windowChannels.set(i, idftWindow);
+            }
+            Mat windowFiltered = new Mat();
+            System.out.println(windowChannels.size());
+            Core.merge(windowChannels, windowFiltered);
+
+            getLastFromWindow(windowFiltered, output);
+
+            // amplify
+            Core.multiply(output, Scalar.all(50), output);
         }
 
         t++;
@@ -135,6 +176,14 @@ public class Evm {
         for (int y = 0; y < a.rows(); y++) {
             for (int x = 0; x < a.cols(); x++) {
                 window.put(y * a.cols() + x, t, a.get(y, x));
+            }
+        }
+    }
+
+    private void getLastFromWindow(Mat window, Mat a) {
+        for (int y = 0; y < a.rows(); y++) {
+            for (int x = 0; x < a.cols(); x++) {
+                a.put(y, x, window.get(y * a.cols() + x, window.rows() - 1));
             }
         }
     }

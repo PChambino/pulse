@@ -1,6 +1,7 @@
 package pt.fraunhofer.pulse;
 
 import com.xuggle.mediatool.MediaToolAdapter;
+import com.xuggle.mediatool.event.ICloseEvent;
 import com.xuggle.mediatool.event.IVideoPictureEvent;
 import com.xuggle.xuggler.IVideoPicture;
 import java.awt.image.BufferedImage;
@@ -40,17 +41,18 @@ public class EvmAdapter extends MediaToolAdapter {
 
         frame = evm.onFrame(frame);
 
-        BufferedImage i = event.getImage();
-        for (int y = 0; y < frame.rows(); y++) {
-            for (int x = 0; x < frame.cols(); x++) {
-                double[] pixel = frame.get(y, x);
-                i.setRGB(x, y,
-                        (int)pixel[3] << 24 |
-                        (int)pixel[2] << 16 |
-                        (int)pixel[1] << 8  |
-                        (int)pixel[0]);
-            }
-        }
+        // TODO get pixels all at once
+//        BufferedImage i = event.getImage();
+//        for (int y = 0; y < frame.rows(); y++) {
+//            for (int x = 0; x < frame.cols(); x++) {
+//                double[] pixel = frame.get(y, x);
+//                i.setRGB(x, y,
+//                        (int)pixel[3] << 24 |
+//                        (int)pixel[2] << 16 |
+//                        (int)pixel[1] << 8  |
+//                        (int)pixel[0]);
+//            }
+//        }
 
         super.onVideoPicture(event);
     }
