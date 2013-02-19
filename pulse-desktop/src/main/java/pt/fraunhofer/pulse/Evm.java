@@ -39,7 +39,7 @@ public class Evm {
     private static final Scalar BLUE = new Scalar(0, 0, 255, 255);
 
     private static final float MIN_FACE_SIZE = 0.3f;
-    private static final int PYR_DOWN_LEVEL = 4;
+    private static final int BLUR_LEVEL = 4;
     private static final int WINDOW_SIZE = 100; // TODO alter to have a MIN and MAX window size
 
     private int t;
@@ -50,6 +50,10 @@ public class Evm {
     private Size minFaceSize;
     private Size maxFaceSize;
     private Mat window;
+    private List<Mat> windowChannels = new ArrayList<Mat>();
+    private Mat floatWindowChannel;
+    private Mat dftWindowChannel;
+    private Mat idftWindowChannel;
 
     public void start(int width, int height) {
         t = 0;
@@ -60,6 +64,10 @@ public class Evm {
         minFaceSize = new Size(MIN_FACE_SIZE * width, MIN_FACE_SIZE * height);
         maxFaceSize = new Size();
         window = new Mat();
+        windowChannels = new ArrayList<Mat>();
+        floatWindowChannel = new Mat();
+        dftWindowChannel = new Mat();
+        idftWindowChannel = new Mat();
     }
 
     public void stop() {
@@ -68,6 +76,10 @@ public class Evm {
         blurred.release();
         output.release();
         window.release();
+        windowChannels.clear();
+        floatWindowChannel.release();
+        dftWindowChannel.release();
+        idftWindowChannel.release();
     }
 
     public Mat onFrame(Mat frame) {
@@ -100,67 +112,95 @@ public class Evm {
 
         // apply spatial filter: blur and downsample
         frame.copyTo(blurred);
-        for (int i = 0; i < PYR_DOWN_LEVEL; i++) {
+        for (int i = 0; i < BLUR_LEVEL; i++) {
             Imgproc.pyrDown(blurred, blurred);
         }
 
         if (t < WINDOW_SIZE) {
             if (window.empty()) {
                 window.create(blurred.width() * blurred.height(), WINDOW_SIZE, blurred.type());
+                floatWindowChannel.create(window.size(), CvType.CV_32FC1);
             }
             putToWindow(window, blurred, t);
         } else {
             // shift window
-            for (int x = 1; x < window.cols(); x++) {
+            for (int x = 1; x < WINDOW_SIZE; x++) {
                 window.col(x).copyTo(window.col(x - 1));
             }
             putToWindow(window, blurred, WINDOW_SIZE - 1);
 
-            List<Mat> windowChannels = new ArrayList<Mat>();
             Core.split(window, windowChannels);
             for (int i = 0; i < windowChannels.size(); i++) {
-                System.out.println("...");
-                System.out.flush();
-                Mat channel = windowChannels.get(i);
-                Mat floatChannel = new Mat(channel.size(), CvType.CV_32FC1);
-                channel.convertTo(floatChannel, floatChannel.type());
-                System.out.println("!!!");
-                System.out.flush();
+                windowChannels.get(i).convertTo(floatWindowChannel, CvType.CV_32F);
 
-                // TODO resize Mat to optimal dft size
-                // Core.getOptimalDFTSize(...);
-                Mat dftWindow = new Mat();
-                Core.dft(floatChannel, dftWindow, Core.DFT_ROWS, floatChannel.rows());
-                System.out.println("???");
-                System.out.flush();
+//                System.out.println("FloatChannel("+i+")"); // TODO remove
+//                System.out.println(floatWindowChannel);
+//                for (int y = 0; y < 5; y++) {
+//                    for (int x = 0; x < WINDOW_SIZE; x++) {
+//                        System.out.print(floatWindowChannel.get(y, x)[0]+" | ");
+//                    }
+//                    System.out.println();
+//                }
+
+                Core.dft(floatWindowChannel, dftWindowChannel, Core.DFT_ROWS, 0);
+
+//                System.out.println("DFT("+i+")"); // TODO remove
+//                System.out.println(dftWindow);
+//                for (int y = 0; y < 5; y++) {
+//                    for (int x = 0; x < WINDOW_SIZE; x++) {
+//                        System.out.print(dftWindow.get(y, x)[0]+" | ");
+//                    }
+//                    System.out.println();
+//                }
 
                 // apply ideal temporal filter
-                Mat dftMaskL = new Mat();
-                Mat dftMaskH = new Mat();
-                Mat dftMask = new Mat();
+//                Mat dftMaskL = new Mat();
+//                Mat dftMaskH = new Mat();
+//                Mat dftMask = new Mat();
                 // FIXME mask needs tiling ?
-                Core.compare(dftWindow, Scalar.all(50/60), dftMaskL, Core.CMP_LT);
-                Core.compare(dftWindow, Scalar.all(60/60), dftMaskH, Core.CMP_GT);
-                Core.bitwise_or(dftMaskL, dftMaskH, dftMask);
-                Core.bitwise_and(dftWindow, dftMask, dftWindow);
+//                Core.inRange();
+//                FIXME Replace with function inRange
+//                Core.compare(dftWindow, Scalar.all(50/60), dftMaskL, Core.CMP_LT);
+//                Core.compare(dftWindow, Scalar.all(60/60), dftMaskH, Core.CMP_GT);
+//                Core.bitwise_or(dftMaskL, dftMaskH, dftMask);
+//                Core.bitwise_and(dftWindow, dftMask, dftWindow);
 
-                Mat idftWindow = new Mat();
-                Core.idft(dftWindow, idftWindow, Core.DFT_ROWS + Core.DFT_REAL_OUTPUT, 0);
+                Core.idft(dftWindowChannel, idftWindowChannel, Core.DFT_ROWS + Core.DFT_SCALE, 0);
 
-                windowChannels.set(i, idftWindow);
+//                System.out.println("IDFT("+i+")"); // TODO remove
+//                System.out.println(idftWindow);
+//                for (int y = 0; y < 5; y++) {
+//                    for (int x = 0; x < WINDOW_SIZE; x++) {
+//                        System.out.print(idftWindow.get(y, x)[0]+" | ");
+//                    }
+//                    System.out.println();
+//                }
+
+                Mat a = new Mat(idftWindowChannel.size(), CvType.CV_8UC1);
+                idftWindowChannel.convertTo(a, CvType.CV_8S);
+                windowChannels.set(i, a);
             }
             Mat windowFiltered = new Mat();
-            System.out.println(windowChannels.size());
             Core.merge(windowChannels, windowFiltered);
+            System.out.println(windowFiltered);
 
-            getLastFromWindow(windowFiltered, output);
+            getLastFromWindow(windowFiltered, blurred);
 
             // amplify
-            Core.multiply(output, Scalar.all(50), output);
+            // Core.multiply(blurred, Scalar.all(50), blurred);
+
+            for (int i = 0; i < BLUR_LEVEL; i++) {
+                Imgproc.pyrUp(blurred, blurred);
+            }
+            Imgproc.resize(blurred, output, frame.size());
+            System.out.println(output); // TODO remove
+
+            // TODO verify type and depth, create new matrices and convert if necessary
+            // blurred.convertTo(output, CvType.CV_8UC4);
         }
 
         t++;
-
+        
         return output;
     }
 
@@ -173,17 +213,21 @@ public class Evm {
     }
 
     private void putToWindow(Mat window, Mat a, int t) {
-        for (int y = 0; y < a.rows(); y++) {
-            for (int x = 0; x < a.cols(); x++) {
-                window.put(y * a.cols() + x, t, a.get(y, x));
+        int rows = a.rows();
+        int cols = a.cols();
+        for (int y = 0; y < rows; y++) {
+            for (int x = 0; x < cols; x++) {
+                window.put(y * cols + x, t, a.get(y, x));
             }
         }
     }
 
     private void getLastFromWindow(Mat window, Mat a) {
-        for (int y = 0; y < a.rows(); y++) {
-            for (int x = 0; x < a.cols(); x++) {
-                a.put(y, x, window.get(y * a.cols() + x, window.rows() - 1));
+        int rows = a.rows();
+        int cols = a.cols();
+        for (int y = 0; y < rows; y++) {
+            for (int x = 0; x < cols; x++) {
+                a.put(y, x, window.get(y * cols + x, WINDOW_SIZE - 1));
             }
         }
     }

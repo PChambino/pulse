@@ -18,7 +18,7 @@
         <dependency>
             <groupId>org.opencv</groupId>
             <artifactId>opencv</artifactId>
-            <version>2.4.3.2</version>
+            <version>2.4.4</version>
         </dependency>
         
         <dependency>
@@ -50,6 +50,15 @@
                         <classpath/>
                         <argument>pt.fraunhofer.pulse.App</argument>
                     </arguments>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
                 </configuration>
             </plugin>
         </plugins>
