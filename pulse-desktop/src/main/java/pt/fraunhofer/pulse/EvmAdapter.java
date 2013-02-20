@@ -48,9 +48,9 @@ public class EvmAdapter extends MediaToolAdapter {
             initialize = false;
         }
 
-        frame = evm.onFrame(frame);
+        Mat result = evm.onFrame(frame);
 
-        frame.get(0, 0, frameData);
+        result.get(0, 0, frameData);
         for (int y = 0; y < frameRows; y++) {
             for (int x = 0; x < frameCols; x++) {
                 int index = (x + y * frameCols) * frameChannels;
