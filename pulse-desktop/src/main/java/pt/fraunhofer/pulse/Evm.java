@@ -38,12 +38,18 @@ public class Evm {
     private static final Scalar RED = new Scalar(255, 0, 0, 255);
     private static final Scalar BLUE = new Scalar(0, 0, 255, 255);
 
+    private static final Scalar ZERO = Scalar.all(0);
+
     private static final float MIN_FACE_SIZE = 0.3f;
     private static final int RATE = 30;
+    private static final int BLUR_LEVEL = 4;
     private static final float F_LOW = 45/60f;
     private static final float F_HIGH = 240/60f;
-    private static final int BLUR_LEVEL = 4;
-    private static final int WINDOW_SIZE = 60; // TODO alter to have a MIN and MAX window size
+    private static final int WINDOW_SIZE = 30; // TODO alter to have a varying size
+    private static final Scalar ALPHA = Scalar.all(50);
+
+    private static final int F_LOW_FRAME = (int) (F_LOW/RATE*WINDOW_SIZE + 1);
+    private static final int F_HIGH_FRAME = (int) (F_HIGH/RATE*WINDOW_SIZE + 1);
 
     private int t;
     private Point point;
@@ -51,8 +57,9 @@ public class Evm {
     private Size maxFaceSize;
     private Mat gray;
     private Mat blurred;
-    private Mat blurredFloat;
     private Mat output;
+    private Mat outputFloat;
+    private Mat frameFloat;
     private Mat window;
     private Mat windowFiltered;
     private List<Mat> windowChannels = new ArrayList<Mat>();
@@ -66,8 +73,9 @@ public class Evm {
         maxFaceSize = new Size();
         gray = new Mat();
         blurred = new Mat();
-        blurredFloat = new Mat();
         output = new Mat();
+        outputFloat = new Mat();
+        frameFloat = new Mat();
         window = new Mat();
         windowFiltered = new Mat();
         windowChannels = new ArrayList<Mat>();
@@ -79,8 +87,9 @@ public class Evm {
         t = 0;
         gray.release();
         blurred.release();
-        blurredFloat.release();
         output.release();
+        outputFloat.release();
+        frameFloat.release();
         window.release();
         windowFiltered.release();
         windowChannels.clear();
@@ -89,66 +98,66 @@ public class Evm {
     }
 
     public Mat onFrame(Mat frame) {
-        MatOfRect faces = new MatOfRect();
 
-        if (faceDetector != null) {
-            Imgproc.cvtColor(frame, gray, Imgproc.COLOR_RGB2GRAY);
-            faceDetector.detectMultiScale(gray, faces, 1.1, 2, 0, minFaceSize, maxFaceSize);
-        }
-
-        frame.copyTo(output);
-
-        for (Rect face : faces.toArray()) {
-            Core.rectangle(output, face.tl(), face.br(), RED, 4);
-
-            // forehead point
-            point.x = face.tl().x + face.size().width * 0.5;
-            point.y = face.tl().y + face.size().width * 0.2;
-            point(frame, output, point);
-
-            // left cheek point
-            point.x = face.tl().x + face.size().width * 0.7;
-            point.y = face.tl().y + face.size().width * 0.6;
-            point(frame, output, point);
-
-            // right cheek point
-            point.x = face.tl().x + face.size().width * 0.3;
-            point(frame, output, point);
-        }
+        // convert to YUV color space
+        frame.convertTo(frameFloat, CvType.CV_32F);
+        Imgproc.cvtColor(frameFloat, frameFloat, Imgproc.COLOR_RGB2YCrCb);
 
         // apply spatial filter: blur and downsample
-        frame.copyTo(blurred);
+        frameFloat.copyTo(blurred);
         for (int i = 0; i < BLUR_LEVEL; i++) {
             Imgproc.pyrDown(blurred, blurred);
         }
-        blurred.convertTo(blurredFloat, CvType.CV_32F);
+
 
         if (t < WINDOW_SIZE) {
+            // face detection
+            MatOfRect faces = new MatOfRect();
+            if (faceDetector != null) {
+                Imgproc.cvtColor(frame, gray, Imgproc.COLOR_RGB2GRAY);
+                faceDetector.detectMultiScale(gray, faces, 1.1, 2, 0, minFaceSize, maxFaceSize);
+            }
+
+            // draw some rectangles and points
+            frame.copyTo(output);
+            for (Rect face : faces.toArray()) {
+                Core.rectangle(output, face.tl(), face.br(), RED, 4);
+
+                // forehead point
+                point.x = face.tl().x + face.size().width * 0.5;
+                point.y = face.tl().y + face.size().width * 0.2;
+                point(frame, output, point);
+
+                // left cheek point
+                point.x = face.tl().x + face.size().width * 0.7;
+                point.y = face.tl().y + face.size().width * 0.6;
+                point(frame, output, point);
+
+                // right cheek point
+                point.x = face.tl().x + face.size().width * 0.3;
+                point(frame, output, point);
+            }
+
+            // create window for frames
             if (window.empty()) {
                 window.create(blurred.width() * blurred.height(), WINDOW_SIZE, CvType.CV_32FC(blurred.channels()));
             }
-            putToWindow(window, blurredFloat, t);
+            putToWindow(window, blurred, t);
         } else {
             // shift window
-            for (int x = 1; x < WINDOW_SIZE; x++) {
-                window.col(x).copyTo(window.col(x - 1));
-            }
-            putToWindow(window, blurredFloat, WINDOW_SIZE - 1);
+            window.colRange(1, WINDOW_SIZE).copyTo(window.colRange(0, WINDOW_SIZE - 1));
+            putToWindow(window, blurred, WINDOW_SIZE - 1);
 
             Core.split(window, windowChannels);
             for (Mat channel : windowChannels) {
                 Core.dft(channel, dftWindowChannel, Core.DFT_ROWS, 0);
 
                 // apply ideal temporal filter
-                int frameL = (int) (F_LOW/RATE*WINDOW_SIZE + 0.5);
-                int frameH = (int) (F_HIGH/RATE*WINDOW_SIZE + 0.5);
-//                frameL = (WINDOW_SIZE + (frameL - (t % WINDOW_SIZE))) % WINDOW_SIZE;
-//                frameH = (WINDOW_SIZE + (frameH - (t % WINDOW_SIZE))) % WINDOW_SIZE;
-                if (frameL <= frameH) {
-                    dftWindowChannel.colRange(0, frameL).setTo(Scalar.all(0));
-                    dftWindowChannel.colRange(frameH, WINDOW_SIZE).setTo(Scalar.all(0));
+                if (F_LOW_FRAME <= F_HIGH_FRAME) {
+                    dftWindowChannel.colRange(0, F_LOW_FRAME).setTo(ZERO);
+                    dftWindowChannel.colRange(F_HIGH_FRAME, WINDOW_SIZE).setTo(ZERO);
                 } else {
-                    dftWindowChannel.colRange(frameH, frameL).setTo(Scalar.all(0));
+                    dftWindowChannel.colRange(F_HIGH_FRAME, F_LOW_FRAME).setTo(ZERO);
                 }
 
                 Core.idft(dftWindowChannel, idftWindowChannel, Core.DFT_ROWS + Core.DFT_SCALE, 0);
@@ -157,20 +166,23 @@ public class Evm {
             }
             Core.merge(windowChannels, windowFiltered);
 
-            getLastFromWindow(windowFiltered, blurredFloat);
-            blurredFloat.convertTo(blurred, CvType.CV_8U);
+            getLastFromWindow(windowFiltered, blurred);
 
             // amplify
-            Core.multiply(blurred, Scalar.all(50), blurred);
+            Core.multiply(blurred, ALPHA, blurred);
 
             // resize back to original size
             for (int i = 0; i < BLUR_LEVEL; i++) {
                 Imgproc.pyrUp(blurred, blurred);
             }
-            Imgproc.resize(blurred, output, frame.size());
+            Imgproc.resize(blurred, outputFloat, frame.size());
 
             // add back to original frame
-            Core.add(frame, output, output);
+            Core.add(frameFloat, outputFloat, outputFloat);
+
+            Imgproc.cvtColor(outputFloat, outputFloat, Imgproc.COLOR_YCrCb2RGB);
+            Imgproc.cvtColor(outputFloat, outputFloat, Imgproc.COLOR_RGB2RGBA);
+            outputFloat.convertTo(output, CvType.CV_8U);
         }
 
         t++;
