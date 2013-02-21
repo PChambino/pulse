@@ -35,13 +35,13 @@ public class Evm {
         init(filename);
     }
 
-    private static final Scalar RED = new Scalar(255, 0, 0, 255);
-    private static final Scalar BLUE = new Scalar(0, 0, 255, 255);
+    private static final Scalar BLUE = new Scalar(255, 0, 0, 255);
+    private static final Scalar RED = new Scalar(0, 0, 255, 255);
 
     private static final Scalar ZERO = Scalar.all(0);
 
     private static final float MIN_FACE_SIZE = 0.3f;
-    private static final int RATE = 30;
+    private static final int RATE = 30; // TODO calculate fps
     private static final int BLUR_LEVEL = 4;
     private static final float F_LOW = 45/60f;
     private static final float F_HIGH = 240/60f;
@@ -55,6 +55,7 @@ public class Evm {
     private Point point;
     private Size minFaceSize;
     private Size maxFaceSize;
+    private MatOfRect faces;
     private Mat gray;
     private Mat blurred;
     private Mat output;
@@ -71,6 +72,7 @@ public class Evm {
         point = new Point();
         minFaceSize = new Size(MIN_FACE_SIZE * width, MIN_FACE_SIZE * height);
         maxFaceSize = new Size();
+        faces = new MatOfRect();
         gray = new Mat();
         blurred = new Mat();
         output = new Mat();
@@ -85,6 +87,7 @@ public class Evm {
 
     public void stop() {
         t = 0;
+        faces.release();
         gray.release();
         blurred.release();
         output.release();
@@ -98,10 +101,13 @@ public class Evm {
     }
 
     public Mat onFrame(Mat frame) {
+        // face detection
+        Imgproc.cvtColor(frame, gray, Imgproc.COLOR_RGB2GRAY);
+        faceDetector.detectMultiScale(gray, faces, 1.1, 2, 0, minFaceSize, maxFaceSize);
 
-        // convert to YUV color space
+        // convert to different color space
         frame.convertTo(frameFloat, CvType.CV_32F);
-        Imgproc.cvtColor(frameFloat, frameFloat, Imgproc.COLOR_RGB2YCrCb);
+        Imgproc.cvtColor(frameFloat, frameFloat, Imgproc.COLOR_RGB2YUV);
 
         // apply spatial filter: blur and downsample
         frameFloat.copyTo(blurred);
@@ -109,34 +115,8 @@ public class Evm {
             Imgproc.pyrDown(blurred, blurred);
         }
 
-
         if (t < WINDOW_SIZE) {
-            // face detection
-            MatOfRect faces = new MatOfRect();
-            if (faceDetector != null) {
-                Imgproc.cvtColor(frame, gray, Imgproc.COLOR_RGB2GRAY);
-                faceDetector.detectMultiScale(gray, faces, 1.1, 2, 0, minFaceSize, maxFaceSize);
-            }
-
-            // draw some rectangles and points
             frame.copyTo(output);
-            for (Rect face : faces.toArray()) {
-                Core.rectangle(output, face.tl(), face.br(), RED, 4);
-
-                // forehead point
-                point.x = face.tl().x + face.size().width * 0.5;
-                point.y = face.tl().y + face.size().width * 0.2;
-                point(frame, output, point);
-
-                // left cheek point
-                point.x = face.tl().x + face.size().width * 0.7;
-                point.y = face.tl().y + face.size().width * 0.6;
-                point(frame, output, point);
-
-                // right cheek point
-                point.x = face.tl().x + face.size().width * 0.3;
-                point(frame, output, point);
-            }
 
             // create window for frames
             if (window.empty()) {
@@ -153,12 +133,8 @@ public class Evm {
                 Core.dft(channel, dftWindowChannel, Core.DFT_ROWS, 0);
 
                 // apply ideal temporal filter
-                if (F_LOW_FRAME <= F_HIGH_FRAME) {
-                    dftWindowChannel.colRange(0, F_LOW_FRAME).setTo(ZERO);
-                    dftWindowChannel.colRange(F_HIGH_FRAME, WINDOW_SIZE).setTo(ZERO);
-                } else {
-                    dftWindowChannel.colRange(F_HIGH_FRAME, F_LOW_FRAME).setTo(ZERO);
-                }
+                dftWindowChannel.colRange(0, F_LOW_FRAME).setTo(ZERO);
+                dftWindowChannel.colRange(F_HIGH_FRAME, WINDOW_SIZE).setTo(ZERO);
 
                 Core.idft(dftWindowChannel, idftWindowChannel, Core.DFT_ROWS + Core.DFT_SCALE, 0);
 
@@ -180,9 +156,28 @@ public class Evm {
             // add back to original frame
             Core.add(frameFloat, outputFloat, outputFloat);
 
-            Imgproc.cvtColor(outputFloat, outputFloat, Imgproc.COLOR_YCrCb2RGB);
+            Imgproc.cvtColor(outputFloat, outputFloat, Imgproc.COLOR_YUV2RGB);
             Imgproc.cvtColor(outputFloat, outputFloat, Imgproc.COLOR_RGB2RGBA);
             outputFloat.convertTo(output, CvType.CV_8U);
+        }
+
+        // draw some rectangles and points
+        for (Rect face : faces.toArray()) {
+            Core.rectangle(output, face.tl(), face.br(), BLUE, 4);
+
+            // forehead point
+            point.x = face.tl().x + face.size().width * 0.5;
+            point.y = face.tl().y + face.size().width * 0.2;
+            point(output, point);
+
+            // left cheek point
+            point.x = face.tl().x + face.size().width * 0.7;
+            point.y = face.tl().y + face.size().width * 0.6;
+            point(output, point);
+
+            // right cheek point
+            point.x = face.tl().x + face.size().width * 0.3;
+            point(output, point);
         }
 
         t++;
@@ -190,11 +185,11 @@ public class Evm {
         return output;
     }
 
-    private static void point(Mat original, Mat o, Point p) {
-        Core.circle(o, p, 4, BLUE, 8);
-        double value = original.get((int) p.x, (int) p.y)[0];
+    private static void point(Mat o, Point p) {
+        double value = o.get((int) p.y, (int) p.x)[2];
+        Core.circle(o, p, 4, RED, 8);
         p.x += 10;
-        Core.putText(o, String.valueOf(value), p, Core.FONT_HERSHEY_PLAIN, 2, BLUE);
+        Core.putText(o, String.valueOf(value), p, Core.FONT_HERSHEY_PLAIN, 2, RED);
         p.x -= 10;
     }
 
