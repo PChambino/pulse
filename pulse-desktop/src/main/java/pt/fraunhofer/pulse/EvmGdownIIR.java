@@ -10,23 +10,23 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-public class EvmLpyrIIR extends Evm {
+public class EvmGdownIIR extends Evm {
 
-    public EvmLpyrIIR() {
+    public EvmGdownIIR() {
         super();
     }
 
-    public EvmLpyrIIR(String filename) {
+    public EvmGdownIIR(String filename) {
         super(filename);
     }
 
     private static final float MIN_FACE_SIZE = 0.3f;
+    private static final int BLUR_LEVEL = 4;
     private static final float F_LOW = 0.05f;
     private static final float F_HIGH = 0.4f;
     private static final Scalar ALPHA = Scalar.all(50);
 
     private int t;
-    private int pyrLevel;
     private Point point;
     private Size minFaceSize;
     private Size maxFaceSize;
@@ -36,17 +36,14 @@ public class EvmLpyrIIR extends Evm {
     private Mat output;
     private Mat outputFloat;
     private Mat frameFloat;
-    private Mat buildLpyrAux;
-    private Mat[] lowpassHigh;
-    private Mat[] lowpassLow;
-    private Mat[] lowpassHighAux;
-    private Mat[] lowpassLowAux;
-    private Mat[] pyr;
+    private Mat lowpassHigh;
+    private Mat lowpassLow;
+    private Mat blurredHigh;
+    private Mat blurredLow;
 
     @Override
     public void start(int width, int height) {
         t = 0;
-        pyrLevel = (int) (Math.log(Math.min(width, height) / 5.0) / Math.log(2));
         point = new Point();
         minFaceSize = new Size(MIN_FACE_SIZE * width, MIN_FACE_SIZE * height);
         maxFaceSize = new Size();
@@ -56,19 +53,10 @@ public class EvmLpyrIIR extends Evm {
         output = new Mat();
         outputFloat = new Mat();
         frameFloat = new Mat();
-        buildLpyrAux = new Mat();
-        lowpassHigh = new Mat[pyrLevel + 1];
-        lowpassLow = new Mat[pyrLevel + 1];
-        lowpassHighAux = new Mat[pyrLevel + 1];
-        lowpassLowAux = new Mat[pyrLevel + 1];
-        pyr = new Mat[pyrLevel + 1];
-        for (int i = 0; i < pyr.length; i++) {
-            lowpassHigh[i] = new Mat();
-            lowpassLow[i] = new Mat();
-            lowpassHighAux[i] = new Mat();
-            lowpassLowAux[i] = new Mat();
-            pyr[i] = new Mat();
-        }
+        lowpassHigh = new Mat();
+        lowpassLow = new Mat();
+        blurredHigh = new Mat();
+        blurredLow = new Mat();
     }
 
     @Override
@@ -80,19 +68,10 @@ public class EvmLpyrIIR extends Evm {
         output.release();
         outputFloat.release();
         frameFloat.release();
-        buildLpyrAux.release();
-        for (int i = 0; i < pyr.length; i++) {
-            lowpassHigh[i].release();
-            lowpassLow[i].release();
-            lowpassHighAux[i].release();
-            lowpassLowAux[i].release();
-            pyr[i].release();
-        }
-        lowpassHigh = null;
-        lowpassLow = null;
-        lowpassHighAux = null;
-        lowpassLowAux = null;
-        pyr = null;
+        lowpassHigh.release();
+        lowpassLow.release();
+        blurredHigh.release();
+        blurredLow.release();
     }
 
     @Override
@@ -105,35 +84,37 @@ public class EvmLpyrIIR extends Evm {
         frame.convertTo(frameFloat, CvType.CV_32F);
         Imgproc.cvtColor(frameFloat, frameFloat, Imgproc.COLOR_RGB2YUV);
 
-        // apply spatial filter: Laplacian pyramid
-        buildLpyr(frameFloat, pyr, pyrLevel);
+        // apply spatial filter: blur and downsample
+        frameFloat.copyTo(blurred);
+        for (int i = 0; i < BLUR_LEVEL; i++) {
+            Imgproc.pyrDown(blurred, blurred);
+        }
 
         // apply temporal filter: substraction of two IIR lowpass filters
         if (0 == t) {
-            for (int i = 0; i < pyr.length; i++) {
-                pyr[i].copyTo(lowpassHigh[i]);
-                pyr[i].copyTo(lowpassLow[i]);
-            }
+            blurred.copyTo(lowpassHigh);
+            blurred.copyTo(lowpassLow);
 
             frame.copyTo(output);
         } else {
-            for (int i = 0; i < pyr.length; i++) {
-                Core.multiply(lowpassHigh[i], Scalar.all(1-F_HIGH), lowpassHigh[i]);
-                Core.multiply(pyr[i], Scalar.all(F_HIGH), lowpassHighAux[i]);
-                Core.add(lowpassHigh[i], lowpassHighAux[i], lowpassHigh[i]);
+            Core.multiply(lowpassHigh, Scalar.all(1-F_HIGH), lowpassHigh);
+            Core.multiply(blurred, Scalar.all(F_HIGH), blurredHigh);
+            Core.add(lowpassHigh, blurredHigh, lowpassHigh);
 
-                Core.multiply(lowpassLow[i], Scalar.all(1-F_LOW), lowpassLow[i]);
-                Core.multiply(pyr[i], Scalar.all(F_LOW), lowpassLowAux[i]);
-                Core.add(lowpassLow[i], lowpassLowAux[i], lowpassLow[i]);
+            Core.multiply(lowpassLow, Scalar.all(1-F_LOW), lowpassLow);
+            Core.multiply(blurred, Scalar.all(F_LOW), blurredLow);
+            Core.add(lowpassLow, blurredLow, lowpassLow);
 
-                Core.subtract(lowpassHigh[i], lowpassLow[i], pyr[i]);
+            Core.subtract(lowpassHigh, lowpassLow, blurred);
 
-                // amplify
-                Core.multiply(pyr[i], ALPHA, pyr[i]);
+            // amplify
+            Core.multiply(blurred, ALPHA, blurred);
+
+            // resize back to original size
+            for (int i = 0; i < BLUR_LEVEL; i++) {
+                Imgproc.pyrUp(blurred, blurred);
             }
-
-            // rebuild frame from Laplacian pyramid
-            reconLpyr(pyr, outputFloat);
+            Imgproc.resize(blurred, outputFloat, frame.size());
 
             // add back to original frame
             Core.add(frameFloat, outputFloat, outputFloat);
@@ -166,25 +147,6 @@ public class EvmLpyrIIR extends Evm {
         t++;
 
         return output;
-    }
-
-    private void buildLpyr(Mat a, Mat[] pyr, int level) {
-        a.copyTo(pyr[0]);
-        for (int i = 0; i < level; i++) {
-            Imgproc.pyrDown(pyr[i], pyr[i+1]);
-            Imgproc.pyrUp(pyr[i+1], buildLpyrAux);
-            Imgproc.resize(buildLpyrAux, buildLpyrAux, pyr[i].size());
-            Core.subtract(pyr[i], buildLpyrAux, pyr[i]);
-        }
-    }
-
-    private void reconLpyr(Mat[] pyr, Mat o) {
-        pyr[pyr.length - 1].copyTo(o);
-        for (int i = pyr.length; i > 0; i--) {
-            Imgproc.pyrUp(o, o);
-            Imgproc.resize(o, o, pyr[i-1].size());
-            Core.add(pyr[i-1], o, o);
-        }
     }
 
 }

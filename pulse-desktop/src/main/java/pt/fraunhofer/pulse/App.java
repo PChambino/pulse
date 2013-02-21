@@ -26,6 +26,7 @@ public class App {
         // evm
         reader.addListener(new EvmMediaToolAdapter(
 //                new EvmGdownIdeal
+//                new EvmGdownIIR
                 new EvmLpyrIIR
                         ("res/lbpcascade_frontalface.xml")));
 

@@ -45,7 +45,7 @@ public class EvmGdownIdeal extends Evm {
     private Mat frameFloat;
     private Mat window;
     private Mat windowFiltered;
-    private List<Mat> windowChannels = new ArrayList<Mat>();
+    private List<Mat> windowChannels;
     private Mat dftWindowChannel;
     private Mat idftWindowChannel;
 
