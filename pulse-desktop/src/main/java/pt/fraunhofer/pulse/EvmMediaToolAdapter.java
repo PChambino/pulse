@@ -7,15 +7,15 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
-public class EvmAdapter extends MediaToolAdapter {
+public class EvmMediaToolAdapter extends MediaToolAdapter {
 
-    static {
-        System.loadLibrary("opencv_java");
+    private Evm evm;
+
+    public EvmMediaToolAdapter(Evm evm) {
+        this.evm = evm;
     }
 
-    private Evm evm = new Evm("res/lbpcascade_frontalface.xml");
     private boolean initialize = true;
-
     private byte[] picData;
     private Mat picDataMat;
     private Mat frame;
