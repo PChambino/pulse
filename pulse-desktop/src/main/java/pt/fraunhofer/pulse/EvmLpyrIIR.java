@@ -20,13 +20,18 @@ public class EvmLpyrIIR extends Evm {
         super(filename);
     }
 
-    private static final float MIN_FACE_SIZE = 0.3f;
-    private static final float F_LOW = 0.05f;
-    private static final float F_HIGH = 0.4f;
-    private static final Scalar ALPHA = Scalar.all(50);
+    private static final double MIN_FACE_SIZE   = 0.3;
+    private static final double F_LOW           = 45/60.0/10;
+    private static final double F_HIGH          = 240/60.0/10;
+    private static final double CUTOFF          = 30;
+    private static final Scalar ALPHA           = Scalar.all(20);
+
+    private int pyrLevel;
+
+    private double initialLambdaCutoff;
+    private double cutoffDelta;
 
     private int t;
-    private int pyrLevel;
     private Point point;
     private Size minFaceSize;
     private Size maxFaceSize;
@@ -45,8 +50,14 @@ public class EvmLpyrIIR extends Evm {
 
     @Override
     public void start(int width, int height) {
-        t = 0;
+        // max pyramid level (5 is kernel size used for filter)
         pyrLevel = (int) (Math.log(Math.min(width, height) / 5.0) / Math.log(2));
+
+        // expressions from EVM_Matlab demo
+        initialLambdaCutoff = Math.sqrt(width * width + height * height) / 3.0;
+        cutoffDelta = CUTOFF / 8.0 / (1 + ALPHA.val[0]);
+
+        t = 0;
         point = new Point();
         minFaceSize = new Size(MIN_FACE_SIZE * width, MIN_FACE_SIZE * height);
         maxFaceSize = new Size();
@@ -101,9 +112,9 @@ public class EvmLpyrIIR extends Evm {
         Imgproc.cvtColor(frame, gray, Imgproc.COLOR_RGB2GRAY);
         faceDetector.detectMultiScale(gray, faces, 1.1, 2, 0, minFaceSize, maxFaceSize);
 
-        // convert to YUV color space
+        // convert to float and remove alpha channel
         frame.convertTo(frameFloat, CvType.CV_32F);
-        Imgproc.cvtColor(frameFloat, frameFloat, Imgproc.COLOR_RGB2YUV);
+        Imgproc.cvtColor(frameFloat, frameFloat, Imgproc.COLOR_RGBA2RGB);
 
         // apply spatial filter: Laplacian pyramid
         buildLpyr(frameFloat, pyr, pyrLevel);
@@ -117,7 +128,9 @@ public class EvmLpyrIIR extends Evm {
 
             frame.copyTo(output);
         } else {
-            for (int i = 0; i < pyr.length; i++) {
+            double lambda = initialLambdaCutoff;
+
+            for (int i = pyr.length - 1; i > 0; i--) {
                 Core.multiply(lowpassHigh[i], Scalar.all(1-F_HIGH), lowpassHigh[i]);
                 Core.multiply(pyr[i], Scalar.all(F_HIGH), lowpassHighAux[i]);
                 Core.add(lowpassHigh[i], lowpassHighAux[i], lowpassHigh[i]);
@@ -129,7 +142,16 @@ public class EvmLpyrIIR extends Evm {
                 Core.subtract(lowpassHigh[i], lowpassLow[i], pyr[i]);
 
                 // amplify
-                Core.multiply(pyr[i], ALPHA, pyr[i]);
+                double alpha = lambda / cutoffDelta / 8 - 1;
+                alpha *= 2; // exaggeration for better visualization
+                if (0 == i || pyr.length - 1 == i) {
+                    Core.multiply(pyr[i], ZERO, pyr[i]);
+                } else if (alpha > ALPHA.val[0]) {
+                    Core.multiply(pyr[i], ALPHA, pyr[i]);
+                } else {
+                    Core.multiply(pyr[i], ZERO, pyr[i]);
+                }
+                lambda /= 2.0;
             }
 
             // rebuild frame from Laplacian pyramid
@@ -138,8 +160,7 @@ public class EvmLpyrIIR extends Evm {
             // add back to original frame
             Core.add(frameFloat, outputFloat, outputFloat);
 
-            // convert back to RGBA
-            Imgproc.cvtColor(outputFloat, outputFloat, Imgproc.COLOR_YUV2RGB);
+            // add back alpha channel and convert to 8 bit
             Imgproc.cvtColor(outputFloat, outputFloat, Imgproc.COLOR_RGB2RGBA);
             outputFloat.convertTo(output, CvType.CV_8U);
         }
@@ -180,7 +201,7 @@ public class EvmLpyrIIR extends Evm {
 
     private void reconLpyr(Mat[] pyr, Mat o) {
         pyr[pyr.length - 1].copyTo(o);
-        for (int i = pyr.length; i > 0; i--) {
+        for (int i = pyr.length - 1; i > 0; i--) {
             Imgproc.pyrUp(o, o);
             Imgproc.resize(o, o, pyr[i-1].size());
             Core.add(pyr[i-1], o, o);

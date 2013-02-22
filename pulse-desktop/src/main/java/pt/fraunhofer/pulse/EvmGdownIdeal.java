@@ -22,13 +22,13 @@ public class EvmGdownIdeal extends Evm {
         super(filename);
     }
 
-    private static final float MIN_FACE_SIZE = 0.3f;
-    private static final int RATE = 30; // TODO calculate fps
-    private static final int BLUR_LEVEL = 4;
-    private static final float F_LOW = 45/60f;
-    private static final float F_HIGH = 240/60f;
-    private static final int WINDOW_SIZE = 30; // TODO alter to have a varying size
-    private static final Scalar ALPHA = Scalar.all(50);
+    private static final double MIN_FACE_SIZE   = 0.3f;
+    private static final int    RATE            = 30; // TODO calculate fps
+    private static final int    BLUR_LEVEL      = 4;
+    private static final double F_LOW           = 45/60f;
+    private static final double F_HIGH          = 240/60f;
+    private static final int    WINDOW_SIZE     = 30;
+    private static final Scalar ALPHA           = Scalar.all(50);
 
     private static final int F_LOW_FRAME = (int) (F_LOW/RATE*WINDOW_SIZE + 1);
     private static final int F_HIGH_FRAME = (int) (F_HIGH/RATE*WINDOW_SIZE + 1);
@@ -90,9 +90,9 @@ public class EvmGdownIdeal extends Evm {
         Imgproc.cvtColor(frame, gray, Imgproc.COLOR_RGB2GRAY);
         faceDetector.detectMultiScale(gray, faces, 1.1, 2, 0, minFaceSize, maxFaceSize);
 
-        // convert to YUV color space
+        // convert to float and remove alpha channel
         frame.convertTo(frameFloat, CvType.CV_32F);
-        Imgproc.cvtColor(frameFloat, frameFloat, Imgproc.COLOR_RGB2YUV);
+        Imgproc.cvtColor(frameFloat, frameFloat, Imgproc.COLOR_RGBA2RGB);
 
         // apply spatial filter: blur and downsample
         frameFloat.copyTo(blurred);
@@ -105,7 +105,7 @@ public class EvmGdownIdeal extends Evm {
 
             // create window for frames
             if (window.empty()) {
-                window.create(blurred.width() * blurred.height(), WINDOW_SIZE, CvType.CV_32FC(blurred.channels()));
+                window.create(blurred.width() * blurred.height(), WINDOW_SIZE, blurred.type());
             }
             putToWindow(window, blurred, t);
         } else {
@@ -141,7 +141,7 @@ public class EvmGdownIdeal extends Evm {
             // add back to original frame
             Core.add(frameFloat, outputFloat, outputFloat);
 
-            Imgproc.cvtColor(outputFloat, outputFloat, Imgproc.COLOR_YUV2RGB);
+            // add back alpha channel and convert to 8 bit
             Imgproc.cvtColor(outputFloat, outputFloat, Imgproc.COLOR_RGB2RGBA);
             outputFloat.convertTo(output, CvType.CV_8U);
         }
