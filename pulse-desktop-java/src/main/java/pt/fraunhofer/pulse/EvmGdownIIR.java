@@ -90,7 +90,7 @@ public class EvmGdownIIR extends Evm {
             Imgproc.pyrDown(blurred, blurred);
         }
 
-        // apply temporal filter: substraction of two IIR lowpass filters
+        // apply temporal filter: subtraction of two IIR lowpass filters
         if (0 == t) {
             blurred.copyTo(lowpassHigh);
             blurred.copyTo(lowpassLow);
