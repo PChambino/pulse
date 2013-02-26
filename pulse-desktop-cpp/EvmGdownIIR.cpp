@@ -1,4 +1,8 @@
 #include "EvmGdownIIR.h"
+#include <sstream>
+
+static Scalar RED(0, 0, 255);
+static Scalar BLUE(255, 0, 0);
 
 EvmGdownIIR::EvmGdownIIR() {
     first = true;
@@ -7,6 +11,7 @@ EvmGdownIIR::EvmGdownIIR() {
     fHigh = 60/60./10;
     alpha = 200;
     minFaceSizePercentage = 0.3;
+    t = 0;
 }
 
 EvmGdownIIR::~EvmGdownIIR() {
@@ -64,6 +69,21 @@ void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
     classifier.detectMultiScale(src, faces, 1.1, 2, 0, minFaceSize);
 
     for (int i = 0; i < faces.size(); i++) {
-        rectangle(out, faces.at(i), Scalar(255, 0, 0), 2);
+        const Rect& face = faces.at(i);
+        rectangle(out, face, BLUE, 2);
+        point(out, face.tl() + Point(face.size().width * .5, face.size().height * 0.2));
     }
+
+    t++;
+}
+
+void EvmGdownIIR::point(Mat& frame, const Point& p) {
+    static stringstream ss;
+    if (t % 10 == 0) {
+        int value = frame.at<Vec3b>(p)[2];
+        ss.str("");
+        ss << value;
+    }
+    circle(frame, p, 4, RED, 8);
+    putText(frame, ss.str(), Point(p.x+10, p.y), CV_FONT_HERSHEY_PLAIN, 2, BLUE);
 }

@@ -35,7 +35,7 @@ public class App {
         reader.addListener(ToolFactory.makeViewer(IMediaViewer.Mode.FAST_VIDEO_ONLY, false, JFrame.EXIT_ON_CLOSE));
 
         // writer
-//        reader.addListener(ToolFactory.makeWriter("out.mov", reader));
+        reader.addListener(ToolFactory.makeWriter("out.mov", reader));
 
         while (reader.readPacket() == null) {}
         System.exit(0);

@@ -15,6 +15,7 @@ public:
     void start(int width, int height);
     void onFrame(const Mat& src, Mat& out);
 
+    bool first;
     int blurLevel;
     double fHigh;
     double fLow;
@@ -22,7 +23,9 @@ public:
     double minFaceSizePercentage;
 
 private:
-    bool first;
+    void point(Mat& frame, const Point& p);
+
+    uint64 t;
     Size srcSize;
     Mat srcFloat;
     Mat blurred;

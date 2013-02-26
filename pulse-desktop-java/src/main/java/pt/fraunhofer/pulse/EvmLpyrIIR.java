@@ -23,8 +23,8 @@ public class EvmLpyrIIR extends Evm {
     private static final double MIN_FACE_SIZE   = 0.3;
     private static final double F_LOW           = 45/60.0/10;
     private static final double F_HIGH          = 240/60.0/10;
-    private static final double CUTOFF          = 30;
-    private static final Scalar ALPHA           = Scalar.all(20);
+    private static final double CUTOFF          = 60;
+    private static final Scalar ALPHA           = Scalar.all(30);
 
     private int pyrLevel;
 

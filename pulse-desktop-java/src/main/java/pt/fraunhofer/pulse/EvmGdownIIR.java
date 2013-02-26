@@ -20,11 +20,11 @@ public class EvmGdownIIR extends Evm {
         super(filename);
     }
 
-    private static final double MIN_FACE_SIZE   = 0.3f;
+    private static final double MIN_FACE_SIZE   = 0.3;
     private static final int    BLUR_LEVEL      = 4;
-    private static final double F_LOW           = 45/60.0f/10;
-    private static final double F_HIGH          = 240/60.0f/10;
-    private static final Scalar ALPHA           = Scalar.all(50);
+    private static final double F_LOW           = 50/60./10;
+    private static final double F_HIGH          = 60/60./10;
+    private static final Scalar ALPHA           = Scalar.all(200);
 
     private int t;
     private Point point;
