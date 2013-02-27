@@ -7,7 +7,7 @@
 using namespace std;
 using namespace cv;
 
-static void writeVideo(VideoCapture capture, const Mat& frame);
+static void writeVideo(VideoCapture& capture, const Mat& frame);
 
 int main(int argc, char** argv) {
 
@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
 
         window.update(frame);
         
-//        writeVideo(capture, frame);
+        writeVideo(capture, frame);
 
         if (waitKey(1) == 27) {
             return 0;
