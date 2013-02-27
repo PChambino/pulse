@@ -1,5 +1,6 @@
 #include "Window.h"
 #include "EvmGdownIIR.h"
+#include "colors.h"
 
 Window::Window(EvmGdownIIR& evm) :
 evm(evm),
@@ -42,16 +43,16 @@ void Window::update(Mat& frame) {
 void Window::showTrackbarValues(Mat& frame) {
     static stringstream ss;
     ss << TRACKBAR_BLUR_NAME << ": " << TRACKBAR_BLUR;
-    putText(frame, ss.str(), Point(10, 30), FONT_HERSHEY_PLAIN, 1, Scalar(255, 0, 0));
+    putText(frame, ss.str(), Point(10, 30), FONT_HERSHEY_PLAIN, 1, BLUE);
     ss.str("");
     ss << TRACKBAR_F_HIGH_NAME << ": " << TRACKBAR_F_HIGH;
-    putText(frame, ss.str(), Point(10, 45), FONT_HERSHEY_PLAIN, 1, Scalar(255, 0, 0));
+    putText(frame, ss.str(), Point(10, 45), FONT_HERSHEY_PLAIN, 1, BLUE);
     ss.str("");
     ss << TRACKBAR_F_LOW_NAME << ": " << TRACKBAR_F_LOW;
-    putText(frame, ss.str(), Point(10, 60), FONT_HERSHEY_PLAIN, 1, Scalar(255, 0, 0));
+    putText(frame, ss.str(), Point(10, 60), FONT_HERSHEY_PLAIN, 1, BLUE);
     ss.str("");
     ss << TRACKBAR_ALPHA_NAME << ": " << TRACKBAR_ALPHA;
-    putText(frame, ss.str(), Point(10, 75), FONT_HERSHEY_PLAIN, 1, Scalar(255, 0, 0));
+    putText(frame, ss.str(), Point(10, 75), FONT_HERSHEY_PLAIN, 1, BLUE);
     ss.str("");
 }
 
@@ -61,12 +62,11 @@ void Window::showFPS(Mat& frame) {
     static double lastFpsTime = (double)getTickCount();
     static string fpsStr;
     static Point point(10, 15);
-    static Scalar color(255, 0, 0);
 
     frameCounter++;
 
     if ((frameCounter % 30) != 0) {
-        putText(frame, fpsStr, point, FONT_HERSHEY_PLAIN, 1, color);
+        putText(frame, fpsStr, point, FONT_HERSHEY_PLAIN, 1, BLUE);
         return;
     }
 
@@ -87,5 +87,5 @@ void Window::showFPS(Mat& frame) {
     ss << "FPS: " << fps;
     fpsStr = ss.str();
 
-    putText(frame, fpsStr, point, FONT_HERSHEY_PLAIN, 1, color);
+    putText(frame, fpsStr, point, FONT_HERSHEY_PLAIN, 1, BLUE);
 }

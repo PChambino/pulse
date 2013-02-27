@@ -1,8 +1,7 @@
 #include "EvmGdownIIR.h"
+#include "Window.h"
+#include "colors.h"
 #include <sstream>
-
-static Scalar RED(0, 0, 255);
-static Scalar BLUE(255, 0, 0);
 
 EvmGdownIIR::EvmGdownIIR() {
     first = true;
@@ -78,12 +77,17 @@ void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
 }
 
 void EvmGdownIIR::point(Mat& frame, const Point& p) {
-    static stringstream ss;
-    if (t % 10 == 0) {
-        int value = frame.at<Vec3b>(p)[2];
-        ss.str("");
-        ss << value;
+    static vector<Vec3b> pulse;
+
+    pulse.push_back(frame.at<Vec3b>(p));
+
+    int w = pulse.size() - frame.cols;
+    for (int i = max(0, w); i < pulse.size(); i++) {
+        int x = i - w;
+        line(frame, Point(x, pulse[i][2]), Point(x, pulse[i][2]), RED);
+        line(frame, Point(x, pulse[i][1]), Point(x, pulse[i][1]), GREEN);
+        line(frame, Point(x, pulse[i][0]), Point(x, pulse[i][0]), BLUE);
     }
-    circle(frame, p, 4, RED, 8);
-    putText(frame, ss.str(), Point(p.x+10, p.y), CV_FONT_HERSHEY_PLAIN, 2, BLUE);
+
+    circle(frame, p, 2, RED, 4);
 }
