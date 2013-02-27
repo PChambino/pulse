@@ -78,15 +78,15 @@ void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
 
 void EvmGdownIIR::point(Mat& frame, const Point& p) {
     static vector<Vec3b> pulse;
+    static Point g;
 
     pulse.push_back(frame.at<Vec3b>(p));
 
     int w = pulse.size() - frame.cols;
     for (int i = max(0, w); i < pulse.size(); i++) {
-        int x = i - w;
-        line(frame, Point(x, pulse[i][2]), Point(x, pulse[i][2]), RED);
-        line(frame, Point(x, pulse[i][1]), Point(x, pulse[i][1]), GREEN);
-        line(frame, Point(x, pulse[i][0]), Point(x, pulse[i][0]), BLUE);
+        g.x = i - w;
+        g.y = pulse[i][1];
+        line(frame, g, g, GREEN);
     }
 
     circle(frame, p, 2, RED, 4);

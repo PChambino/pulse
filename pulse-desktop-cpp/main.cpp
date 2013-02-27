@@ -11,8 +11,8 @@ static void writeVideo(VideoCapture capture, const Mat& frame);
 
 int main(int argc, char** argv) {
 
-//    VideoCapture capture("../../vidmagSIGGRAPH2012/face_source_timecode.wmv");
-    VideoCapture capture(0);
+    VideoCapture capture("../../vidmagSIGGRAPH2012/face_source_timecode.wmv");
+//    VideoCapture capture(0);
 
     const double FPS = capture.get(CV_CAP_PROP_FPS);
     const int WIDTH = capture.get(CV_CAP_PROP_FRAME_WIDTH);
