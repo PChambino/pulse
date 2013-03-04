@@ -133,13 +133,18 @@ void meanFilter(InputArray _a, OutputArray _b, Size s = Size(5, 5)) {
 
 template<typename T>
 int countZeros(InputArray _a) {
-    CV_Assert(_a.total() == max(_a.size().width, _a.size().height));
+    CV_Assert(_a.channels() == 1 && _a.total() == max(_a.size().width, _a.size().height));
 
-    Mat a = _a.getMat();
     int count = 0;
-    for (int i = 1; i < a.total(); i++) {
-        if ((a.at<T>(i-1) < 0 && a.at<T>(i) >= 0) || (a.at<T>(i-1) > 0 && a.at<T>(i) <= 0)) {
-            count++;
+    if (_a.total() > 0) {
+        Mat a = _a.getMat();
+        T last = a.at<T>(0);
+        for (int i = 1; i < a.total(); i++) {
+            T current = a.at<T>(i);
+            if ((last < 0 && current >= 0) || (last > 0 && current <= 0)) {
+                count++;
+            }
+            last = current;
         }
     }
     return count;
