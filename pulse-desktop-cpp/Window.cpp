@@ -17,7 +17,7 @@ TRACKBAR_ALPHA(evm.alpha) {
     createTrackbar(TRACKBAR_BLUR_NAME, WINDOW_NAME, &TRACKBAR_BLUR, 8);
     createTrackbar(TRACKBAR_F_HIGH_NAME, WINDOW_NAME, &TRACKBAR_F_HIGH, 240);
     createTrackbar(TRACKBAR_F_LOW_NAME, WINDOW_NAME, &TRACKBAR_F_LOW, 240);
-    createTrackbar(TRACKBAR_ALPHA_NAME, WINDOW_NAME, &TRACKBAR_ALPHA, 400);
+    createTrackbar(TRACKBAR_ALPHA_NAME, WINDOW_NAME, &TRACKBAR_ALPHA, 1000);
 }
 
 Window::~Window() {
@@ -41,7 +41,7 @@ void Window::update(Mat& frame) {
 }
 
 void Window::showTrackbarValues(Mat& frame) {
-    static stringstream ss;
+    stringstream ss;
     ss << TRACKBAR_BLUR_NAME << ": " << TRACKBAR_BLUR;
     putText(frame, ss.str(), Point(10, 30), FONT_HERSHEY_PLAIN, 1, BLUE);
     ss.str("");
@@ -67,25 +67,21 @@ void Window::showFPS(Mat& frame) {
 
     if ((frameCounter % 30) != 0) {
         putText(frame, fpsStr, point, FONT_HERSHEY_PLAIN, 1, BLUE);
-        return;
+    } else {
+        double now = (double)getTickCount();
+        double diff = (now - lastFpsTime) * 1000. / getTickFrequency();
+
+        if (diff > 0) {
+            double fps = (frameCounter - lastFrameCounter) * 1000 / diff;
+            lastFrameCounter = frameCounter;
+            lastFpsTime = now;
+
+            stringstream ss;
+            ss.precision(3);
+            ss << "FPS: " << fps;
+            fpsStr = ss.str();
+
+            putText(frame, fpsStr, point, FONT_HERSHEY_PLAIN, 1, BLUE);
+        }
     }
-
-    double now = (double)getTickCount();
-    double diff = (now - lastFpsTime) * 1000. / getTickFrequency();
-
-    if (diff == 0) {
-        return;
-    }
-
-    double fps = (frameCounter - lastFrameCounter) * 1000 / diff;
-    lastFrameCounter = frameCounter;
-    lastFpsTime = now;
-
-    static stringstream ss;
-    ss.str("");
-    ss.precision(3);
-    ss << "FPS: " << fps;
-    fpsStr = ss.str();
-
-    putText(frame, fpsStr, point, FONT_HERSHEY_PLAIN, 1, BLUE);
 }
