@@ -25,7 +25,7 @@ public:
     double minFaceSizePercentage;
 
 private:
-    void point(Mat& frame, const Point& p);
+    void face(Mat& frame, const Rect& face);
 
     uint64 t;
     Size srcSize;

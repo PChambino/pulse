@@ -1,6 +1,6 @@
 #include "Window.h"
 #include "EvmGdownIIR.h"
-#include "colors.h"
+#include "ext_opencv.h"
 
 Window::Window(EvmGdownIIR& evm) :
 evm(evm),

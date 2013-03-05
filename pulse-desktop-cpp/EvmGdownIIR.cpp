@@ -1,6 +1,6 @@
 #include "EvmGdownIIR.h"
 #include "Window.h"
-#include "colors.h"
+#include "ext_opencv.h"
 
 EvmGdownIIR::EvmGdownIIR() {
     first = true;
@@ -25,6 +25,9 @@ void EvmGdownIIR::start(int width, int height) {
 }
 
 void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
+    // count frames
+    t++;
+
     // convert to float
     src.convertTo(srcFloat, CV_32F);
 
@@ -67,135 +70,81 @@ void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
     classifier.detectMultiScale(src, faces, 1.1, 3, 0, minFaceSize);
 
     for (int i = 0; i < faces.size(); i++) {
-        const Rect& face = faces.at(i);
-        rectangle(out, face, BLUE, 2);
-        point(out, face.tl() + Point(face.size().width * .5, face.size().height * 0.15));
-    }
-
-    t++;
-}
-
-template<typename T>
-void printMat(const string& name, InputArray _a) {
-    Mat a = _a.getMat();
-    cout << name << ": " << a.rows << "x" << a.cols << "x" << a.channels() << endl;
-    for (int y = 0; y < a.rows; y++) {
-        cout << "[";
-        for (int x = 0; x < a.cols; x++) {
-            T* e = &a.at<T>(y, x);
-            cout << "(" << e[0];
-            for (int c = 1; c < a.channels(); c++) {
-                cout << ", " << e[c];
-            }
-            cout << ")";
-        }
-        cout << "]" << endl;
-    }
-    cout << endl;
-}
-
-void detrend(InputArray _z, OutputArray _r, int lambda = 10) {
-    CV_Assert((_z.type() == CV_32F || _z.type() == CV_64F)
-            && _z.total() == max(_z.size().width, _z.size().height));
-
-    Mat z = _z.getMat();
-    if (z.total() < 3) {
-        z.copyTo(_r);
-    } else {
-        int t = z.total();
-        Mat i = Mat::eye(t, t, z.type());
-        Mat d = _z.type() == CV_32F ? Mat(Matx13f(1, -2, 1)) : Mat(Matx13d(1, -2, 1));
-        Mat d2Aux = Mat::ones(t-2, 1, z.type()) * d;
-        Mat d2 = Mat::zeros(t-2, t, z.type());
-        for (int k = 0; k < 3; k++) {
-            d2Aux.col(k).copyTo(d2.diag(k));
-        }
-        Mat r = (i - (i + pow((double)lambda, 2) * d2.t() * d2).inv()) * z.t();
-        r.copyTo(_r);
-    }
-}
-
-void normalization(InputArray _a, OutputArray _b) {
-    _a.getMat().copyTo(_b);
-    Mat b = _b.getMat();
-    Scalar mean, stdDev;
-    meanStdDev(b, mean, stdDev);
-    b = (b - mean[0]) / stdDev[0];
-}
-
-void meanFilter(InputArray _a, OutputArray _b, Size s = Size(5, 5)) {
-    _a.getMat().copyTo(_b);
-    Mat b = _b.getMat();
-    for (int i = 0 ; i < 3; i++) {
-        blur(b, b, s);
-    }
-}
-
-template<typename T>
-int countZeros(InputArray _a) {
-    CV_Assert(_a.channels() == 1 && _a.total() == max(_a.size().width, _a.size().height));
-
-    int count = 0;
-    if (_a.total() > 0) {
-        Mat a = _a.getMat();
-        T last = a.at<T>(0);
-        for (int i = 1; i < a.total(); i++) {
-            T current = a.at<T>(i);
-            if ((last < 0 && current >= 0) || (last > 0 && current <= 0)) {
-                count++;
-            }
-            last = current;
+        rectangle(out, faces.at(i), BLUE, 2);
+        if (0 == i) { // TODO support multiple faces
+            face(out, faces.at(i));
         }
     }
-    return count;
 }
 
-void EvmGdownIIR::point(Mat& frame, const Point& p) {
+void EvmGdownIIR::face(Mat& frame, const Rect& face) {
     // TODO extract static variables to class
-    static vector<double> timestamps;
-    static vector<double> green;
-    static vector<double> detrended;
-    
-    static vector<double> frequency;
-    static vector<double> amplitude;
-    static vector<double> power;
+    static Mat1d timestamps;
+    static Mat1d green;
+    static Mat1d detrended;
+    static Mat1d powerSpectrum;
+    static Mat1d pulse;
+    static string bpmStr;
 
-    timestamps.push_back(getTickCount());
-    green.push_back(frame.at<Vec3b>(p)[1]);
-    if (green.size() > 100) { // TODO extract constant to class?
-        timestamps.erase(timestamps.begin());
-        green.erase(green.begin()); // TODO improve performance
+    Point p = face.tl() + Point(face.size().width * .5, face.size().height * 0.15);
+
+    const int total = green.total();
+    if (total >= 100) { // TODO extract constant to class?
+        timestamps.rowRange(1, total).copyTo(timestamps.rowRange(0, total-1));
+        green.rowRange(1, total).copyTo(green.rowRange(0, total-1));
+        timestamps.pop_back();
+        green.pop_back();
     }
+    timestamps.push_back<double>(getTickCount());
+    green.push_back<double>(frame.at<Vec3b>(p)[1]);
+
     detrend(green, detrended);
     normalization(detrended, detrended);
     meanFilter(detrended, detrended);
 
-//    if (t % 30 == 0) { // TODO extract constant to class?
-//        dft(green, amplitude);
-//        amplitude.erase(amplitude.begin() + amplitude / 2, amplitude.end());
-//        pow(amplitude, 2, power);
-//        for (int i = 0; i < amplitude; i++) {
-//            // merge frequency and power for sorting?
-//        }
-//        printMat<double>("dft", amplitude);
-//    }
+    if (t % 30 == 0) { // TODO extract constant to class?
+        const double diff = (timestamps(total-1) - timestamps(0)) * 1000. / getTickFrequency();
+        const double fps = total * 1000 / diff;
+        // TODO extract constants to class?
+        const int low = total * 45./60./fps + 1;
+        const int high = total * 240./60./fps + 1;
 
+        dft(green, powerSpectrum);
+
+        // band limit
+        powerSpectrum.rowRange(0, low) = ZERO;
+        powerSpectrum.pop_back(min(total - high, total));
+
+        // power spectrum
+        pow(powerSpectrum, 2, powerSpectrum);
+
+        if (!powerSpectrum.empty()) {
+            // grab index of max power spectrum
+            int idx[2];
+            minMaxIdx(powerSpectrum, 0, 0, 0, &idx[0]);
+
+            // calculate BPM
+            const double bpm = idx[0] * fps * 60. / total;
+            pulse.push_back(bpm);
+
+            stringstream ss;
+            ss.str("");
+            ss.precision(3);
+            ss << "BPM:  " << bpm;
+            bpmStr = ss.str();
+        }
+    }
+
+    // draw some stuff
+    Point bl = face.tl() + Point(0, face.height);
     Point g;
-    int w = green.size() - frame.cols;
-    for (int i = max(0, w); i < green.size(); i++) {
-        g.x = i - w;
-        g.y = green[i];
+    for (int i = 0; i < total; i++) {
+        g = bl + Point(i, -green(i) + 50);
         line(frame, g, g, GREEN);
-        g.y = detrended[i] * 10 + 100; // scaling
+        g = bl + Point(i, -detrended(i) * 10 - 50);
         line(frame, g, g, RED);
     }
 
-    int count = countZeros<double>(detrended);
-    double diff = (timestamps.back() - timestamps.front()) * 1000. / getTickFrequency();
-    double bpm = count * 60000 / diff;
-    stringstream ss;
-    ss.precision(4);
-    ss << bpm;
-    putText(frame, ss.str(), Point(frame.cols - 50, 15), FONT_HERSHEY_PLAIN, 1, RED);
+    putText(frame, bpmStr, bl, FONT_HERSHEY_PLAIN, 1, RED);
     circle(frame, p, 2, RED, 4);
 }
