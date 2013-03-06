@@ -111,10 +111,10 @@ int countZeros(InputArray _a) {
 
 inline void interpolate(const Rect& a, const Rect& b, Rect& c, double p) {
     double np = 1 - p;
-    c.x = a.x * np + b.x * p;
-    c.y = a.y * np + b.y * p;
-    c.width = a.width * np + b.width * p;
-    c.height = a.height * np + b.height * p;
+    c.x = a.x * np + b.x * p + 0.5;
+    c.y = a.y * np + b.y * p + 0.5;
+    c.width = a.width * np + b.width * p + 0.5;
+    c.height = a.height * np + b.height * p + 0.5;
 }
 
 }

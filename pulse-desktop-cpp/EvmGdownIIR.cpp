@@ -28,21 +28,12 @@ void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
     // count frames
     t++;
 
-    // detect face
+    // detect faces
     cvtColor(src, gray, CV_RGB2GRAY);
     classifier.detectMultiScale(src, faces, 1.1, 3, 0, minFaceSize);
 
-    if (faces.empty()) {
-        src.copyTo(out);
-        return;
-    }
-
-    static Rect faceRect = faces.front();
-    interpolate(faceRect, faces.front(), faceRect, 0.05);
-
     // convert to float
-//    src.convertTo(srcFloat, CV_32F);
-    src(faceRect).convertTo(srcFloat, CV_32F);
+    src.convertTo(srcFloat, CV_32F);
 
     // apply spatial filter: blur and downsample
     srcFloat.copyTo(blurred);
@@ -50,15 +41,13 @@ void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
         pyrDown(blurred, blurred);
     }
 
-    // apply temporal filter: subtraction of two IIR lowpass filters
     if (first) {
         first = false;
         blurred.copyTo(lowpassHigh);
         blurred.copyTo(lowpassLow);
         src.copyTo(out);
     } else {
-        resize(blurred, blurred, lowpassHigh.size());
-
+        // apply temporal filter: subtraction of two IIR lowpass filters
         lowpassHigh = lowpassHigh * (1-fHigh) + fHigh * blurred;
         lowpassLow = lowpassLow * (1-fLow) + fLow * blurred;
 
@@ -71,33 +60,30 @@ void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
         for (int i = 0; i < blurLevel; i++) {
             pyrUp(blurred, blurred);
         }
-//        resize(blurred, blurred, srcSize);
-        resize(blurred, blurred, faceRect.size());
+        resize(blurred, blurred, srcSize);
 
         // add back to original frame
         blurred += srcFloat;
 
         // convert to 8 bit
-//        blurred.convertTo(out, CV_8U);
-        blurred.convertTo(blurred, CV_8U);
-
-        src.copyTo(out);
-        blurred.copyTo(out(faceRect));
+        blurred.convertTo(out, CV_8U);
     }
 
     // iterate through faces
-    rectangle(out, faceRect, BLUE, 2);
-    face(out, faceRect);
-//    for (int i = 0; i < faces.size(); i++) {
-//        rectangle(out, faces.at(i), BLUE, 2);
-//        if (0 == i) { // TODO support multiple faces
-//            face(out, faces.at(i));
-//        }
-//    }
+    for (int i = 0; i < faces.size(); i++) {
+        rectangle(out, faces.at(i), BLUE);
+        stringstream ss;
+        ss << i;
+        putText(out, ss.str(), faces.at(i).tl() + Point(5, 15), FONT_HERSHEY_PLAIN, 1, BLUE);
+    }
+    // TODO support multiple faces
+    face(out, faces.front());
 }
 
 void EvmGdownIIR::face(Mat& frame, const Rect& face) {
     // TODO extract static variables to class
+    static Rect f = face;
+    static Rect roi;
     static Mat1d timestamps;
     static Mat1d green;
     static Mat1d detrended;
@@ -105,7 +91,12 @@ void EvmGdownIIR::face(Mat& frame, const Rect& face) {
     static Mat1d pulse;
     static string bpmStr;
 
-    Point p = face.tl() + Point(face.size().width * .5, face.size().height * 0.15);
+    {
+        interpolate(f, face, f, 0.05);
+        Point p = f.tl() + Point(f.size().width * .5, f.size().height * 0.15);
+        Point s(f.width * 0.05, f.height * 0.025);
+        roi = Rect(p - s, p + s);
+    }
 
     const int total = green.total();
     if (total >= 100) { // TODO extract constant to class?
@@ -115,7 +106,7 @@ void EvmGdownIIR::face(Mat& frame, const Rect& face) {
         green.pop_back();
     }
     timestamps.push_back<double>(getTickCount());
-    green.push_back<double>(frame.at<Vec3b>(p)[1]);
+    green.push_back<double>(mean(frame(roi))[1]);
 
     detrend(green, detrended);
     normalization(detrended, detrended);
@@ -154,7 +145,10 @@ void EvmGdownIIR::face(Mat& frame, const Rect& face) {
     }
 
     // draw some stuff
-    Point bl = face.tl() + Point(0, face.height);
+    rectangle(frame, f, BLUE, 2);
+    rectangle(frame, roi, RED);
+
+    Point bl = f.tl() + Point(0, f.height);
     Point g;
     for (int i = 0; i < total; i++) {
         g = bl + Point(i, -green(i) + 50);
@@ -164,5 +158,4 @@ void EvmGdownIIR::face(Mat& frame, const Rect& face) {
     }
 
     putText(frame, bpmStr, bl, FONT_HERSHEY_PLAIN, 1, RED);
-    circle(frame, p, 2, RED, 4);
 }
