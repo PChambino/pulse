@@ -109,6 +109,14 @@ int countZeros(InputArray _a) {
     return count;
 }
 
+inline void interpolate(const Rect& a, const Rect& b, Rect& c, double p) {
+    double np = 1 - p;
+    c.x = a.x * np + b.x * p;
+    c.y = a.y * np + b.y * p;
+    c.width = a.width * np + b.width * p;
+    c.height = a.height * np + b.height * p;
+}
+
 }
 
 #endif	/* COLORS_H */

@@ -28,8 +28,21 @@ void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
     // count frames
     t++;
 
+    // detect face
+    cvtColor(src, gray, CV_RGB2GRAY);
+    classifier.detectMultiScale(src, faces, 1.1, 3, 0, minFaceSize);
+
+    if (faces.empty()) {
+        src.copyTo(out);
+        return;
+    }
+
+    static Rect faceRect = faces.front();
+    interpolate(faceRect, faces.front(), faceRect, 0.05);
+
     // convert to float
-    src.convertTo(srcFloat, CV_32F);
+//    src.convertTo(srcFloat, CV_32F);
+    src(faceRect).convertTo(srcFloat, CV_32F);
 
     // apply spatial filter: blur and downsample
     srcFloat.copyTo(blurred);
@@ -44,6 +57,8 @@ void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
         blurred.copyTo(lowpassLow);
         src.copyTo(out);
     } else {
+        resize(blurred, blurred, lowpassHigh.size());
+
         lowpassHigh = lowpassHigh * (1-fHigh) + fHigh * blurred;
         lowpassLow = lowpassLow * (1-fLow) + fLow * blurred;
 
@@ -56,25 +71,29 @@ void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
         for (int i = 0; i < blurLevel; i++) {
             pyrUp(blurred, blurred);
         }
-        resize(blurred, blurred, srcSize);
+//        resize(blurred, blurred, srcSize);
+        resize(blurred, blurred, faceRect.size());
 
         // add back to original frame
         blurred += srcFloat;
 
         // convert to 8 bit
-        blurred.convertTo(out, CV_8U);
+//        blurred.convertTo(out, CV_8U);
+        blurred.convertTo(blurred, CV_8U);
+
+        src.copyTo(out);
+        blurred.copyTo(out(faceRect));
     }
 
-    // detect face
-    cvtColor(src, gray, CV_RGB2GRAY);
-    classifier.detectMultiScale(src, faces, 1.1, 3, 0, minFaceSize);
-
-    for (int i = 0; i < faces.size(); i++) {
-        rectangle(out, faces.at(i), BLUE, 2);
-        if (0 == i) { // TODO support multiple faces
-            face(out, faces.at(i));
-        }
-    }
+    // iterate through faces
+    rectangle(out, faceRect, BLUE, 2);
+    face(out, faceRect);
+//    for (int i = 0; i < faces.size(); i++) {
+//        rectangle(out, faces.at(i), BLUE, 2);
+//        if (0 == i) { // TODO support multiple faces
+//            face(out, faces.at(i));
+//        }
+//    }
 }
 
 void EvmGdownIIR::face(Mat& frame, const Rect& face) {
@@ -128,7 +147,6 @@ void EvmGdownIIR::face(Mat& frame, const Rect& face) {
             pulse.push_back(bpm);
 
             stringstream ss;
-            ss.str("");
             ss.precision(3);
             ss << "BPM:  " << bpm;
             bpmStr = ss.str();
