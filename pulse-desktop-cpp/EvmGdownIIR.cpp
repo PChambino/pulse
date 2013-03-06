@@ -77,7 +77,9 @@ void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
         putText(out, ss.str(), faces.at(i).tl() + Point(5, 15), FONT_HERSHEY_PLAIN, 1, BLUE);
     }
     // TODO support multiple faces
-    face(out, faces.front());
+    if (faces.empty()) {
+        face(out, faces.front());
+    }
 }
 
 void EvmGdownIIR::face(Mat& frame, const Rect& face) {
