@@ -1,85 +1,50 @@
-#include "EvmGdownIIR.hpp"
-#include "Window.hpp"
-#include "ext_opencv.hpp"
+#include "Pulse.hpp"
+#include <sstream>
+#include <opencv2/imgproc/imgproc.hpp>
+#include "ext/opencv.hpp"
 
-EvmGdownIIR::EvmGdownIIR() {
-    t = 0;
-    blurLevel = 4;
-    fLow = 50/60./10;
-    fHigh = 60/60./10;
-    alpha = 200;
-    minFaceSize = 0.3;
+using std::stringstream;
+using namespace cv;
+
+Pulse::Pulse() {
+    relativeMinFaceSize = 0.3;
 }
 
-EvmGdownIIR::~EvmGdownIIR() {
+Pulse::~Pulse() {
 }
 
-void EvmGdownIIR::load(const string& filename) {
+void Pulse::load(const string& filename) {
     classifier.load(filename);
 }
 
-void EvmGdownIIR::start(int width, int height) {
+void Pulse::start(int width, int height) {
     t = 0;
-    srcSize = Size(width, height);
-    _minFaceSize = Size(width * minFaceSize, height * minFaceSize);
+    minFaceSize = Size(width * relativeMinFaceSize, height * relativeMinFaceSize);
 }
 
-void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
+void Pulse::onFrame(const Mat& src, Mat& out) {
     // count frames
     t++;
 
     // detect faces
     cvtColor(src, gray, CV_RGB2GRAY);
-    classifier.detectMultiScale(src, _faces, 1.1, 3, 0, _minFaceSize);
-
-    // convert to float
-    src.convertTo(srcFloat, CV_32F);
-
-    // apply spatial filter: blur and downsample
-    srcFloat.copyTo(blurred);
-    for (int i = 0; i < blurLevel; i++) {
-        pyrDown(blurred, blurred);
-    }
-
-    if (isFirstFrame()) {
-        blurred.copyTo(lowpassHigh);
-        blurred.copyTo(lowpassLow);
-        src.copyTo(out);
-    } else {
-        // apply temporal filter: subtraction of two IIR lowpass filters
-        lowpassHigh = lowpassHigh * (1-fHigh) + fHigh * blurred;
-        lowpassLow = lowpassLow * (1-fLow) + fLow * blurred;
-
-        blurred = lowpassHigh - lowpassLow;
-
-        // amplify
-        blurred *= alpha;
-
-        // resize back to original size
-        for (int i = 0; i < blurLevel; i++) {
-            pyrUp(blurred, blurred);
-        }
-        resize(blurred, blurred, srcSize);
-
-        // add back to original frame
-        blurred += srcFloat;
-
-        // convert to 8 bit
-        blurred.convertTo(out, CV_8U);
-    }
-
+    classifier.detectMultiScale(src, boxes, 1.1, 3, 0, minFaceSize);
+    
+    evm.onFrame(src, out);
+    
     // iterate through faces
-    for (int i = 0; i < _faces.size(); i++) {
-        rectangle(out, _faces.at(i), BLUE);
+    for (int i = 0; i < boxes.size(); i++) {
+        rectangle(out, boxes.at(i), BLUE);
     }
+
     // TODO support multiple faces
-    if (!_faces.empty()) {
-        onFace(out, _faces.front());
+    if (!boxes.empty()) {
+        onFace(out, boxes.front());
     }
 }
 
-void EvmGdownIIR::onFace(Mat& frame, const Rect& box) {
-    if (isFirstFrame()) {
+void Pulse::onFace(Mat& frame, const Rect& box) {
+    if (t == 1) {
         face.box = box;
     }
     face.updateBox(box);
@@ -141,11 +106,11 @@ void EvmGdownIIR::onFace(Mat& frame, const Rect& box) {
     stringstream ss;
     ss.precision(3);
     ss << face.bpm;
-    putText(frame, ss.str(), bl, FONT_HERSHEY_PLAIN, 1, RED);
+    putText(frame, ss.str(), bl, FONT_HERSHEY_PLAIN, 2, RED, 2);
 }
 
-void EvmGdownIIR::Face::updateBox(const Rect& _box) {
-    interpolate(box, _box, box, 0.05);
+void Pulse::Face::updateBox(const Rect& a) {
+    interpolate(box, a, box, 0.05);
     Point c = box.tl() + Point(box.size().width * .5, box.size().height * 0.15);
     Point r(box.width * 0.05, box.height * 0.025);
     roi = Rect(c - r, c + r);

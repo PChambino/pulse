@@ -1,27 +1,30 @@
-#ifndef EVMGDOWNIIR_HPP
-#define	EVMGDOWNIIR_HPP
+#ifndef PULSE_HPP
+#define	PULSE_HPP
 
 #include <string>
 #include <vector>
-#include <opencv2/opencv.hpp>
+#include <opencv2/objdetect/objdetect.hpp>
+#include "EvmGdownIIR.hpp"
 
-using namespace std;
-using namespace cv;
+using std::string;
+using std::vector;
+using cv::Mat;
+using cv::Mat1d;
+using cv::Rect;
+using cv::Size;
+using cv::CascadeClassifier;
 
-class EvmGdownIIR {
+class Pulse {
 public:
-    EvmGdownIIR();
-    virtual ~EvmGdownIIR();
-
+    Pulse();
+    virtual ~Pulse();
+    
     void load(const string& filename);
     void start(int width, int height);
     void onFrame(const Mat& src, Mat& out);
 
-    int blurLevel;
-    double fHigh;
-    double fLow;
-    int alpha;
-    double minFaceSize;
+    double relativeMinFaceSize;    
+    EvmGdownIIR evm;
 
     struct Face {
         int id;
@@ -33,26 +36,21 @@ public:
 
         void updateBox(const Rect& box);
     };
-
+    
 private:
-    bool isFirstFrame() { return t == 1; }
     void onFace(Mat& frame, const Rect& face);
-
+    
     uint64 t;
-    Size srcSize;
-    Size _minFaceSize;
+    Size minFaceSize;
     CascadeClassifier classifier;
     Mat gray;
-    Mat srcFloat;
-    Mat blurred;
-    Mat lowpassHigh;
-    Mat lowpassLow;
+    vector<Rect> boxes;
     Mat1d timestamps;
     Mat1d powerSpectrum;
-    vector<Rect> _faces;
     Face face;
+
 
 };
 
-#endif	/* EVMGDOWNIIR_HPP */
+#endif	/* PULSE_HPP */
 

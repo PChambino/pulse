@@ -1,11 +1,14 @@
 #include <iostream>
-#include <opencv2/opencv.hpp>
-
+#include <opencv2/highgui/highgui.hpp>
 #include "EvmGdownIIR.hpp"
+#include "Pulse.hpp"
 #include "Window.hpp"
 
-using namespace std;
-using namespace cv;
+using std::cout;
+using std::endl;
+using cv::VideoCapture;
+using cv::VideoWriter;
+using cv::waitKey;
 
 static void writeVideo(VideoCapture& capture, const Mat& frame);
 
@@ -14,19 +17,21 @@ int main(int argc, char** argv) {
 
 //    VideoCapture capture("../../vidmagSIGGRAPH2012/face.wmv");
 //    VideoCapture capture("../../vidmagSIGGRAPH2012/face2_source.mp4");
-    VideoCapture capture("../../vidmagSIGGRAPH2012/face_source_timecode.wmv");
-//    VideoCapture capture(0);
+//    VideoCapture capture("../../vidmagSIGGRAPH2012/face_source_timecode.wmv");
+    VideoCapture capture(0);
 
-    const double FPS = capture.get(CV_CAP_PROP_FPS);
-    const int WIDTH = capture.get(CV_CAP_PROP_FRAME_WIDTH);
+    const int WIDTH  = capture.get(CV_CAP_PROP_FRAME_WIDTH);
     const int HEIGHT = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
-    cout << "FPS: " << FPS << endl;
+    const double FPS = capture.get(CV_CAP_PROP_FPS);
+    if (FPS != 0) {
+        cout << "FPS: " << FPS << endl;
+    }
 
-    EvmGdownIIR evm;
-    evm.load("lbpcascade_frontalface.xml");
-    evm.start(WIDTH, HEIGHT);
+    Pulse pulse;
+    pulse.load("res/lbpcascade_frontalface.xml");
+    pulse.start(WIDTH, HEIGHT);
 
-    Window window(evm);
+    Window window(pulse);
 
     Mat frame;
     while (true) {
