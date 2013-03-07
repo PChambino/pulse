@@ -1,6 +1,6 @@
-#include "Window.h"
-#include "EvmGdownIIR.h"
-#include "ext_opencv.h"
+#include "Window.hpp"
+#include "EvmGdownIIR.hpp"
+#include "ext_opencv.hpp"
 
 Window::Window(EvmGdownIIR& evm) :
 evm(evm),
@@ -25,7 +25,7 @@ Window::~Window() {
 
 void Window::update(Mat& frame) {
     if (evm.blurLevel != TRACKBAR_BLUR) {
-        evm.first = true;
+        evm.start(frame.cols, frame.rows);
     }
     evm.blurLevel = TRACKBAR_BLUR;
     evm.fHigh = TRACKBAR_F_HIGH / 600.;
@@ -42,18 +42,24 @@ void Window::update(Mat& frame) {
 
 void Window::showTrackbarValues(Mat& frame) {
     stringstream ss;
+
     ss << TRACKBAR_BLUR_NAME << ": " << TRACKBAR_BLUR;
     putText(frame, ss.str(), Point(10, 30), FONT_HERSHEY_PLAIN, 1, BLUE);
+
     ss.str("");
+
     ss << TRACKBAR_F_HIGH_NAME << ": " << TRACKBAR_F_HIGH;
     putText(frame, ss.str(), Point(10, 45), FONT_HERSHEY_PLAIN, 1, BLUE);
+
     ss.str("");
+
     ss << TRACKBAR_F_LOW_NAME << ": " << TRACKBAR_F_LOW;
     putText(frame, ss.str(), Point(10, 60), FONT_HERSHEY_PLAIN, 1, BLUE);
+
     ss.str("");
+
     ss << TRACKBAR_ALPHA_NAME << ": " << TRACKBAR_ALPHA;
     putText(frame, ss.str(), Point(10, 75), FONT_HERSHEY_PLAIN, 1, BLUE);
-    ss.str("");
 }
 
 void Window::showFPS(Mat& frame) {

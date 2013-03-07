@@ -1,5 +1,5 @@
-#ifndef COLORS_H
-#define	COLORS_H
+#ifndef EXT_OPENCV_HPP
+#define	EXT_OPENCV_HPP
 
 #include <opencv2/opencv.hpp>
 
@@ -119,5 +119,5 @@ inline void interpolate(const Rect& a, const Rect& b, Rect& c, double p) {
 
 }
 
-#endif	/* COLORS_H */
+#endif	/* EXT_OPENCV_HPP */
 

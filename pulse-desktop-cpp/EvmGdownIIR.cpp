@@ -1,15 +1,14 @@
-#include "EvmGdownIIR.h"
-#include "Window.h"
-#include "ext_opencv.h"
+#include "EvmGdownIIR.hpp"
+#include "Window.hpp"
+#include "ext_opencv.hpp"
 
 EvmGdownIIR::EvmGdownIIR() {
-    first = true;
+    t = 0;
     blurLevel = 4;
     fLow = 50/60./10;
     fHigh = 60/60./10;
     alpha = 200;
-    minFaceSizePercentage = 0.3;
-    t = 0;
+    minFaceSize = 0.3;
 }
 
 EvmGdownIIR::~EvmGdownIIR() {
@@ -20,8 +19,9 @@ void EvmGdownIIR::load(const string& filename) {
 }
 
 void EvmGdownIIR::start(int width, int height) {
+    t = 0;
     srcSize = Size(width, height);
-    minFaceSize = Size(width * minFaceSizePercentage, height * minFaceSizePercentage);
+    _minFaceSize = Size(width * minFaceSize, height * minFaceSize);
 }
 
 void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
@@ -30,7 +30,7 @@ void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
 
     // detect faces
     cvtColor(src, gray, CV_RGB2GRAY);
-    classifier.detectMultiScale(src, faces, 1.1, 3, 0, minFaceSize);
+    classifier.detectMultiScale(src, _faces, 1.1, 3, 0, _minFaceSize);
 
     // convert to float
     src.convertTo(srcFloat, CV_32F);
@@ -41,8 +41,7 @@ void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
         pyrDown(blurred, blurred);
     }
 
-    if (first) {
-        first = false;
+    if (isFirstFrame()) {
         blurred.copyTo(lowpassHigh);
         blurred.copyTo(lowpassLow);
         src.copyTo(out);
@@ -70,49 +69,34 @@ void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
     }
 
     // iterate through faces
-    for (int i = 0; i < faces.size(); i++) {
-        rectangle(out, faces.at(i), BLUE);
-        stringstream ss;
-        ss << i;
-        putText(out, ss.str(), faces.at(i).tl() + Point(5, 15), FONT_HERSHEY_PLAIN, 1, BLUE);
+    for (int i = 0; i < _faces.size(); i++) {
+        rectangle(out, _faces.at(i), BLUE);
     }
     // TODO support multiple faces
-    if (faces.empty()) {
-        face(out, faces.front());
+    if (!_faces.empty()) {
+        onFace(out, _faces.front());
     }
 }
 
-void EvmGdownIIR::face(Mat& frame, const Rect& face) {
-    // TODO extract static variables to class
-    static Rect f = face;
-    static Rect roi;
-    static Mat1d timestamps;
-    static Mat1d green;
-    static Mat1d detrended;
-    static Mat1d powerSpectrum;
-    static Mat1d pulse;
-    static string bpmStr;
-
-    {
-        interpolate(f, face, f, 0.05);
-        Point p = f.tl() + Point(f.size().width * .5, f.size().height * 0.15);
-        Point s(f.width * 0.05, f.height * 0.025);
-        roi = Rect(p - s, p + s);
+void EvmGdownIIR::onFace(Mat& frame, const Rect& box) {
+    if (isFirstFrame()) {
+        face.box = box;
     }
+    face.updateBox(box);
 
-    const int total = green.total();
+    const int total = face.raw.total();
     if (total >= 100) { // TODO extract constant to class?
         timestamps.rowRange(1, total).copyTo(timestamps.rowRange(0, total-1));
-        green.rowRange(1, total).copyTo(green.rowRange(0, total-1));
+        face.raw.rowRange(1, total).copyTo(face.raw.rowRange(0, total-1));
         timestamps.pop_back();
-        green.pop_back();
+        face.raw.pop_back();
     }
     timestamps.push_back<double>(getTickCount());
-    green.push_back<double>(mean(frame(roi))[1]);
+    face.raw.push_back<double>(mean(frame(face.roi))[1]);
 
-    detrend(green, detrended);
-    normalization(detrended, detrended);
-    meanFilter(detrended, detrended);
+    detrend(face.raw, face.pulse);
+    normalization(face.pulse, face.pulse);
+    meanFilter(face.pulse, face.pulse);
 
     if (t % 30 == 0) { // TODO extract constant to class?
         const double diff = (timestamps(total-1) - timestamps(0)) * 1000. / getTickFrequency();
@@ -121,7 +105,7 @@ void EvmGdownIIR::face(Mat& frame, const Rect& face) {
         const int low = total * 45./60./fps + 1;
         const int high = total * 240./60./fps + 1;
 
-        dft(green, powerSpectrum);
+        dft(face.pulse, powerSpectrum);
 
         // band limit
         powerSpectrum.rowRange(0, low) = ZERO;
@@ -137,27 +121,32 @@ void EvmGdownIIR::face(Mat& frame, const Rect& face) {
 
             // calculate BPM
             const double bpm = idx[0] * fps * 60. / total;
-            pulse.push_back(bpm);
-
-            stringstream ss;
-            ss.precision(3);
-            ss << "BPM:  " << bpm;
-            bpmStr = ss.str();
+            face.bpm = bpm;
         }
     }
 
     // draw some stuff
-    rectangle(frame, f, BLUE, 2);
-    rectangle(frame, roi, RED);
+    rectangle(frame, face.box, BLUE, 2);
+    rectangle(frame, face.roi, RED);
 
-    Point bl = f.tl() + Point(0, f.height);
+    Point bl = face.box.tl() + Point(0, face.box.height);
     Point g;
     for (int i = 0; i < total; i++) {
-        g = bl + Point(i, -green(i) + 50);
+        g = bl + Point(i, -face.raw(i) + 50);
         line(frame, g, g, GREEN);
-        g = bl + Point(i, -detrended(i) * 10 - 50);
+        g = bl + Point(i, -face.pulse(i) * 10 - 50);
         line(frame, g, g, RED);
     }
 
-    putText(frame, bpmStr, bl, FONT_HERSHEY_PLAIN, 1, RED);
+    stringstream ss;
+    ss.precision(3);
+    ss << face.bpm;
+    putText(frame, ss.str(), bl, FONT_HERSHEY_PLAIN, 1, RED);
+}
+
+void EvmGdownIIR::Face::updateBox(const Rect& _box) {
+    interpolate(box, _box, box, 0.05);
+    Point c = box.tl() + Point(box.size().width * .5, box.size().height * 0.15);
+    Point r(box.width * 0.05, box.height * 0.025);
+    roi = Rect(c - r, c + r);
 }

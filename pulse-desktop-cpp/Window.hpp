@@ -1,9 +1,9 @@
-#ifndef WINDOW_H
-#define	WINDOW_H
+#ifndef WINDOW_HPP
+#define	WINDOW_HPP
 
 #include <string>
 #include <opencv2/opencv.hpp>
-#include "EvmGdownIIR.h"
+#include "EvmGdownIIR.hpp"
 
 using namespace std;
 using namespace cv;
@@ -34,5 +34,5 @@ private:
     
 };
 
-#endif	/* WINDOW_H */
+#endif	/* WINDOW_HPP */
 
