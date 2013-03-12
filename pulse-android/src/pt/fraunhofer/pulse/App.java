@@ -109,8 +109,6 @@ public class App extends Activity implements CvCameraViewListener {
 
     @Override
     public void onCameraViewStarted(int width, int height) {
-        System.out.println("W: "+ width);
-        System.out.println("H: "+ height);
         pulse.start(width, height);
     }
 
@@ -118,14 +116,8 @@ public class App extends Activity implements CvCameraViewListener {
     public void onCameraViewStopped() {
     }
 
-    private boolean first = true;
-    
     @Override
     public Mat onCameraFrame(Mat frame) {
-        if (first) {
-            first = false;
-            System.out.println(frame);
-        }
         pulse.onFrame(frame, frame);
         return frame;
     }
