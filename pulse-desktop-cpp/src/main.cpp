@@ -17,17 +17,18 @@ int main(int argc, char** argv) {
 
 //    VideoCapture capture("../../vidmagSIGGRAPH2012/face.wmv");
 //    VideoCapture capture("../../vidmagSIGGRAPH2012/face2_source.mp4");
-//    VideoCapture capture("../../vidmagSIGGRAPH2012/face_source_timecode.wmv");
-    VideoCapture capture(0);
+    VideoCapture capture("../../vidmagSIGGRAPH2012/face_source_timecode.wmv");
+//    VideoCapture capture(0);
 
     const int WIDTH  = capture.get(CV_CAP_PROP_FRAME_WIDTH);
     const int HEIGHT = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
     const double FPS = capture.get(CV_CAP_PROP_FPS);
-    if (FPS != 0) {
-        cout << "FPS: " << FPS << endl;
-    }
 
     Pulse pulse;
+    if (FPS != 0) {
+        cout << "FPS: " << FPS << endl;
+        pulse.fps = FPS;
+    }
     pulse.load("res/lbpcascade_frontalface.xml");
     pulse.start(WIDTH, HEIGHT);
 
