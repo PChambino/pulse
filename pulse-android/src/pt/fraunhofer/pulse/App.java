@@ -21,7 +21,7 @@ public class App extends Activity implements CvCameraViewListener {
     private static final String TAG = "Pulse::App";
 
     private CameraBridgeViewBase camera;
-    private Evm evm;
+    private Pulse pulse;
     
     private BaseLoaderCallback loaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -40,9 +40,13 @@ public class App extends Activity implements CvCameraViewListener {
     };
 
     private void loaderCallbackSuccess() {
+        System.loadLibrary("pulse");
+        
+        pulse = new Pulse();
+        
         File dir = getDir("cascade", Context.MODE_PRIVATE);
         File file = createFileFromResource(dir, R.raw.lbpcascade_frontalface, "xml");
-        evm = new Evm(file.getAbsolutePath());
+        pulse.load(file.getAbsolutePath());
         dir.delete();
 
         camera.enableView();
@@ -105,17 +109,25 @@ public class App extends Activity implements CvCameraViewListener {
 
     @Override
     public void onCameraViewStarted(int width, int height) {
-        evm.start(width, height);
+        System.out.println("W: "+ width);
+        System.out.println("H: "+ height);
+        pulse.start(width, height);
     }
 
     @Override
     public void onCameraViewStopped() {
-        evm.stop();
     }
 
+    private boolean first = true;
+    
     @Override
     public Mat onCameraFrame(Mat frame) {
-        return evm.onFrame(frame);
+        if (first) {
+            first = false;
+            System.out.println(frame);
+        }
+        pulse.onFrame(frame, frame);
+        return frame;
     }
 
 }
