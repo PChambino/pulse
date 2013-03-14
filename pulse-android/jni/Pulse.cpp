@@ -110,7 +110,7 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
 
         // band limit
         powerSpectrum.rowRange(0, low) = ZERO;
-        powerSpectrum.pop_back(min(total - high, total));
+        powerSpectrum.pop_back(min((size_t)(total - high), (size_t)total));
 
         // power spectrum
         pow(powerSpectrum, 2, powerSpectrum);

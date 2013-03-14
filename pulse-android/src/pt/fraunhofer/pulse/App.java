@@ -83,6 +83,7 @@ public class App extends Activity implements CvCameraViewListener {
 
         camera = (CameraBridgeViewBase) findViewById(R.id.camera);
         camera.setCvCameraViewListener(this);
+        camera.setMaxFrameSize(600, 400);
     }
 
     @Override
@@ -107,9 +108,12 @@ public class App extends Activity implements CvCameraViewListener {
         super.onDestroy();
     }
 
+    private Mat out;
+
     @Override
     public void onCameraViewStarted(int width, int height) {
         pulse.start(width, height);
+        out = new Mat();
     }
 
     @Override
@@ -118,8 +122,8 @@ public class App extends Activity implements CvCameraViewListener {
 
     @Override
     public Mat onCameraFrame(Mat frame) {
-        pulse.onFrame(frame, frame);
-        return frame;
+        pulse.onFrame(frame, out);
+        return out;
     }
 
 }

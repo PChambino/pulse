@@ -2,10 +2,9 @@
 #include <string>
 #include <opencv2/core/core.hpp>
 
-#include <android/log.h>
-
 #include "pulse.hpp"
 
+#include <android/log.h>
 #define LOG_TAG "Pulse::Pulse"
 #define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__))
 
