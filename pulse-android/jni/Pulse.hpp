@@ -25,14 +25,16 @@ public:
 
     double relativeMinFaceSize;
     double fps;
-    EvmGdownIIR evm;
 
     struct Face {
         int id;
         int deleteIn;
         bool selected;
+        EvmGdownIIR evm;
+        Size evmSize;
         Rect box;
         Rect roi;
+        Mat roiMat;
         Mat1d timestamps;
         Mat1d raw;
         Mat1d pulse;
