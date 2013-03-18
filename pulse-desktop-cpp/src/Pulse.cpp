@@ -26,17 +26,14 @@ void Pulse::start(int width, int height) {
     nextFaceId = 1;
 }
 
-void Pulse::onFrame(const Mat& src, Mat& out) {
+void Pulse::onFrame(Mat& frame) {
     // count frames
     t++;
 
     // detect faces
-    cvtColor(src, gray, CV_RGB2GRAY);
-    classifier.detectMultiScale(src, boxes, 1.1, 3, 0, minFaceSize);
-    
-    // apply Eulerian video magnification
-//    evm.onFrame(src, out);
-    
+    cvtColor(frame, gray, CV_RGB2GRAY);
+    classifier.detectMultiScale(frame, boxes, 1.1, 3, 0, minFaceSize);
+
     // iterate through faces and boxes
     if (faces.size() <= boxes.size()) {
         // match each face to nearest box
@@ -45,13 +42,13 @@ void Pulse::onFrame(const Mat& src, Mat& out) {
             int boxIndex = face.nearestBox(boxes);
             face.deleteIn = deleteFaceIn;
             face.updateBox(boxes.at(boxIndex));
-            onFace(out, face, boxes.at(boxIndex));
+            onFace(frame, face, boxes.at(boxIndex));
             boxes.erase(boxes.begin() + boxIndex);
         }
         // remaining boxes are new faces
         for (int i = 0; i < boxes.size(); i++) {
             faces.push_back(Face(nextFaceId++, boxes.at(i), deleteFaceIn));
-            onFace(out, faces.back(), boxes.at(i));
+            onFace(frame, faces.back(), boxes.at(i));
         }
     } else {
         // match each box to nearest face
@@ -64,7 +61,7 @@ void Pulse::onFrame(const Mat& src, Mat& out) {
             face.selected = true;
             face.deleteIn = deleteFaceIn;
             face.updateBox(boxes.at(i));
-            onFace(out, face, boxes.at(i));
+            onFace(frame, face, boxes.at(i));
         }
         // remaining faces are deleted or marked for deletion
         for (int i = 0; i < faces.size(); i++) {
@@ -82,6 +79,7 @@ void Pulse::onFrame(const Mat& src, Mat& out) {
 }
 
 void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
+    // apply Eulerian video magnification on face box
     resize(frame(face.box), face.boxMat, face.evmSize);
     face.evm.onFrame(face.boxMat, face.boxMat);
     resize(face.boxMat, face.boxMat, face.box.size());
@@ -114,7 +112,7 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
         dft(face.pulse, powerSpectrum);
 
         // band limit
-        powerSpectrum.rowRange(0, low) = ZERO;
+        powerSpectrum.rowRange(0, min((size_t)low, (size_t)total)) = ZERO;
         powerSpectrum.pop_back(min((size_t)(total - high), (size_t)total));
 
         // power spectrum
@@ -126,8 +124,8 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
             minMaxIdx(powerSpectrum, 0, 0, 0, &idx[0]);
 
             // calculate BPM
-            const double bpm = idx[0] * fps * 60. / total;
-            face.bpm = bpm;
+            // TODO explain division by two
+            face.bpm = idx[0] * fps * 60. / total / 2;
         }
     }
 

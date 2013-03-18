@@ -21,7 +21,7 @@ public:
     
     void load(const string& filename);
     void start(int width, int height);
-    void onFrame(const Mat& src, Mat& out);
+    void onFrame(Mat& frame);
 
     double relativeMinFaceSize;
     double fps;
@@ -34,7 +34,7 @@ public:
         Size evmSize;
         Rect box;
         Rect roi;
-        Mat roiMat;
+        Mat boxMat;
         Mat1d timestamps;
         Mat1d raw;
         Mat1d pulse;

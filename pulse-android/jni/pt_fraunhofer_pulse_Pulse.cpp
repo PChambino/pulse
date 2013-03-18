@@ -103,13 +103,13 @@ JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse__1start
  * Signature: (JJJ)V
  */
 JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse__1onFrame
-  (JNIEnv *jenv, jclass, jlong self, jlong frame, jlong out)
+  (JNIEnv *jenv, jclass, jlong self, jlong frame)
   {
     LOGD("Java_pt_fraunhofer_pulse_Pulse__1onFrame enter");
     try
     {
         if (self)
-            ((Pulse*)self)->onFrame(*((Mat*)frame), *((Mat*)out));
+            ((Pulse*)self)->onFrame(*((Mat*)frame));
     }
     catch(cv::Exception& e)
     {

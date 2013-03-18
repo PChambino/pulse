@@ -21,11 +21,10 @@ public:
     
     void load(const string& filename);
     void start(int width, int height);
-    void onFrame(const Mat& src, Mat& out);
+    void onFrame(Mat& frame);
 
     double relativeMinFaceSize;
     double fps;
-    EvmGdownIIR evm;
 
     struct Face {
         int id;

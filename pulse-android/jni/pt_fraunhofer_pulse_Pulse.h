@@ -37,7 +37,7 @@ JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse__1start
  * Signature: (JJJ)V
  */
 JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse__1onFrame
-  (JNIEnv *, jclass, jlong, jlong, jlong);
+  (JNIEnv *, jclass, jlong, jlong);
 
 /*
  * Class:     pt_fraunhofer_pulse_Pulse

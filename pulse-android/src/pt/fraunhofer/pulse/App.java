@@ -15,8 +15,6 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
-import org.opencv.core.Size;
-import org.opencv.imgproc.Imgproc;
 
 public class App extends Activity implements CvCameraViewListener {
 
@@ -110,16 +108,9 @@ public class App extends Activity implements CvCameraViewListener {
         super.onDestroy();
     }
 
-    private int t;
-    private Mat out;
-    private Size size;
-
     @Override
     public void onCameraViewStarted(int width, int height) {
         pulse.start(width, height);
-        t = 0;
-        out = new Mat();
-        size = new Size(camera.getWidth(), camera.getHeight());
     }
 
     @Override
@@ -128,14 +119,8 @@ public class App extends Activity implements CvCameraViewListener {
 
     @Override
     public Mat onCameraFrame(Mat frame) {
-        if (t >= 10) {
-            pulse.onFrame(frame, out);
-            Imgproc.resize(out, out, size);
-        } else {
-            t++;
-            Imgproc.resize(frame, out, size);
-        }
-        return out;
+        pulse.onFrame(frame);
+        return frame;
     }
 
 }
