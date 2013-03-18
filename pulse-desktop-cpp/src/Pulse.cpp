@@ -82,8 +82,10 @@ void Pulse::onFrame(const Mat& src, Mat& out) {
 }
 
 void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
-    resize(frame(face.roi), face.roiMat, face.evmSize);
-    face.evm.onFrame(face.roiMat, face.roiMat);
+    resize(frame(face.box), face.boxMat, face.evmSize);
+    face.evm.onFrame(face.boxMat, face.boxMat);
+    resize(face.boxMat, face.boxMat, face.box.size());
+    face.boxMat.copyTo(frame(face.box));
 
     const int total = face.raw.total();
     if (total >= 100) { // TODO extract constant to class?
@@ -92,7 +94,7 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
         face.timestamps.rowRange(1, total).copyTo(face.timestamps.rowRange(0, total-1));
         face.timestamps.pop_back();
     }
-    face.raw.push_back<double>(mean(face.roiMat)[1]);
+    face.raw.push_back<double>(mean(frame(face.roi))[1]);
     face.timestamps.push_back<double>(getTickCount());
 
     detrend(face.raw, face.pulse);
@@ -130,9 +132,6 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
     }
 
     // draw some stuff
-    resize(face.roiMat, face.roiMat, face.roi.size());
-    face.roiMat.copyTo(frame(face.roi));
-
     rectangle(frame, box, BLUE);
     rectangle(frame, face.box, BLUE, 2);
     rectangle(frame, face.roi, RED);
@@ -187,7 +186,7 @@ Pulse::Face::Face(int id, const Rect& box, int deleteIn) {
     this->box = box;
     this->deleteIn = deleteIn;
     this->updateBox(this->box);
-    this->evmSize = this->roi.size();
+    this->evmSize = this->box.size();
 }
 
 int Pulse::Face::nearestBox(const vector<Rect>& boxes) {

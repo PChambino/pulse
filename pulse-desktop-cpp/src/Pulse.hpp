@@ -35,7 +35,7 @@ public:
         Size evmSize;
         Rect box;
         Rect roi;
-        Mat roiMat;
+        Mat boxMat;
         Mat1d timestamps;
         Mat1d raw;
         Mat1d pulse;
