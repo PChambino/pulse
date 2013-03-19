@@ -37,7 +37,7 @@ void Pulse::onFrame(Mat& frame) {
     // iterate through faces and boxes
     if (faces.size() <= boxes.size()) {
         // match each face to nearest box
-        for (int i = 0; i < faces.size(); i++) {
+        for (size_t i = 0; i < faces.size(); i++) {
             Face& face = faces.at(i);
             int boxIndex = face.nearestBox(boxes);
             face.deleteIn = deleteFaceIn;
@@ -46,16 +46,16 @@ void Pulse::onFrame(Mat& frame) {
             boxes.erase(boxes.begin() + boxIndex);
         }
         // remaining boxes are new faces
-        for (int i = 0; i < boxes.size(); i++) {
+        for (size_t i = 0; i < boxes.size(); i++) {
             faces.push_back(Face(nextFaceId++, boxes.at(i), deleteFaceIn));
             onFace(frame, faces.back(), boxes.at(i));
         }
     } else {
         // match each box to nearest face
-        for (int i = 0; i < faces.size(); i++) {
+        for (size_t i = 0; i < faces.size(); i++) {
             faces.at(i).selected = false;
         }
-        for (int i = 0; i < boxes.size(); i++) {
+        for (size_t i = 0; i < boxes.size(); i++) {
             int faceIndex = nearestFace(boxes.at(i));
             Face& face = faces.at(faceIndex);
             face.selected = true;
@@ -64,7 +64,7 @@ void Pulse::onFrame(Mat& frame) {
             onFace(frame, face, boxes.at(i));
         }
         // remaining faces are deleted or marked for deletion
-        for (int i = 0; i < faces.size(); i++) {
+        for (size_t i = 0; i < faces.size(); i++) {
             Face& face = faces.at(i);
             if (!face.selected) {
                 if (face.deleteIn <= 0) {
@@ -157,7 +157,7 @@ int Pulse::nearestFace(const Rect& box) {
     int index = -1;
     int min = -1;
     Point p;
-    for (int i = 0; i < faces.size(); i++) {
+    for (size_t i = 0; i < faces.size(); i++) {
         if (!faces.at(i).selected) {
             index = i;
             p = box.tl() - faces.at(i).box.tl();
@@ -168,7 +168,7 @@ int Pulse::nearestFace(const Rect& box) {
     if (index == -1) {
         return -1;
     }
-    for (int i = index; i < faces.size(); i++) {
+    for (size_t i = index; i < faces.size(); i++) {
         p = box.tl() - faces.at(i).box.tl();
         int d = p.x * p.x + p.y * p.y;
         if (d < min) {
@@ -194,7 +194,7 @@ int Pulse::Face::nearestBox(const vector<Rect>& boxes) {
     int index = 0;
     Point p = box.tl() - boxes.at(0).tl();
     int min = p.x * p.x + p.y * p.y;
-    for (int i = 1; i < boxes.size(); i++) {
+    for (size_t i = 1; i < boxes.size(); i++) {
         p = box.tl() - boxes.at(i).tl();
         int d = p.x * p.x + p.y * p.y;
         if (d < min) {

@@ -8,7 +8,7 @@ void detrend(InputArray _z, OutputArray _r, int lambda) {
             && _z.total() == max(_z.size().width, _z.size().height));
 
 
-    Mat z = _z.total() == _z.size().height ? _z.getMat() : _z.getMat().t();
+    Mat z = _z.total() == (size_t)_z.size().height ? _z.getMat() : _z.getMat().t();
     if (z.total() < 3) {
         z.copyTo(_r);
     } else {
