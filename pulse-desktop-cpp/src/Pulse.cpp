@@ -2,6 +2,7 @@
 #include <sstream>
 #include <opencv2/imgproc/imgproc.hpp>
 #include "ext/opencv.hpp"
+#include "profiler/Profiler.h"
 
 using std::stringstream;
 using namespace cv;
@@ -27,15 +28,20 @@ void Pulse::start(int width, int height) {
 }
 
 void Pulse::onFrame(Mat& frame) {
+    PROFILE_SCOPED();
+    
     // count frames
     t++;
 
+    PROFILE_START_DESC("detect faces");
     // detect faces
     cvtColor(frame, gray, CV_RGB2GRAY);
     classifier.detectMultiScale(frame, boxes, 1.1, 3, 0, minFaceSize);
+    PROFILE_STOP();
 
     // iterate through faces and boxes
     if (faces.size() <= boxes.size()) {
+        PROFILE_SCOPED_DESC("more boxes");
         // match each face to nearest box
         for (size_t i = 0; i < faces.size(); i++) {
             Face& face = faces.at(i);
@@ -51,6 +57,7 @@ void Pulse::onFrame(Mat& frame) {
             onFace(frame, faces.back(), boxes.at(i));
         }
     } else {
+        PROFILE_SCOPED_DESC("more faces");
         // match each box to nearest face
         for (size_t i = 0; i < faces.size(); i++) {
             faces.at(i).selected = false;
@@ -79,27 +86,38 @@ void Pulse::onFrame(Mat& frame) {
 }
 
 void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
+    PROFILE_SCOPED();
+    
     // apply Eulerian video magnification on face box
+    PROFILE_START_DESC("resize face box");
     resize(frame(face.box), face.boxMat, face.evmSize);
+    PROFILE_STOP();
     face.evm.onFrame(face.boxMat, face.boxMat);
+    PROFILE_START_DESC("resize and draw face box back to frame");
     resize(face.boxMat, face.boxMat, face.box.size());
     face.boxMat.copyTo(frame(face.box));
+    PROFILE_STOP();
 
     const int total = face.raw.total();
     if (total >= 100) { // TODO extract constant to class?
+        PROFILE_SCOPED_DESC("shift raw and timestamp");
         face.raw.rowRange(1, total).copyTo(face.raw.rowRange(0, total-1));
         face.raw.pop_back();
         face.timestamps.rowRange(1, total).copyTo(face.timestamps.rowRange(0, total-1));
         face.timestamps.pop_back();
     }
+    PROFILE_START_DESC("push back raw and timestamp");
     face.raw.push_back<double>(mean(frame(face.roi))[1]);
     face.timestamps.push_back<double>(getTickCount());
+    PROFILE_STOP();
 
     detrend(face.raw, face.pulse);
     normalization(face.pulse, face.pulse);
     meanFilter(face.pulse, face.pulse);
 
     if (t % 30 == 0) { // TODO extract constant to class?
+        PROFILE_SCOPED_DESC("bpm");
+        
         double fps = this->fps;
         if (fps == 0) {
             const double diff = (face.timestamps(total-1) - face.timestamps(0)) * 1000. / getTickFrequency();
@@ -130,6 +148,7 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
     }
 
     // draw some stuff
+    PROFILE_START_DESC("drawing");
     rectangle(frame, box, BLUE);
     rectangle(frame, face.box, BLUE, 2);
     rectangle(frame, face.roi, RED);
@@ -151,9 +170,12 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
     ss.precision(3);
     ss << face.bpm;
     putText(frame, ss.str(), bl, FONT_HERSHEY_PLAIN, 2, RED, 2);
+    PROFILE_STOP();
 }
 
 int Pulse::nearestFace(const Rect& box) {
+    PROFILE_SCOPED();
+    
     int index = -1;
     int min = -1;
     Point p;
@@ -188,6 +210,8 @@ Pulse::Face::Face(int id, const Rect& box, int deleteIn) {
 }
 
 int Pulse::Face::nearestBox(const vector<Rect>& boxes) {
+    PROFILE_SCOPED();
+    
     if (boxes.empty()) {
         return -1;
     }
@@ -206,6 +230,8 @@ int Pulse::Face::nearestBox(const vector<Rect>& boxes) {
 }
 
 void Pulse::Face::updateBox(const Rect& a) {
+    PROFILE_SCOPED();
+    
     interpolate(box, a, box, 0.05);
     Point c = box.tl() + Point(box.size().width * .5, box.size().height * 0.15);
     Point r(box.width * 0.10, box.height * 0.05);

@@ -3,6 +3,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include "ext/opencv.hpp"
 #include "Pulse.hpp"
+#include "profiler/Profiler.h"
 
 using std::stringstream;
 using namespace cv;
@@ -33,6 +34,8 @@ Window::~Window() {
 }
 
 void Window::update(Mat& frame) {
+    PROFILE_SCOPED();
+    
 //    if (pulse.evm.blurLevel != trackbarBlur) {
 //        pulse.evm.first = true;
 //    }
@@ -46,10 +49,14 @@ void Window::update(Mat& frame) {
 //    drawTrackbarValues(frame);
     drawFps(frame);
 
+    PROFILE_START_DESC("imshow");
     imshow(WINDOW_NAME, frame);
+    PROFILE_STOP();
 }
 
 void Window::drawTrackbarValues(Mat& frame) {
+    PROFILE_SCOPED();
+    
     stringstream ss;
 
     ss << TRACKBAR_BLUR_NAME << ": " << trackbarBlur;
@@ -69,14 +76,19 @@ void Window::drawTrackbarValues(Mat& frame) {
 }
 
 void Window::drawFps(Mat& frame) {
+    PROFILE_SCOPED();
+    
     if (fps.update()) {
+        PROFILE_SCOPED_DESC("fps string");
         stringstream ss;
         ss.precision(3);
         ss << "FPS: " << fps.fps;
         fpsString = ss.str();
     }
     
+    PROFILE_START_DESC("fps drawing");
     putText(frame, fpsString, fpsPoint, FONT_HERSHEY_PLAIN, 1, BLUE);
+    PROFILE_STOP();
 }
 
 Window::Fps::Fps() {
@@ -88,6 +100,8 @@ Window::Fps::Fps() {
 }
 
 bool Window::Fps::update() {
+    PROFILE_SCOPED();
+    
     if (currentFrame == 0) {
         lastFpsTime = (double)getTickCount();
     }
@@ -95,6 +109,7 @@ bool Window::Fps::update() {
     currentFrame++;
 
     if (currentFrame % 30 == 0) {
+        PROFILE_SCOPED_DESC("fps tick");
         double now = (double)getTickCount();
         double diff = (now - lastFpsTime) * 1000. / getTickFrequency();
 

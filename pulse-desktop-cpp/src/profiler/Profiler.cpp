@@ -898,7 +898,7 @@ namespace Profiler {
 			tm *now_tm = localtime( &now );
 			strftime( timeFormat, 255, "%Y%m%d_%H%M%S", now_tm );
 			snprintf( fileFormat, 255, "%s-profile-%s.html", programName ? programName : "no-info-given", timeFormat );
-			strftime( timeFormat, 255, "%#c", now_tm );			
+			strftime( timeFormat, 255, "%Ec", now_tm );			
 			f = fopen( fileFormat, "wb+" );
 
 			Caller::mHTMLFormatter.Clear();

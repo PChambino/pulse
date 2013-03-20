@@ -3,6 +3,7 @@
 #include "EvmGdownIIR.hpp"
 #include "Pulse.hpp"
 #include "Window.hpp"
+#include "profiler/Profiler.h"
 
 using std::cout;
 using std::endl;
@@ -12,7 +13,7 @@ using cv::waitKey;
 
 static void writeVideo(VideoCapture& capture, const Mat& frame);
 
-int main(int argc, char** argv) {
+int main(int argc, const char** argv) {
     const bool shouldWrite = false;
 
 //    VideoCapture capture("../../vidmagSIGGRAPH2012/face.wmv");
@@ -37,8 +38,14 @@ int main(int argc, char** argv) {
 
     Mat frame;
     while (true) {
+        PROFILE_SCOPED_DESC("loop");
+        
+        PROFILE_START_DESC("capture");
         capture >> frame;
+        PROFILE_STOP();
+        
         if (frame.empty()) {
+            PROFILE_PAUSE_SCOPED(); // loop
             while (waitKey() != 27) {}
             break;
         }
@@ -49,11 +56,16 @@ int main(int argc, char** argv) {
             writeVideo(capture, frame);
         }
 
+        PROFILE_START_DESC("wait key");
         if (waitKey(1) == 27) {
+            PROFILE_STOP(); // wait key
             break;
         }
+        PROFILE_STOP();
     }
-
+    
+    Profiler::detect(argc, argv);
+    Profiler::dumphtml();
     return 0;
 }
 
