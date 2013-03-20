@@ -38,9 +38,11 @@ public:
         Mat1d timestamps;
         Mat1d raw;
         Mat1d pulse;
+        Mat1d bpms;
         double bpm;
 
         Face(int id, const Rect& box, int deleteIn);
+        virtual ~Face();
         int nearestBox(const vector<Rect>& boxes);
         void updateBox(const Rect& box);
     };

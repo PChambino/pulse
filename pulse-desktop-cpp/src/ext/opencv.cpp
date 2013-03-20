@@ -38,12 +38,12 @@ void normalization(InputArray _a, OutputArray _b) {
     b = (b - mean[0]) / stdDev[0];
 }
 
-void meanFilter(InputArray _a, OutputArray _b, Size s) {
+void meanFilter(InputArray _a, OutputArray _b, size_t n, Size s) {
     PROFILE_SCOPED();
     
     _a.getMat().copyTo(_b);
     Mat b = _b.getMat();
-    for (int i = 0 ; i < 3; i++) {
+    for (size_t i = 0 ; i < n; i++) {
         blur(b, b, s);
     }
 }
@@ -61,7 +61,8 @@ void interpolate(const Rect& a, const Rect& b, Rect& c, double p) {
 void printMatInfo(const string& name, InputArray _a) {
     Mat a = _a.getMat();
     cout << name << ": " << a.rows << "x" << a.cols
-            << "x" << a.channels() << "x" << a.depth()
+            << " channels=" << a.channels()
+            << " depth=" << a.depth()
             << " isContinuous=" << (a.isContinuous() ? "true" : "false")
             << " isSubmatrix=" << (a.isSubmatrix() ? "true" : "false") << endl;
 }

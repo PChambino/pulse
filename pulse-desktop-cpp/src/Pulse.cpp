@@ -124,7 +124,7 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
             fps = total * 1000 / diff;
         }
         // TODO extract constants to class?
-        const int low = total * 45./60./fps + 1;
+        const int low = total * 40./60./fps + 1;
         const int high = total * 240./60./fps + 1;
 
         dft(face.pulse, powerSpectrum);
@@ -142,8 +142,8 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
             minMaxIdx(powerSpectrum, 0, 0, 0, &idx[0]);
 
             // calculate BPM
-            // TODO explain division by two
-            face.bpm = idx[0] * fps * 60. / total / 2;
+            face.bpm = idx[0] * fps * 60. / (2 * total);
+            face.bpms.push_back(face.bpm);
         }
     }
 
@@ -207,6 +207,13 @@ Pulse::Face::Face(int id, const Rect& box, int deleteIn) {
     this->deleteIn = deleteIn;
     this->updateBox(this->box);
     this->evmSize = this->box.size();
+    this->bpm = 0;
+}
+
+Pulse::Face::~Face() {
+    if (!bpms.empty()) {
+        cout << "Face " << id << ": " << mean(bpms)[0] << endl;
+    }
 }
 
 int Pulse::Face::nearestBox(const vector<Rect>& boxes) {
