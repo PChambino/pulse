@@ -23,6 +23,7 @@ private:
     Mat blurred;
     Mat lowpassHigh;
     Mat lowpassLow;
+    Mat outFloat;
 
 };
 

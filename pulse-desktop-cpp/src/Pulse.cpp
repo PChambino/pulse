@@ -11,6 +11,7 @@ Pulse::Pulse() {
     relativeMinFaceSize = 0.3;
     deleteFaceIn = 10;
     fps = 0;
+    magnify = true;
 }
 
 Pulse::~Pulse() {
@@ -41,7 +42,7 @@ void Pulse::onFrame(Mat& frame) {
 
     // iterate through faces and boxes
     if (faces.size() <= boxes.size()) {
-        PROFILE_SCOPED_DESC("more boxes");
+        PROFILE_SCOPED_DESC("equal or more boxes than faces");
         // match each face to nearest box
         for (size_t i = 0; i < faces.size(); i++) {
             Face& face = faces.at(i);
@@ -57,7 +58,7 @@ void Pulse::onFrame(Mat& frame) {
             onFace(frame, faces.back(), boxes.at(i));
         }
     } else {
-        PROFILE_SCOPED_DESC("more faces");
+        PROFILE_SCOPED_DESC("more faces than boxes");
         // match each box to nearest face
         for (size_t i = 0; i < faces.size(); i++) {
             faces.at(i).selected = false;
@@ -89,14 +90,16 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
     PROFILE_SCOPED();
     
     // apply Eulerian video magnification on face box
-    PROFILE_START_DESC("resize face box");
-    resize(frame(face.box), face.boxMat, face.evmSize);
-    PROFILE_STOP();
-    face.evm.onFrame(face.boxMat, face.boxMat);
-    PROFILE_START_DESC("resize and draw face box back to frame");
-    resize(face.boxMat, face.boxMat, face.box.size());
-    face.boxMat.copyTo(frame(face.box));
-    PROFILE_STOP();
+    if (magnify) {
+        PROFILE_START_DESC("resize face box");
+        resize(frame(face.box), face.boxMat, face.evmSize);
+        PROFILE_STOP();
+        face.evm.onFrame(face.boxMat, face.boxMat);
+        PROFILE_START_DESC("resize and draw face box back to frame");
+        resize(face.boxMat, face.boxMat, face.box.size());
+        face.boxMat.copyTo(frame(face.box));
+        PROFILE_STOP();
+    }
 
     const int total = face.raw.total();
     if (total >= 100) { // TODO extract constant to class?

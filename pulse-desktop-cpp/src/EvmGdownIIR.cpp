@@ -57,17 +57,17 @@ void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
         for (int i = 0; i < blurLevel; i++) {
             pyrUp(blurred, blurred);
         }
-        resize(blurred, blurred, src.size());
+        resize(blurred, outFloat, src.size());
         PROFILE_STOP();
 
         // add back to original frame
         PROFILE_START_DESC("add back to original frame");
-        blurred += srcFloat;
+        outFloat += srcFloat;
         PROFILE_STOP();
 
         // convert to 8 bit
         PROFILE_START_DESC("convert to 8 bit");
-        blurred.convertTo(out, CV_8U);
+        outFloat.convertTo(out, CV_8U);
         PROFILE_STOP();
     }
 }

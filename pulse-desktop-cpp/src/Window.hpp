@@ -27,11 +27,13 @@ private:
     const string TRACKBAR_F_HIGH_NAME;
     const string TRACKBAR_F_LOW_NAME;
     const string TRACKBAR_ALPHA_NAME;
+    const string TRACKBAR_MAGNIFY_NAME;
 
     int trackbarBlur;
     int trackbarFHigh;
     int trackbarFLow;
     int trackbarAlpha;
+    int trackbarMagnify;
         
     class Fps {
     public:

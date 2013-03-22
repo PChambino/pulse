@@ -25,6 +25,7 @@ public:
 
     double relativeMinFaceSize;
     double fps;
+    bool magnify;
 
     struct Face {
         int id;
