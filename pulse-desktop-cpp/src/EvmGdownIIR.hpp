@@ -4,6 +4,7 @@
 #include <opencv2/core/core.hpp>
 
 using cv::Mat;
+using cv::Size;
 
 class EvmGdownIIR {
 public:
@@ -13,7 +14,7 @@ public:
     void onFrame(const Mat& src, Mat& out);
 
     bool first;
-    int blurLevel;
+    Size blurredSize;
     double fHigh;
     double fLow;
     int alpha;

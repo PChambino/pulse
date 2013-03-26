@@ -92,11 +92,11 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
     // apply Eulerian video magnification on face box
     if (magnify) {
         PROFILE_START_DESC("resize face box");
-        resize(frame(face.box), face.boxMat, face.evmSize);
+        resize(frame(face.box), face.boxMat, face.evmSize, 0, 0, CV_INTER_NN);
         PROFILE_STOP();
         face.evm.onFrame(face.boxMat, face.boxMat);
         PROFILE_START_DESC("resize and draw face box back to frame");
-        resize(face.boxMat, face.boxMat, face.box.size());
+        resize(face.boxMat, face.boxMat, face.box.size(), 0, 0, CV_INTER_NN);
         face.boxMat.copyTo(frame(face.box));
         PROFILE_STOP();
     }
@@ -211,11 +211,12 @@ Pulse::Face::Face(int id, const Rect& box, int deleteIn) {
     this->updateBox(this->box);
     this->evmSize = this->box.size();
     this->bpm = 0;
+    cout << "Face " << id << " box.size = " << this->box.width << "x" << this->box.height << endl;
 }
 
 Pulse::Face::~Face() {
     if (!bpms.empty()) {
-        cout << "Face " << id << ": " << mean(bpms)[0] << endl;
+        cout << "Face " << id << " mean(bpms) = " << mean(bpms)[0] << endl;
     }
 }
 

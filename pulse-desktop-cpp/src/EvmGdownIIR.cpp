@@ -1,6 +1,8 @@
 #include "EvmGdownIIR.hpp"
 #include "profiler/Profiler.h"
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core/types_c.h>
+#include <opencv2/core/core.hpp>
 
 using cv::pyrDown;
 using cv::pyrUp;
@@ -8,7 +10,7 @@ using cv::resize;
 
 EvmGdownIIR::EvmGdownIIR() {
     first = true;
-    blurLevel = 4;
+    blurredSize = Size(10, 10);
     fLow = 50/60./10;
     fHigh = 60/60./10;
     alpha = 200;
@@ -27,10 +29,7 @@ void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
 
     // apply spatial filter: blur and downsample
     PROFILE_START_DESC("pyrDown");
-    srcFloat.copyTo(blurred);
-    for (int i = 0; i < blurLevel; i++) {
-        pyrDown(blurred, blurred);
-    }
+    resize(srcFloat, blurred, blurredSize, 0, 0, CV_INTER_AREA);
     PROFILE_STOP();
 
     if (first) {
@@ -54,10 +53,7 @@ void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
         
         // resize back to original size
         PROFILE_START_DESC("pyrUp");
-        for (int i = 0; i < blurLevel; i++) {
-            pyrUp(blurred, blurred);
-        }
-        resize(blurred, outFloat, src.size());
+        resize(blurred, outFloat, src.size(), 0, 0, CV_INTER_LINEAR);
         PROFILE_STOP();
 
         // add back to original frame
