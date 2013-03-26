@@ -1,14 +1,17 @@
 #include "opencv.hpp"
 #include <opencv2/imgproc/imgproc.hpp>
+#include "../profiler/Profiler.h"
 
 namespace cv {
 
 void detrend(InputArray _z, OutputArray _r, int lambda) {
+    PROFILE_SCOPED();
+    
     CV_DbgAssert((_z.type() == CV_32F || _z.type() == CV_64F)
             && _z.total() == max(_z.size().width, _z.size().height));
 
 
-    Mat z = _z.total() == _z.size().height ? _z.getMat() : _z.getMat().t();
+    Mat z = _z.total() == (size_t)_z.size().height ? _z.getMat() : _z.getMat().t();
     if (z.total() < 3) {
         z.copyTo(_r);
     } else {
@@ -26,6 +29,8 @@ void detrend(InputArray _z, OutputArray _r, int lambda) {
 }
 
 void normalization(InputArray _a, OutputArray _b) {
+    PROFILE_SCOPED();
+    
     _a.getMat().copyTo(_b);
     Mat b = _b.getMat();
     Scalar mean, stdDev;
@@ -33,15 +38,19 @@ void normalization(InputArray _a, OutputArray _b) {
     b = (b - mean[0]) / stdDev[0];
 }
 
-void meanFilter(InputArray _a, OutputArray _b, Size s) {
+void meanFilter(InputArray _a, OutputArray _b, size_t n, Size s) {
+    PROFILE_SCOPED();
+    
     _a.getMat().copyTo(_b);
     Mat b = _b.getMat();
-    for (int i = 0 ; i < 3; i++) {
+    for (size_t i = 0 ; i < n; i++) {
         blur(b, b, s);
     }
 }
 
 void interpolate(const Rect& a, const Rect& b, Rect& c, double p) {
+    PROFILE_SCOPED();
+    
     double np = 1 - p;
     c.x = a.x * np + b.x * p + 0.5;
     c.y = a.y * np + b.y * p + 0.5;
@@ -52,7 +61,8 @@ void interpolate(const Rect& a, const Rect& b, Rect& c, double p) {
 void printMatInfo(const string& name, InputArray _a) {
     Mat a = _a.getMat();
     cout << name << ": " << a.rows << "x" << a.cols
-            << "x" << a.channels() << "x" << a.depth()
+            << " channels=" << a.channels()
+            << " depth=" << a.depth()
             << " isContinuous=" << (a.isContinuous() ? "true" : "false")
             << " isSubmatrix=" << (a.isSubmatrix() ? "true" : "false") << endl;
 }

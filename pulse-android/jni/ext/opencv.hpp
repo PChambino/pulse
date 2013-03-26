@@ -21,7 +21,7 @@ void detrend(InputArray _z, OutputArray _r, int lambda = 10);
 
 void normalization(InputArray _a, OutputArray _b);
 
-void meanFilter(InputArray _a, OutputArray _b, Size s = Size(5, 5));
+void meanFilter(InputArray _a, OutputArray _b, size_t n = 3, Size s = Size(5, 5));
 
 void interpolate(const Rect& a, const Rect& b, Rect& c, double p);
 
