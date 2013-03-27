@@ -1,5 +1,6 @@
 #include "Window.hpp"
 #include <sstream>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include "ext/opencv.hpp"
 #include "Pulse.hpp"
@@ -47,12 +48,20 @@ void Window::update(Mat& frame) {
 //    pulse.evm.fLow = trackbarFLow / 600.;
 //    pulse.evm.alpha = trackbarAlpha;
     pulse.magnify = trackbarMagnify == 1;
+    
+    PROFILE_START_DESC("bgr2rgb");
+    cvtColor(frame, frame, CV_BGR2RGB);
+    PROFILE_STOP();
 
     pulse.onFrame(frame);
 
 //    drawTrackbarValues(frame);
     drawFps(frame);
 
+    PROFILE_START_DESC("rgb2bgr");
+    cvtColor(frame, frame, CV_RGB2BGR);
+    PROFILE_STOP();
+    
     PROFILE_START_DESC("imshow");
     imshow(WINDOW_NAME, frame);
     PROFILE_STOP();

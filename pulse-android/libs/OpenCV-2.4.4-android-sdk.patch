@@ -1,0 +1,99 @@
+diff -rupN OpenCV-2.4.4-android-sdk-original/sdk/java/build.xml OpenCV-2.4.4-android-sdk/sdk/java/build.xml
+--- OpenCV-2.4.4-android-sdk-original/sdk/java/build.xml	2013-03-27 12:06:20.000000000 +0000
++++ OpenCV-2.4.4-android-sdk/sdk/java/build.xml	2013-03-27 12:07:00.000000000 +0000
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<project name="java" default="help">
++<project name="OpenCV-2.4.4-android-sdk" default="help">
+ 
+     <!-- The local.properties file is created and updated by the 'android' tool.
+          It contains the path to the SDK. It should *NOT* be checked into
+diff -rupN OpenCV-2.4.4-android-sdk-original/sdk/java/src/org/opencv/android/CameraBridgeViewBase.java OpenCV-2.4.4-android-sdk/sdk/java/src/org/opencv/android/CameraBridgeViewBase.java
+--- OpenCV-2.4.4-android-sdk-original/sdk/java/src/org/opencv/android/CameraBridgeViewBase.java	2013-03-27 12:06:21.000000000 +0000
++++ OpenCV-2.4.4-android-sdk/sdk/java/src/org/opencv/android/CameraBridgeViewBase.java	2013-03-27 12:08:06.000000000 +0000
+@@ -133,6 +133,9 @@ public abstract class CameraBridgeViewBa
+         public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
+              Mat result = null;
+              switch (mPreviewFormat) {
++                case Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB:
++                    result = mOldStyleListener.onCameraFrame(inputFrame.rgb());
++                    break;
+                 case Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA:
+                     result = mOldStyleListener.onCameraFrame(inputFrame.rgba());
+                     break;
+@@ -163,6 +166,11 @@ public abstract class CameraBridgeViewBa
+     public interface CvCameraViewFrame {
+ 
+         /**
++         * This method returns RGB Mat with frame
++         */
++        public Mat rgb();
++
++        /**
+          * This method returns RGBA Mat with frame
+          */
+         public Mat rgba();
+diff -rupN OpenCV-2.4.4-android-sdk-original/sdk/java/src/org/opencv/android/JavaCameraView.java OpenCV-2.4.4-android-sdk/sdk/java/src/org/opencv/android/JavaCameraView.java
+--- OpenCV-2.4.4-android-sdk-original/sdk/java/src/org/opencv/android/JavaCameraView.java	2013-03-27 12:06:21.000000000 +0000
++++ OpenCV-2.4.4-android-sdk/sdk/java/src/org/opencv/android/JavaCameraView.java	2013-03-27 12:08:06.000000000 +0000
+@@ -252,6 +252,11 @@ public class JavaCameraView extends Came
+             Imgproc.cvtColor(mYuvFrameData, mRgba, Imgproc.COLOR_YUV2BGR_NV12, 4);
+             return mRgba;
+         }
++        
++        public Mat rgb() {
++            Imgproc.cvtColor(mYuvFrameData, mRgb, Imgproc.COLOR_YUV2BGR_NV12);
++            return mRgb;
++        }
+ 
+         public JavaCameraFrame(Mat Yuv420sp, int width, int height) {
+             super();
+@@ -259,10 +264,12 @@ public class JavaCameraView extends Came
+             mHeight = height;
+             mYuvFrameData = Yuv420sp;
+             mRgba = new Mat();
++            mRgb = new Mat();
+         }
+ 
+         public void release() {
+             mRgba.release();
++            mRgb.release();
+         }
+ 
+         private JavaCameraFrame(CvCameraViewFrame obj) {
+@@ -270,6 +277,7 @@ public class JavaCameraView extends Came
+ 
+         private Mat mYuvFrameData;
+         private Mat mRgba;
++        private Mat mRgb;
+         private int mWidth;
+         private int mHeight;
+     };
+diff -rupN OpenCV-2.4.4-android-sdk-original/sdk/java/src/org/opencv/android/NativeCameraView.java OpenCV-2.4.4-android-sdk/sdk/java/src/org/opencv/android/NativeCameraView.java
+--- OpenCV-2.4.4-android-sdk-original/sdk/java/src/org/opencv/android/NativeCameraView.java	2013-03-27 12:06:21.000000000 +0000
++++ OpenCV-2.4.4-android-sdk/sdk/java/src/org/opencv/android/NativeCameraView.java	2013-03-27 12:08:06.000000000 +0000
+@@ -128,6 +128,12 @@ public class NativeCameraView extends Ca
+     private class NativeCameraFrame implements CvCameraViewFrame {
+ 
+         @Override
++        public Mat rgb() {
++            mCamera.retrieve(mRgb, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB);
++            return mRgb;
++        }
++        
++        @Override
+         public Mat rgba() {
+             mCamera.retrieve(mRgba, Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA);
+             return mRgba;
+@@ -143,9 +149,11 @@ public class NativeCameraView extends Ca
+             mCapture = capture;
+             mGray = new Mat();
+             mRgba = new Mat();
++            mRgb = new Mat();
+         }
+ 
+         private VideoCapture mCapture;
++        private Mat mRgb;
+         private Mat mRgba;
+         private Mat mGray;
+     };

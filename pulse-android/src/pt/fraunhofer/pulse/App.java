@@ -9,12 +9,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.highgui.Highgui;
+import org.opencv.imgproc.Imgproc;
 
 public class App extends Activity implements CvCameraViewListener {
 
@@ -83,13 +88,14 @@ public class App extends Activity implements CvCameraViewListener {
 
         camera = (CameraBridgeViewBase) findViewById(R.id.camera);
         camera.setCvCameraViewListener(this);
-        camera.setMaxFrameSize(600, 400);
+        camera.SetCaptureFormat(Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB);
+        camera.setMaxFrameSize(700, 700);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, loaderCallback);
+        OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_4, this, loaderCallback);
     }
 
     @Override
