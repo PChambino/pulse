@@ -2,9 +2,9 @@ Setup
 =====
 
 Download, build and install `opencv-2.4.4`.
-Install `opencv-2.4.4.jar` to Maven repository using:
+Install the `opencv_java` library if it was not installed by `make install`.Install `opencv-2.4.4.jar` to Maven repository using:
 
-    mvn install:install-file -Dfile=PATH_TO_OPENCV_BIN/opencv-2.4.4.jar -DgroupId=org.opencv -DartifactId=opencv -Dpackaging=jar -Dversion=2.4.4
+    mvn install:install-file -Dfile=opencv-244.jar -DgroupId=org.opencv -DartifactId=opencv -Dpackaging=jar -Dversion=2.4.4
 
 Create a Maven user's [`settings.xml`](http://maven.apache.org/settings.html) 
 file with something like:
@@ -19,11 +19,9 @@ file with something like:
                     <activeByDefault>true</activeByDefault>
                 </activation>
                 <properties>
-                    <opencv-lib.path>PATH_TO_OPENCV_LIB</opencv-lib.path>
+                    <opencv-lib.path>/usr/local/lib</opencv-lib.path>
                 </properties>
             </profile>
         </profiles>
 
     </settings>
-
-Finally, install the `opencv_java` library if it was not installed by `make install`.
