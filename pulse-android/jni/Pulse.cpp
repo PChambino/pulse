@@ -92,12 +92,12 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
     // apply Eulerian video magnification on face box
     if (magnify) {
         PROFILE_START_DESC("resize face box");
-        resize(frame(face.box), face.boxMat, face.evmSize, 0, 0, CV_INTER_NN);
+        resize(frame(face.evmBox), face.evmMat, face.evmSize, 0, 0, CV_INTER_NN);
         PROFILE_STOP();
-        face.evm.onFrame(face.boxMat, face.boxMat);
+        face.evm.onFrame(face.evmMat, face.evmMat);
         PROFILE_START_DESC("resize and draw face box back to frame");
-        resize(face.boxMat, face.boxMat, face.box.size(), 0, 0, CV_INTER_NN);
-        face.boxMat.copyTo(frame(face.box));
+        resize(face.evmMat, face.evmMat, face.evmBox.size(), 0, 0, CV_INTER_NN);
+        face.evmMat.copyTo(frame(face.evmBox));
         PROFILE_STOP();
     }
 
@@ -154,6 +154,7 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
     PROFILE_START_DESC("drawing");
     rectangle(frame, box, BLUE);
     rectangle(frame, face.box, BLUE, 2);
+    rectangle(frame, face.evmBox, GREEN);
     rectangle(frame, face.roi, RED);
 
     Point bl = face.box.tl() + Point(0, face.box.height);
@@ -209,9 +210,8 @@ Pulse::Face::Face(int id, const Rect& box, int deleteIn) {
     this->box = box;
     this->deleteIn = deleteIn;
     this->updateBox(this->box);
-    this->evmSize = this->box.size();
+    this->evmSize = this->evmBox.size();
     this->bpm = 0;
-    cout << "Face " << id << " box.size = " << this->box.width << "x" << this->box.height << endl;
 }
 
 Pulse::Face::~Face() {
@@ -244,7 +244,12 @@ void Pulse::Face::updateBox(const Rect& a) {
     PROFILE_SCOPED();
     
     interpolate(box, a, box, 0.05);
-    Point c = box.tl() + Point(box.size().width * .5, box.size().height * 0.15);
-    Point r(box.width * 0.10, box.height * 0.05);
+
+    Point c = box.tl() + Point(box.size().width * .5, box.size().height * 0.5);
+    Point r(box.width * 0.35, box.height * 0.45);
+    evmBox = Rect(c - r, c + r);
+
+    c = box.tl() + Point(box.size().width * .5, box.size().height * 0.55);
+    r = Point(box.width * 0.3, box.height * 0.075);
     roi = Rect(c - r, c + r);
 }

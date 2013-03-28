@@ -1,5 +1,6 @@
 #include <iostream>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/core/core.hpp>
 #include "EvmGdownIIR.hpp"
 #include "Pulse.hpp"
 #include "Window.hpp"
@@ -10,22 +11,26 @@ using std::endl;
 using cv::VideoCapture;
 using cv::VideoWriter;
 using cv::waitKey;
+using cv::flip;
 
 static void writeVideo(VideoCapture& capture, const Mat& frame);
 
 int main(int argc, const char** argv) {
     const bool shouldWrite = false;
+    const bool shouldFlip = true;
+//    const bool shouldFlip = false;
 
+//    VideoCapture capture("../../vidmagSIGGRAPH2012/baby2_source.mp4");
 //    VideoCapture capture("../../vidmagSIGGRAPH2012/face.wmv");
 //    VideoCapture capture("../../vidmagSIGGRAPH2012/face2_source.mp4");
-//    VideoCapture capture("../../vidmagSIGGRAPH2012/face_source_timecode.wmv");
+//    VideoCapture capture("../../vidmagSIGGRAPH2012/face_source.wmv");
 //    VideoCapture capture("../../videos/eva.mov");
     VideoCapture capture(0);
 
     const int WIDTH  = capture.get(CV_CAP_PROP_FRAME_WIDTH);
     const int HEIGHT = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
     const double FPS = capture.get(CV_CAP_PROP_FPS);
-//    cout << "SIZE: " << WIDTH << "x" << HEIGHT << endl;
+    cout << "SIZE: " << WIDTH << "x" << HEIGHT << endl;
 
     Pulse pulse;
     if (FPS != 0) {
@@ -51,6 +56,11 @@ int main(int argc, const char** argv) {
             break;
         }
         
+        PROFILE_START_DESC("flip");
+        if (shouldFlip)
+            flip(frame, frame, 1);
+        PROFILE_STOP();
+
         window.update(frame);
 
         if (shouldWrite) {

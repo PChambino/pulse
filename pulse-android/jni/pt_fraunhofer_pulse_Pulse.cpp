@@ -10,6 +10,7 @@
 
 using std::string;
 using cv::Mat;
+using cv::flip;
 
 /*
  * Class:     pt_fraunhofer_pulse_Pulse
@@ -108,8 +109,11 @@ JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse__1onFrame
     LOGD("Java_pt_fraunhofer_pulse_Pulse__1onFrame enter");
     try
     {
-        if (self)
-            ((Pulse*)self)->onFrame(*((Mat*)frame));
+        if (self) {
+            Mat& f = *((Mat*)frame); 
+            flip(f, f, 1);
+            ((Pulse*)self)->onFrame(f);
+        }
     }
     catch(cv::Exception& e)
     {

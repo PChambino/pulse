@@ -32,10 +32,11 @@ public:
         int deleteIn;
         bool selected;
         EvmGdownIIR evm;
+        Mat evmMat;
         Size evmSize;
+        Rect evmBox;
         Rect box;
         Rect roi;
-        Mat boxMat;
         Mat1d timestamps;
         Mat1d raw;
         Mat1d pulse;
