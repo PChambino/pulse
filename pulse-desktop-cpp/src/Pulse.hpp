@@ -10,6 +10,7 @@ using std::string;
 using std::vector;
 using cv::Mat;
 using cv::Mat1d;
+using cv::Mat1i;
 using cv::Rect;
 using cv::Size;
 using cv::CascadeClassifier;
@@ -31,20 +32,29 @@ public:
         int id;
         int deleteIn;
         bool selected;
-        EvmGdownIIR evm;
-        Mat evmMat;
-        Size evmSize;
-        Rect evmBox;
+        
         Rect box;
         Rect roi;
         Mat1d timestamps;
         Mat1d raw;
         Mat1d pulse;
+
         Mat1d bpms;
         double bpm;
-        
-        cv::Mat1i maxIdx;
 
+        struct {
+            EvmGdownIIR evm;
+            Mat mat;
+            Size size;
+            Rect box;
+        } evm;
+        
+        struct Peaks {
+            Mat1i indices;
+            Mat1d timestamps;
+            Mat1d values;
+        } peaks;
+        
         Face(int id, const Rect& box, int deleteIn);
         virtual ~Face();
         int nearestBox(const vector<Rect>& boxes);
@@ -52,10 +62,11 @@ public:
     };
     
 private:
-    void onFace(Mat& frame, Face& face, const Rect& box);
-    void peakDetection(Face& face);
-    void calculateBpm(Face& face);
     int nearestFace(const Rect& box);
+    void onFace(Mat& frame, Face& face, const Rect& box);
+    void peaks(Face& face);
+    void bpm(Face& face);
+    void draw(Mat& frame, const Face& face, const Rect& box);
     
     uint64 t;
     Size minFaceSize;

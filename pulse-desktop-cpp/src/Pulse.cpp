@@ -1,6 +1,7 @@
 #include "Pulse.hpp"
 #include <sstream>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core/core.hpp>
 #include "ext/opencv.hpp"
 #include "profiler/Profiler.h"
 
@@ -86,18 +87,46 @@ void Pulse::onFrame(Mat& frame) {
     }
 }
 
+int Pulse::nearestFace(const Rect& box) {
+    PROFILE_SCOPED();
+    
+    int index = -1;
+    int min = -1;
+    Point p;
+    for (size_t i = 0; i < faces.size(); i++) {
+        if (!faces.at(i).selected) {
+            index = i;
+            p = box.tl() - faces.at(i).box.tl();
+            min = p.x * p.x + p.y * p.y;
+            break;
+        }
+    }
+    if (index == -1) {
+        return -1;
+    }
+    for (size_t i = index; i < faces.size(); i++) {
+        p = box.tl() - faces.at(i).box.tl();
+        int d = p.x * p.x + p.y * p.y;
+        if (d < min) {
+            min = d;
+            index = i;
+        }
+    }
+    return index;
+}
+
 void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
     PROFILE_SCOPED();
     
     // apply Eulerian video magnification on face box
     if (magnify) {
         PROFILE_START_DESC("resize face box");
-        resize(frame(face.evmBox), face.evmMat, face.evmSize, 0, 0, CV_INTER_NN);
+        resize(frame(face.evm.box), face.evm.mat, face.evm.size, 0, 0, CV_INTER_NN);
         PROFILE_STOP();
-        face.evm.onFrame(face.evmMat, face.evmMat);
+        face.evm.evm.onFrame(face.evm.mat, face.evm.mat);
         PROFILE_START_DESC("resize and draw face box back to frame");
-        resize(face.evmMat, face.evmMat, face.evmBox.size(), 0, 0, CV_INTER_NN);
-        face.evmMat.copyTo(frame(face.evmBox));
+        resize(face.evm.mat, face.evm.mat, face.evm.box.size(), 0, 0, CV_INTER_NN);
+        face.evm.mat.copyTo(frame(face.evm.box));
         PROFILE_STOP();
     }
 
@@ -118,74 +147,50 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
     normalization(face.pulse, face.pulse);
     meanFilter(face.pulse, face.pulse);
 
-    peakDetection(face);
+    peaks(face);
     if (t % 30 == 0) { // TODO extract constant to class?
-        calculateBpm(face);
-    }
-
-    // draw some stuff
-    PROFILE_START_DESC("drawing");
-    rectangle(frame, box, BLUE);
-    rectangle(frame, face.box, BLUE, 2);
-    rectangle(frame, face.evmBox, GREEN);
-    rectangle(frame, face.roi, RED);
-
-    Point bl = face.box.tl() + Point(0, face.box.height);
-    Point g;
-    for (int i = 0; i < total; i++) {
-        g = bl + Point(i, -face.raw(i) + 50);
-        line(frame, g, g, GREEN);
-        g = bl + Point(i, -face.pulse(i) * 10 - 50);
-        line(frame, g, g, RED);
+        bpm(face);
     }
     
-    for (int i = 0; i < face.maxIdx.rows; i++) {
-        const int index = face.maxIdx(i);
-        g = bl + Point(index, -face.pulse(index) * 10 - 50);
-        circle(frame, g, 2, RED);
-    }
-
-    stringstream ss;
-    ss << face.id;
-    putText(frame, ss.str(), face.box.tl(), FONT_HERSHEY_PLAIN, 2, BLUE, 2);
-    ss.str("");
+    Scalar stdDev;
+    meanStdDev(face.peaks.indices, Scalar(), stdDev);
+    // TODO boolean to indicate valid/constant pulse signal
     
-    ss.precision(3);
-    ss << face.bpm;
-    putText(frame, ss.str(), bl, FONT_HERSHEY_PLAIN, 2, RED, 2);
-    PROFILE_STOP();
+    draw(frame, face, box);
 }
 
-void Pulse::peakDetection(Face& face) {
+// Algorithm based on: Pulse onset detection
+void Pulse::peaks(Face& face) {
+    PROFILE_SCOPED();
+    
     const int total = face.raw.rows;
     
-    face.maxIdx.pop_back(face.maxIdx.rows);
+    face.peaks.indices.pop_back(face.peaks.indices.rows);
     
     int lastIndex = 0;
+    int lastPeakIndex = 0;
     for (int i = 1; i < total; i++) {
+        
         const double diff = (face.timestamps(i) - face.timestamps(lastIndex)) * 1000. / getTickFrequency();
-
         if (diff >= 200) {
-            int maxIdx[2];
-            double maxVal;
-            minMaxIdx(face.pulse.rowRange(lastIndex, i+1), 0, &maxVal, 0, &maxIdx[0]);
+            int relativePeakIndex[2];
+            double peakValue;
+            minMaxIdx(face.pulse.rowRange(lastIndex, i+1), 0, &peakValue, 0, &relativePeakIndex[0]);
+            const int peakIndex = lastIndex + relativePeakIndex[0];
             
-            if (maxVal > 0.5) {
-                int maxIndex = lastIndex + maxIdx[0];
+            // TODO adaptive value
+            if (peakValue > 0.5 && lastIndex < peakIndex && peakIndex < i) {
 
-                if (!face.maxIdx.empty()) {
-                    const int lastMaxIndex = face.maxIdx(face.maxIdx.rows-1);
-                    const double diff = (face.timestamps(maxIndex) - face.timestamps(lastMaxIndex)) * 1000. / getTickFrequency();
-                    if (diff <= 200) {
-                        if (maxVal > face.pulse(lastMaxIndex)) {
-                            face.maxIdx.pop_back();
-                            face.maxIdx.push_back<int>(maxIndex);
-                        }
-                    } else {
-                        face.maxIdx.push_back<int>(maxIndex);
+                const double peakDiff = (face.timestamps(peakIndex) - face.timestamps(lastPeakIndex)) * 1000. / getTickFrequency();
+                if (peakDiff <= 200) {
+                    if (peakValue > face.pulse(lastPeakIndex)) {
+                        face.peaks.indices.pop_back(min(face.peaks.indices.rows, 1));
+                        face.peaks.indices.push_back<int>(peakIndex);
+                        lastPeakIndex = peakIndex;
                     }
                 } else {
-                    face.maxIdx.push_back<int>(maxIndex);
+                    face.peaks.indices.push_back<int>(peakIndex);
+                    lastPeakIndex = peakIndex;
                 }
             }
 
@@ -194,8 +199,8 @@ void Pulse::peakDetection(Face& face) {
     }
 }
 
-void Pulse::calculateBpm(Face& face) {
-    PROFILE_SCOPED_DESC("calculate bpm");
+void Pulse::bpm(Face& face) {
+    PROFILE_SCOPED();
     
     const int total = face.raw.rows;
 
@@ -228,32 +233,37 @@ void Pulse::calculateBpm(Face& face) {
     }
 }
 
-int Pulse::nearestFace(const Rect& box) {
+void Pulse::draw(Mat& frame, const Face& face, const Rect& box) {
     PROFILE_SCOPED();
     
-    int index = -1;
-    int min = -1;
-    Point p;
-    for (size_t i = 0; i < faces.size(); i++) {
-        if (!faces.at(i).selected) {
-            index = i;
-            p = box.tl() - faces.at(i).box.tl();
-            min = p.x * p.x + p.y * p.y;
-            break;
-        }
+    rectangle(frame, box, BLUE);
+    rectangle(frame, face.box, BLUE, 2);
+    rectangle(frame, face.evm.box, GREEN);
+    rectangle(frame, face.roi, RED);
+
+    Point bl = face.box.tl() + Point(0, face.box.height);
+    Point g;
+    for (int i = 0; i < face.raw.rows; i++) {
+        g = bl + Point(i, -face.raw(i) + 50);
+        line(frame, g, g, GREEN);
+        g = bl + Point(i, -face.pulse(i) * 10 - 50);
+        line(frame, g, g, RED);
     }
-    if (index == -1) {
-        return -1;
+    
+    for (int i = 0; i < face.peaks.indices.rows; i++) {
+        const int index = face.peaks.indices(i);
+        g = bl + Point(index, -face.pulse(index) * 10 - 50);
+        circle(frame, g, 2, BLUE, 2);
     }
-    for (size_t i = index; i < faces.size(); i++) {
-        p = box.tl() - faces.at(i).box.tl();
-        int d = p.x * p.x + p.y * p.y;
-        if (d < min) {
-            min = d;
-            index = i;
-        }
-    }
-    return index;
+
+    stringstream ss;
+    ss << face.id;
+    putText(frame, ss.str(), face.box.tl(), FONT_HERSHEY_PLAIN, 2, BLUE, 2);
+    ss.str("");
+    
+    ss.precision(3);
+    ss << face.bpm;
+    putText(frame, ss.str(), bl, FONT_HERSHEY_PLAIN, 2, RED, 2);
 }
 
 Pulse::Face::Face(int id, const Rect& box, int deleteIn) {
@@ -261,7 +271,7 @@ Pulse::Face::Face(int id, const Rect& box, int deleteIn) {
     this->box = box;
     this->deleteIn = deleteIn;
     this->updateBox(this->box);
-    this->evmSize = this->evmBox.size();
+    this->evm.size = this->evm.box.size();
     this->bpm = 0;
 }
 
@@ -298,7 +308,7 @@ void Pulse::Face::updateBox(const Rect& a) {
 
     Point c = box.tl() + Point(box.size().width * .5, box.size().height * 0.5);
     Point r(box.width * 0.35, box.height * 0.45);
-    evmBox = Rect(c - r, c + r);
+    evm.box = Rect(c - r, c + r);
 
     c = box.tl() + Point(box.size().width * .5, box.size().height * 0.55);
     r = Point(box.width * 0.3, box.height * 0.075);
