@@ -101,7 +101,7 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
         PROFILE_STOP();
     }
 
-    const int total = face.raw.total();
+    const int total = face.raw.rows;
     if (total >= 100) { // TODO extract constant to class?
         PROFILE_SCOPED_DESC("shift raw and timestamp");
         face.raw.rowRange(1, total).copyTo(face.raw.rowRange(0, total-1));
@@ -118,36 +118,9 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
     normalization(face.pulse, face.pulse);
     meanFilter(face.pulse, face.pulse);
 
+    peakDetection(face);
     if (t % 30 == 0) { // TODO extract constant to class?
-        PROFILE_SCOPED_DESC("bpm");
-        
-        double fps = this->fps;
-        if (fps == 0) {
-            const double diff = (face.timestamps(total-1) - face.timestamps(0)) * 1000. / getTickFrequency();
-            fps = total * 1000 / diff;
-        }
-        // TODO extract constants to class?
-        const int low = total * 40./60./fps + 1;
-        const int high = total * 240./60./fps + 1;
-
-        dft(face.pulse, powerSpectrum);
-
-        // band limit
-        powerSpectrum.rowRange(0, min((size_t)low, (size_t)total)) = ZERO;
-        powerSpectrum.pop_back(min((size_t)(total - high), (size_t)total));
-
-        // power spectrum
-        pow(powerSpectrum, 2, powerSpectrum);
-
-        if (!powerSpectrum.empty()) {
-            // grab index of max power spectrum
-            int idx[2];
-            minMaxIdx(powerSpectrum, 0, 0, 0, &idx[0]);
-
-            // calculate BPM
-            face.bpm = idx[0] * fps * 60. / (2 * total);
-            face.bpms.push_back(face.bpm);
-        }
+        calculateBpm(face);
     }
 
     // draw some stuff
@@ -165,6 +138,12 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
         g = bl + Point(i, -face.pulse(i) * 10 - 50);
         line(frame, g, g, RED);
     }
+    
+    for (int i = 0; i < face.maxIdx.rows; i++) {
+        const int index = face.maxIdx(i);
+        g = bl + Point(index, -face.pulse(index) * 10 - 50);
+        circle(frame, g, 2, RED);
+    }
 
     stringstream ss;
     ss << face.id;
@@ -175,6 +154,78 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
     ss << face.bpm;
     putText(frame, ss.str(), bl, FONT_HERSHEY_PLAIN, 2, RED, 2);
     PROFILE_STOP();
+}
+
+void Pulse::peakDetection(Face& face) {
+    const int total = face.raw.rows;
+    
+    face.maxIdx.pop_back(face.maxIdx.rows);
+    
+    int lastIndex = 0;
+    for (int i = 1; i < total; i++) {
+        const double diff = (face.timestamps(i) - face.timestamps(lastIndex)) * 1000. / getTickFrequency();
+
+        if (diff >= 200) {
+            int maxIdx[2];
+            double maxVal;
+            minMaxIdx(face.pulse.rowRange(lastIndex, i+1), 0, &maxVal, 0, &maxIdx[0]);
+            
+            if (maxVal > 0.5) {
+                int maxIndex = lastIndex + maxIdx[0];
+
+                if (!face.maxIdx.empty()) {
+                    const int lastMaxIndex = face.maxIdx(face.maxIdx.rows-1);
+                    const double diff = (face.timestamps(maxIndex) - face.timestamps(lastMaxIndex)) * 1000. / getTickFrequency();
+                    if (diff <= 200) {
+                        if (maxVal > face.pulse(lastMaxIndex)) {
+                            face.maxIdx.pop_back();
+                            face.maxIdx.push_back<int>(maxIndex);
+                        }
+                    } else {
+                        face.maxIdx.push_back<int>(maxIndex);
+                    }
+                } else {
+                    face.maxIdx.push_back<int>(maxIndex);
+                }
+            }
+
+            lastIndex = i;
+        }
+    }
+}
+
+void Pulse::calculateBpm(Face& face) {
+    PROFILE_SCOPED_DESC("calculate bpm");
+    
+    const int total = face.raw.rows;
+
+    double fps = this->fps;
+    if (fps == 0) {
+        const double diff = (face.timestamps(total-1) - face.timestamps(0)) * 1000. / getTickFrequency();
+        fps = total * 1000 / diff;
+    }
+    // TODO extract constants to class?
+    const int low = total * 40./60./fps + 1;
+    const int high = total * 240./60./fps + 1;
+
+    dft(face.pulse, powerSpectrum);
+
+    // band limit
+    powerSpectrum.rowRange(0, min((size_t)low, (size_t)total)) = ZERO;
+    powerSpectrum.pop_back(min((size_t)(total - high), (size_t)total));
+
+    // power spectrum
+    pow(powerSpectrum, 2, powerSpectrum);
+
+    if (!powerSpectrum.empty()) {
+        // grab index of max power spectrum
+        int idx[2];
+        minMaxIdx(powerSpectrum, 0, 0, 0, &idx[0]);
+
+        // calculate BPM
+        face.bpm = idx[0] * fps * 60. / (2 * total);
+        face.bpms.push_back<double>(face.bpm);
+    }
 }
 
 int Pulse::nearestFace(const Rect& box) {

@@ -42,6 +42,8 @@ public:
         Mat1d pulse;
         Mat1d bpms;
         double bpm;
+        
+        cv::Mat1i maxIdx;
 
         Face(int id, const Rect& box, int deleteIn);
         virtual ~Face();
@@ -51,6 +53,8 @@ public:
     
 private:
     void onFace(Mat& frame, Face& face, const Rect& box);
+    void peakDetection(Face& face);
+    void calculateBpm(Face& face);
     int nearestFace(const Rect& box);
     
     uint64 t;
