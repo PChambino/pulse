@@ -10,6 +10,7 @@ using std::string;
 using std::vector;
 using cv::Mat;
 using cv::Mat1d;
+using cv::Mat1i;
 using cv::Rect;
 using cv::Size;
 using cv::CascadeClassifier;
@@ -25,33 +26,55 @@ public:
 
     double relativeMinFaceSize;
     double fps;
-    bool magnify;
+    struct {
+        bool magnify;
+        double alpha;
+    } evm;
 
     struct Face {
         int id;
         int deleteIn;
         bool selected;
-        EvmGdownIIR evm;
-        Mat evmMat;
-        Size evmSize;
-        Rect evmBox;
+        
         Rect box;
         Rect roi;
         Mat1d timestamps;
         Mat1d raw;
         Mat1d pulse;
+        int noPulseIn;
+        bool existsPulse;
+
         Mat1d bpms;
         double bpm;
 
+        struct {
+            EvmGdownIIR evm;
+            Mat mat;
+            Size size;
+            Rect box;
+        } evm;
+        
+        struct Peaks {
+            Mat1i indices;
+            Mat1d timestamps;
+            Mat1d values;
+            
+            void push(int index, double timestamp, double value);
+            void pop();
+            void clear();
+        } peaks;
+        
         Face(int id, const Rect& box, int deleteIn);
-        virtual ~Face();
         int nearestBox(const vector<Rect>& boxes);
         void updateBox(const Rect& box);
     };
     
 private:
-    void onFace(Mat& frame, Face& face, const Rect& box);
     int nearestFace(const Rect& box);
+    void onFace(Mat& frame, Face& face, const Rect& box);
+    void peaks(Face& face);
+    void bpm(Face& face);
+    void draw(Mat& frame, const Face& face, const Rect& box);
     
     uint64 t;
     Size minFaceSize;
@@ -62,6 +85,7 @@ private:
     vector<Face> faces;
     int nextFaceId;
     int deleteFaceIn;
+    int holdPulseFor;
 
 
 };

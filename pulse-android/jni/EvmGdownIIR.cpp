@@ -13,7 +13,7 @@ EvmGdownIIR::EvmGdownIIR() {
     blurredSize = Size(10, 10);
     fLow = 50/60./10;
     fHigh = 60/60./10;
-    alpha = 50;
+    alpha = 100;
 }
 
 EvmGdownIIR::~EvmGdownIIR() {

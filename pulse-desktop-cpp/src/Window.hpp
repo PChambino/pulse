@@ -23,15 +23,9 @@ private:
     Pulse& pulse;
 
     const string WINDOW_NAME;
-    const string TRACKBAR_BLUR_NAME;
-    const string TRACKBAR_F_HIGH_NAME;
-    const string TRACKBAR_F_LOW_NAME;
-    const string TRACKBAR_ALPHA_NAME;
     const string TRACKBAR_MAGNIFY_NAME;
+    const string TRACKBAR_ALPHA_NAME;
 
-    int trackbarBlur;
-    int trackbarFHigh;
-    int trackbarFLow;
     int trackbarAlpha;
     int trackbarMagnify;
         

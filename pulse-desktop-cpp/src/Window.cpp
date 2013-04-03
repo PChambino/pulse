@@ -12,24 +12,15 @@ using namespace cv;
 Window::Window(Pulse& pulse) :
     pulse(pulse),
     WINDOW_NAME("EVM"),
-    TRACKBAR_BLUR_NAME("Blur level"),
-    TRACKBAR_F_HIGH_NAME("High cut-off"),
-    TRACKBAR_F_LOW_NAME("Low cut-off"),
-    TRACKBAR_ALPHA_NAME("Amplification"),
-    TRACKBAR_MAGNIFY_NAME("Magnify")
+    TRACKBAR_MAGNIFY_NAME("1. Magnify"),
+    TRACKBAR_ALPHA_NAME("2. Amplification")
 {
-//    trackbarBlur  = pulse.evm.blurLevel;
-//    trackbarFHigh = pulse.evm.fHigh * 600;
-//    trackbarFLow  = pulse.evm.fLow * 600;
-//    trackbarAlpha = pulse.evm.alpha;
-    trackbarMagnify = 1;
+    trackbarMagnify = pulse.evm.magnify;
+    trackbarAlpha = pulse.evm.alpha;
     
     namedWindow(WINDOW_NAME);
-//    createTrackbar(TRACKBAR_BLUR_NAME, WINDOW_NAME, &trackbarBlur, 8);
-//    createTrackbar(TRACKBAR_F_HIGH_NAME, WINDOW_NAME, &trackbarFHigh, 240);
-//    createTrackbar(TRACKBAR_F_LOW_NAME, WINDOW_NAME, &trackbarFLow, 240);
-//    createTrackbar(TRACKBAR_ALPHA_NAME, WINDOW_NAME, &trackbarAlpha, 1000);
     createTrackbar(TRACKBAR_MAGNIFY_NAME, WINDOW_NAME, &trackbarMagnify, 1);
+    createTrackbar(TRACKBAR_ALPHA_NAME, WINDOW_NAME, &trackbarAlpha, 500);
     
     fpsPoint = Point(10, 15);
 }
@@ -40,22 +31,18 @@ Window::~Window() {
 void Window::update(Mat& frame) {
     PROFILE_SCOPED();
 
-//    if (pulse.evm.blurLevel != trackbarBlur) {
-//        pulse.evm.first = true;
-//    }
-//    pulse.evm.blurLevel = trackbarBlur;
-//    pulse.evm.fHigh = trackbarFHigh / 600.;
-//    pulse.evm.fLow = trackbarFLow / 600.;
-//    pulse.evm.alpha = trackbarAlpha;
-    pulse.magnify = trackbarMagnify == 1;
+    // update pulse values for Eulerian video magnification
+    pulse.evm.magnify = trackbarMagnify == 1;
+    pulse.evm.alpha = trackbarAlpha;
     
     PROFILE_START_DESC("bgr2rgb");
     cvtColor(frame, frame, CV_BGR2RGB);
     PROFILE_STOP();
 
+    // process frame
     pulse.onFrame(frame);
 
-//    drawTrackbarValues(frame);
+    drawTrackbarValues(frame);
     drawFps(frame);
 
     PROFILE_START_DESC("rgb2bgr");
@@ -72,20 +59,12 @@ void Window::drawTrackbarValues(Mat& frame) {
     
     stringstream ss;
 
-    ss << TRACKBAR_BLUR_NAME << ": " << trackbarBlur;
+    ss << TRACKBAR_MAGNIFY_NAME << ": " << (trackbarMagnify == 1 ? "ON" : "OFF");
     putText(frame, ss.str(), Point(10, 30), FONT_HERSHEY_PLAIN, 1, BLUE);
     ss.str("");
 
-    ss << TRACKBAR_F_HIGH_NAME << ": " << trackbarFHigh;
-    putText(frame, ss.str(), Point(10, 45), FONT_HERSHEY_PLAIN, 1, BLUE);
-    ss.str("");
-
-    ss << TRACKBAR_F_LOW_NAME << ": " << trackbarFLow;
-    putText(frame, ss.str(), Point(10, 60), FONT_HERSHEY_PLAIN, 1, BLUE);
-    ss.str("");
-
     ss << TRACKBAR_ALPHA_NAME << ": " << trackbarAlpha;
-    putText(frame, ss.str(), Point(10, 75), FONT_HERSHEY_PLAIN, 1, BLUE);
+    putText(frame, ss.str(), Point(10, 45), FONT_HERSHEY_PLAIN, 1, BLUE);
 }
 
 void Window::drawFps(Mat& frame) {

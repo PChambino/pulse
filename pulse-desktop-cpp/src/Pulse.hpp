@@ -26,7 +26,10 @@ public:
 
     double relativeMinFaceSize;
     double fps;
-    bool magnify;
+    struct {
+        bool magnify;
+        double alpha;
+    } evm;
 
     struct Face {
         int id;
@@ -38,6 +41,8 @@ public:
         Mat1d timestamps;
         Mat1d raw;
         Mat1d pulse;
+        int noPulseIn;
+        bool existsPulse;
 
         Mat1d bpms;
         double bpm;
@@ -53,10 +58,13 @@ public:
             Mat1i indices;
             Mat1d timestamps;
             Mat1d values;
+            
+            void push(int index, double timestamp, double value);
+            void pop();
+            void clear();
         } peaks;
         
         Face(int id, const Rect& box, int deleteIn);
-        virtual ~Face();
         int nearestBox(const vector<Rect>& boxes);
         void updateBox(const Rect& box);
     };
@@ -77,6 +85,7 @@ private:
     vector<Face> faces;
     int nextFaceId;
     int deleteFaceIn;
+    int holdPulseFor;
 
 
 };
