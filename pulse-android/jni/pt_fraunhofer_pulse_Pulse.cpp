@@ -111,7 +111,6 @@ JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse__1onFrame
     {
         if (self) {
             Mat& f = *((Mat*)frame); 
-            flip(f, f, 1);
             ((Pulse*)self)->onFrame(f);
         }
     }

@@ -9,7 +9,7 @@ using std::stringstream;
 using namespace cv;
 
 Pulse::Pulse() {
-    relativeMinFaceSize = 0.3;
+    relativeMinFaceSize = 0.6;
     deleteFaceIn = 1;
     holdPulseFor = 10;
     fps = 0;
@@ -25,8 +25,10 @@ void Pulse::load(const string& filename) {
 }
 
 void Pulse::start(int width, int height) {
-    t = 0;
-    minFaceSize = Size(width * relativeMinFaceSize, height * relativeMinFaceSize);
+    now = 0;
+    lastFaceDetectionTimestamp = 0;
+    lastBpmTimestamp = 0;
+    minFaceSize = Size(min(width, height) * relativeMinFaceSize, min(width, height) * relativeMinFaceSize);
     faces.clear();
     nextFaceId = 1;
 }
@@ -35,10 +37,12 @@ void Pulse::onFrame(Mat& frame) {
     PROFILE_SCOPED();
     
     // count frames
-    t++;
+    now = getTickCount();
 
-    // detect faces only every X frames
-    if (t % 10 == 0) { // TODO change to half a second
+    // detect faces only every second
+    if ((now - lastFaceDetectionTimestamp) * 1000. / getTickFrequency() >= 1000) {
+        lastFaceDetectionTimestamp = getTickCount();
+        
         PROFILE_START_DESC("detect faces");
         // detect faces
         cvtColor(frame, gray, CV_RGB2GRAY);
@@ -194,7 +198,9 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
     
     if (face.existsPulse) {
         bpm(face);        
-    } else {
+    }
+    
+    if (!face.existsPulse){
         PROFILE_SCOPED_DESC("no pulse");
         
         if (face.pulse.rows == face.raw.rows) {
@@ -334,10 +340,17 @@ void Pulse::bpm(Face& face) {
         face.bpms.push_back<double>(idx[0] * fps * 30. / total);
     }
     
-    // update BPM when none available or after X frames
-    if (face.bpm == 0 || t % 20 == 0) { // TODO change to every second
+    // update BPM when none available or after one second
+    if (face.bpm == 0 || (now - lastBpmTimestamp) * 1000. / getTickFrequency() >= 1000) {
+        lastBpmTimestamp = getTickCount();
+        
         face.bpm = mean(face.bpms)(0);
         face.bpms.pop_back(face.bpms.rows);
+        
+        // mark as no pulse when BPM is too low
+        if (face.bpm <= 40) {
+            face.existsPulse = false;
+        }
     }
 }
 

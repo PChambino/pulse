@@ -7,11 +7,10 @@
     <application
         android:label="@string/app_name"
         android:icon="@drawable/ic_launcher"
-        android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen">
+        android:theme="@android:style/Theme.Holo.Light">
 
         <activity android:name="App"
-                  android:screenOrientation="landscape"
-                  android:configChanges="keyboardHidden|orientation">
+                  android:configChanges="keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

@@ -76,7 +76,9 @@ private:
     void bpm(Face& face);
     void draw(Mat& frame, const Face& face, const Rect& box);
     
-    uint64 t;
+    double now;
+    double lastFaceDetectionTimestamp;
+    double lastBpmTimestamp;
     Size minFaceSize;
     CascadeClassifier classifier;
     Mat gray;

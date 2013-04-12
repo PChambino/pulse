@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="pulse-android-custom-rules">
+  
+  <!-- quick check on ndk.dir -->
+  <fail
+          message="ndk.dir is missing in your local.properties file."
+          unless="ndk.dir"
+  />
+
+  <target name="-pre-build">
+    
+    <!-- rsync pulse-android-cpp files to jni folder -->
+    <exec executable="rsync">
+      <arg value="-au"/>
+      <!-- src -->
+      <arg value="../pulse-desktop-cpp/src/Pulse.hpp"/>
+      <arg value="../pulse-desktop-cpp/src/Pulse.cpp"/>
+      <arg value="../pulse-desktop-cpp/src/EvmGdownIIR.hpp"/>
+      <arg value="../pulse-desktop-cpp/src/EvmGdownIIR.cpp"/>
+      <arg value="../pulse-desktop-cpp/src/ext"/>
+      <arg value="../pulse-desktop-cpp/src/profiler"/>
+      <!-- dst -->
+      <arg value="jni"/>
+    </exec>
+
+    <!-- android ndk-build jni files -->
+    <exec executable="${ndk.dir}/ndk-build"/>
+
+  </target>
+
+  <target name="-pre-clean">
+
+    <!-- android ndk-build clean jni files -->
+    <exec executable="${ndk.dir}/ndk-build">
+      <arg value="clean"/>
+    </exec>
+    
+  </target>
+
+</project>
