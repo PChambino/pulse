@@ -14,7 +14,7 @@ Pulse::Pulse() {
     holdPulseFor = 10;
     fps = 0;
     evm.magnify = true;
-    evm.alpha = 100;
+    evm.alpha = 200;
 }
 
 Pulse::~Pulse() {
