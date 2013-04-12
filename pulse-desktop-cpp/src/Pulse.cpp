@@ -428,10 +428,10 @@ void Pulse::Face::updateBox(const Rect& a) {
     interpolate(box, a, box, 0.1);
 
     Point c = box.tl() + Point(box.size().width * .5, box.size().height * 0.5);
-    Point r(box.width * 0.35, box.height * 0.45);
+    Point r(box.width * 0.3, box.height * 0.45);
     evm.box = Rect(c - r, c + r);
 
-    c = box.tl() + Point(box.size().width * .5, box.size().height * 0.55);
-    r = Point(box.width * 0.3, box.height * 0.075);
+    c = box.tl() + Point(box.size().width * .5, box.size().height * 0.7);
+    r = Point(box.width * 0.2, box.height * 0.2);
     roi = Rect(c - r, c + r);
 }
