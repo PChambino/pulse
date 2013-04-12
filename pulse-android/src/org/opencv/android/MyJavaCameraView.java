@@ -136,9 +136,9 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
 
                     if ((getLayoutParams().width == LayoutParams.MATCH_PARENT) && (getLayoutParams().height == LayoutParams.MATCH_PARENT)) {
                         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                            mScale = Math.min(((float)height)/mFrameWidth, ((float)width)/mFrameHeight);
+                            mScale = Math.max(((float)height)/mFrameWidth, ((float)width)/mFrameHeight);
                         } else {
-                            mScale = Math.min(((float)width)/mFrameWidth, ((float)height)/mFrameHeight);
+                            mScale = Math.max(((float)width)/mFrameWidth, ((float)height)/mFrameHeight);
                         }
                     }
 
