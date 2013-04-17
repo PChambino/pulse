@@ -34,10 +34,26 @@ JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse__1start
 /*
  * Class:     pt_fraunhofer_pulse_Pulse
  * Method:    _onFrame
- * Signature: (JJJ)V
+ * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse__1onFrame
   (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     pt_fraunhofer_pulse_Pulse
+ * Method:    _facesCount
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_pt_fraunhofer_pulse_Pulse__1facesCount
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     pt_fraunhofer_pulse_Pulse
+ * Method:    _face
+ * Signature: (JI)J
+ */
+JNIEXPORT jlong JNICALL Java_pt_fraunhofer_pulse_Pulse__1face
+  (JNIEnv *, jclass, jlong, jint);
 
 /*
  * Class:     pt_fraunhofer_pulse_Pulse
