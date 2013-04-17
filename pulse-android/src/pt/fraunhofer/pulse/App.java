@@ -52,7 +52,7 @@ public class App extends Activity implements CvCameraViewListener {
 
         camera.enableView();
     }
-
+    
     private File createFileFromResource(File dir, int id, String extension) {
         String name = getResources().getResourceEntryName(id) + "." + extension;
         InputStream is = getResources().openRawResource(id);
@@ -74,7 +74,7 @@ public class App extends Activity implements CvCameraViewListener {
 
         return file;
     }
-
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +112,7 @@ public class App extends Activity implements CvCameraViewListener {
 
     @Override
     public void onCameraViewStarted(int width, int height) {
+        Log.d(TAG, "onCameraViewStarted("+width+", "+height+")");
         pulse.start(width, height);
     }
 

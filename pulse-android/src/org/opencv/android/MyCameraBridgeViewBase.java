@@ -438,11 +438,7 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
     // NOTE: On Android 4.1.x the function must be called before SurfaceTextre constructor!
     protected void AllocateCache()
     {
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            mCacheBitmap = Bitmap.createBitmap(mFrameHeight, mFrameWidth, Bitmap.Config.ARGB_8888);
-        } else {
-            mCacheBitmap = Bitmap.createBitmap(mFrameWidth, mFrameHeight, Bitmap.Config.ARGB_8888);
-        }
+        mCacheBitmap = Bitmap.createBitmap(mFrameWidth, mFrameHeight, Bitmap.Config.ARGB_8888);
     }
 
     public interface ListItemAccessor {

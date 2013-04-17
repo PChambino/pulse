@@ -132,18 +132,6 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
                     mFrameWidth = params.getPreviewSize().width;
                     mFrameHeight = params.getPreviewSize().height;
 
-                    if ((getLayoutParams().width == LayoutParams.MATCH_PARENT) && (getLayoutParams().height == LayoutParams.MATCH_PARENT)) {
-                        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                            mScale = Math.max(((float)height)/mFrameWidth, ((float)width)/mFrameHeight);
-                        } else {
-                            mScale = Math.max(((float)width)/mFrameWidth, ((float)height)/mFrameHeight);
-                        }
-                    }
-
-                    if (mFpsMeter != null) {
-                        mFpsMeter.setResolution(mFrameWidth, mFrameHeight);
-                    }
-
                     int size = mFrameWidth * mFrameHeight;
                     size  = size * ImageFormat.getBitsPerPixel(params.getPreviewFormat()) / 8;
                     mBuffer = new byte[size];
@@ -155,9 +143,22 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
                     mFrameChain[0] = new Mat(mFrameHeight + (mFrameHeight/2), mFrameWidth, CvType.CV_8UC1);
                     mFrameChain[1] = new Mat(mFrameHeight + (mFrameHeight/2), mFrameWidth, CvType.CV_8UC1);
 
+                    mCameraFrame = new MyJavaCameraView.JavaCameraFrame(mFrameChain[mChainIdx], mFrameWidth, mFrameHeight);
+
+                    if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        mFrameWidth = params.getPreviewSize().height;
+                        mFrameHeight = params.getPreviewSize().width;
+                    }
+                    
                     AllocateCache();
 
-                    mCameraFrame = new MyJavaCameraView.JavaCameraFrame(mFrameChain[mChainIdx], mFrameWidth, mFrameHeight);
+                    if ((getLayoutParams().width == LayoutParams.MATCH_PARENT) && (getLayoutParams().height == LayoutParams.MATCH_PARENT)) {
+                        mScale = Math.max(((float)width)/mFrameWidth, ((float)height)/mFrameHeight);
+                    }
+
+                    if (mFpsMeter != null) {
+                        mFpsMeter.setResolution(mFrameWidth, mFrameHeight);
+                    }
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                         mSurfaceTexture = new SurfaceTexture(MAGIC_TEXTURE_ID);
