@@ -16,12 +16,15 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
 import org.opencv.highgui.Highgui;
+import pt.fraunhofer.pulse.Pulse.Face;
+import pt.fraunhofer.pulse.view.BpmView;
 
 public class App extends Activity implements CvCameraViewListener {
 
     private static final String TAG = "Pulse::App";
 
     private MyCameraBridgeViewBase camera;
+    private BpmView bpm;
     private Pulse pulse;
     
     private BaseLoaderCallback loaderCallback = new BaseLoaderCallback(this) {
@@ -86,6 +89,8 @@ public class App extends Activity implements CvCameraViewListener {
         camera.setCvCameraViewListener(this);
         camera.SetCaptureFormat(Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB);
         camera.setMaxFrameSize(650, 650);
+        
+        bpm = (BpmView) findViewById(R.id.bpm);
     }
 
     @Override
@@ -123,6 +128,12 @@ public class App extends Activity implements CvCameraViewListener {
     @Override
     public Mat onCameraFrame(Mat frame) {
         pulse.onFrame(frame);
+        for (final Face face : pulse.getFaces()) {
+            bpm.setBpm(face.getBpm());
+//            System.out.println("Face "+face.getId()+": "+face.getBpm());
+//            System.out.println(face.getBox());
+//            System.out.println(face.getPulse());
+        }
         return frame;
     }
 

@@ -18,10 +18,10 @@ JNIEXPORT jint JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1id
 /*
  * Class:     pt_fraunhofer_pulse_Pulse_Face
  * Method:    _box
- * Signature: (J)J
+ * Signature: (JJ)J
  */
 JNIEXPORT jlong JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1box
-  (JNIEnv *, jclass, jlong);
+  (JNIEnv *, jclass, jlong, jlong);
 
 /*
  * Class:     pt_fraunhofer_pulse_Pulse_Face

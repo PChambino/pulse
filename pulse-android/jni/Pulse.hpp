@@ -68,6 +68,8 @@ public:
         int nearestBox(const vector<Rect>& boxes);
         void updateBox(const Rect& box);
     };
+
+    vector<Face> faces;
     
 private:
     int nearestFace(const Rect& box);
@@ -84,7 +86,6 @@ private:
     Mat gray;
     vector<Rect> boxes;
     Mat1d powerSpectrum;
-    vector<Face> faces;
     int nextFaceId;
     int deleteFaceIn;
     int holdPulseFor;

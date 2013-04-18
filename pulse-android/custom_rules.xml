@@ -24,7 +24,7 @@
     </exec>
 
     <!-- android ndk-build jni files -->
-    <exec executable="${ndk.dir}/ndk-build"/>
+    <exec executable="${ndk.dir}/ndk-build" failonerror="true"/>
 
   </target>
 

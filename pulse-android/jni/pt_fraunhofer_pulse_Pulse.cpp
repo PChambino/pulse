@@ -10,7 +10,6 @@
 
 using std::string;
 using cv::Mat;
-using cv::flip;
 
 /*
  * Class:     pt_fraunhofer_pulse_Pulse
@@ -101,7 +100,7 @@ JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse__1start
 /*
  * Class:     pt_fraunhofer_pulse_Pulse
  * Method:    _onFrame
- * Signature: (JJJ)V
+ * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse__1onFrame
   (JNIEnv *jenv, jclass, jlong self, jlong frame)
@@ -110,8 +109,7 @@ JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse__1onFrame
     try
     {
         if (self) {
-            Mat& f = *((Mat*)frame); 
-            ((Pulse*)self)->onFrame(f);
+            ((Pulse*)self)->onFrame(*((Mat*)frame));
         }
     }
     catch(cv::Exception& e)
@@ -126,6 +124,64 @@ JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse__1onFrame
         jenv->ThrowNew(je, "Unknown exception in JNI code.");
     }
     LOGD("Java_pt_fraunhofer_pulse_Pulse__1onFrame exit");
+  }
+
+/*
+ * Class:     pt_fraunhofer_pulse_Pulse
+ * Method:    _facesCount
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_pt_fraunhofer_pulse_Pulse__1facesCount
+  (JNIEnv *jenv, jclass, jlong self)
+  {
+    LOGD("Java_pt_fraunhofer_pulse_Pulse__1facesCount enter");
+    try
+    {
+        if (self)
+            return ((Pulse*)self)->faces.size();
+    }
+    catch(cv::Exception& e)
+    {
+        jclass je = jenv->FindClass("org/opencv/core/CvException");
+        if(!je) je = jenv->FindClass("java/lang/Exception");
+        jenv->ThrowNew(je, e.what());
+    }
+    catch (...)
+    {
+        jclass je = jenv->FindClass("java/lang/Exception");
+        jenv->ThrowNew(je, "Unknown exception in JNI code.");
+    }
+    LOGD("Java_pt_fraunhofer_pulse_Pulse__1facesCount exit");
+    return 0;
+  }
+
+/*
+ * Class:     pt_fraunhofer_pulse_Pulse
+ * Method:    _face
+ * Signature: (JI)J
+ */
+JNIEXPORT jlong JNICALL Java_pt_fraunhofer_pulse_Pulse__1face
+  (JNIEnv *jenv, jclass, jlong self, jint i)
+  {
+    LOGD("Java_pt_fraunhofer_pulse_Pulse__1face enter");
+    try
+    {
+        if (self)
+            return (jlong)(&((Pulse*)self)->faces.at(i));
+    }
+    catch(cv::Exception& e)
+    {
+        jclass je = jenv->FindClass("org/opencv/core/CvException");
+        if(!je) je = jenv->FindClass("java/lang/Exception");
+        jenv->ThrowNew(je, e.what());
+    }
+    catch (...)
+    {
+        jclass je = jenv->FindClass("java/lang/Exception");
+        jenv->ThrowNew(je, "Unknown exception in JNI code.");
+    }
+    LOGD("Java_pt_fraunhofer_pulse_Pulse__1face exit");
+    return 0;
   }
 
 /*

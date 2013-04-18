@@ -10,12 +10,13 @@
         android:layout_weight="0.15">
         
         <pt.fraunhofer.pulse.view.BpmView
+            android:id="@+id/bpm"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.3"
-            android:text="60"/>
+            android:layout_weight="0.3"/>
 
         <pt.fraunhofer.pulse.view.PulseView
+            android:id="@+id/pulse"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.7"/>

@@ -53,6 +53,8 @@ public class Pulse {
     private static native void _destroy(long self);
     
     public static class Face {
+        
+        private MatOfRect box;
 
         private Face(long addr) {
             this.self = addr;
@@ -63,7 +65,9 @@ public class Pulse {
         }
         
         public Rect getBox() {
-            return MatOfRect.fromNativeAddr(_box(self)).toArray()[0];
+            if (box == null) box = new MatOfRect();
+            _box(self, box.getNativeObjAddr());
+            return box.toArray()[0];
         }
         
         public double getBpm() {
@@ -76,7 +80,7 @@ public class Pulse {
 
         private long self = 0;
         private static native int _id(long self);
-        private static native long _box(long self);
+        private static native long _box(long self, long mat);
         private static native double _bpm(long self);
         private static native long _pulse(long self);
     }
