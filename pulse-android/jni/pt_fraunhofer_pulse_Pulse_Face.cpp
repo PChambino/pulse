@@ -10,6 +10,7 @@
 
 using std::vector;
 using cv::Mat;
+using cv::Mat1d;
 using cv::Rect;
 
 /*
@@ -45,9 +46,9 @@ JNIEXPORT jint JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1id
 /*
  * Class:     pt_fraunhofer_pulse_Pulse_Face
  * Method:    _box
- * Signature: (JJ)J
+ * Signature: (JJ)V
  */
-JNIEXPORT jlong JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1box
+JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1box
   (JNIEnv *jenv, jclass, jlong self, jlong mat)
   {
     LOGD("Java_pt_fraunhofer_pulse_Pulse_00024Face__1box enter");
@@ -71,7 +72,6 @@ JNIEXPORT jlong JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1box
         jenv->ThrowNew(je, "Unknown exception in JNI code.");
     }
     LOGD("Java_pt_fraunhofer_pulse_Pulse_00024Face__1box exit");
-    return mat;
   }
 
 /*
@@ -107,17 +107,16 @@ JNIEXPORT jdouble JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1bpm
 /*
  * Class:     pt_fraunhofer_pulse_Pulse_Face
  * Method:    _pulse
- * Signature: (J)J
+ * Signature: (JJ)V
  */
-JNIEXPORT jlong JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1pulse
-  (JNIEnv *jenv, jclass, jlong self)
+JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1pulse
+  (JNIEnv *jenv, jclass, jlong self, jlong mat)
   {
     LOGD("Java_pt_fraunhofer_pulse_Pulse_00024Face__1pulse enter");
-    jlong pulse = 0;
     try
     {
         if (self)
-            pulse = (jlong)(&((Pulse::Face*)self)->pulse);
+            *((Mat*)mat) = ((Pulse::Face*)self)->pulse;
     }
     catch(cv::Exception& e)
     {
@@ -131,5 +130,34 @@ JNIEXPORT jlong JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1pulse
         jenv->ThrowNew(je, "Unknown exception in JNI code.");
     }
     LOGD("Java_pt_fraunhofer_pulse_Pulse_00024Face__1pulse exit");
-    return pulse;
+  }
+
+/*
+ * Class:     pt_fraunhofer_pulse_Pulse_Face
+ * Method:    _existsPulse
+ * Signature: (J)Z
+ */
+JNIEXPORT jboolean JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1existsPulse
+  (JNIEnv *jenv, jclass, jlong self)
+  {
+    LOGD("Java_pt_fraunhofer_pulse_Pulse_00024Face__1existsPulse enter");
+    jboolean result = false;
+    try
+    {
+        if (self)
+            result = ((Pulse::Face*)self)->existsPulse;
+    }
+    catch(cv::Exception& e)
+    {
+        jclass je = jenv->FindClass("org/opencv/core/CvException");
+        if(!je) je = jenv->FindClass("java/lang/Exception");
+        jenv->ThrowNew(je, e.what());
+    }
+    catch (...)
+    {
+        jclass je = jenv->FindClass("java/lang/Exception");
+        jenv->ThrowNew(je, "Unknown exception in JNI code.");
+    }
+    LOGD("Java_pt_fraunhofer_pulse_Pulse_00024Face__1existsPulse exit");
+    return result;
   }

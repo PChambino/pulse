@@ -55,6 +55,7 @@ public class Pulse {
     public static class Face {
         
         private MatOfRect box;
+        private MatOfDouble pulse;
 
         private Face(long addr) {
             this.self = addr;
@@ -75,13 +76,20 @@ public class Pulse {
         }
         
         public double[] getPulse() {
-            return MatOfDouble.fromNativeAddr(_pulse(self)).toArray();
+            if (pulse == null) pulse = new MatOfDouble();
+            _pulse(self, pulse.getNativeObjAddr());
+            return pulse.toArray();
+        }
+        
+        public boolean existsPulse() {
+            return _existsPulse(self);
         }
 
         private long self = 0;
         private static native int _id(long self);
-        private static native long _box(long self, long mat);
+        private static native void _box(long self, long mat);
         private static native double _bpm(long self);
-        private static native long _pulse(long self);
+        private static native void _pulse(long self, long mat);
+        private static native boolean _existsPulse(long self);
     }
 }

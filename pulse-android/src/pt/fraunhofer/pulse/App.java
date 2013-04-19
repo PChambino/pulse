@@ -18,13 +18,15 @@ import org.opencv.core.Mat;
 import org.opencv.highgui.Highgui;
 import pt.fraunhofer.pulse.Pulse.Face;
 import pt.fraunhofer.pulse.view.BpmView;
+import pt.fraunhofer.pulse.view.PulseView;
 
 public class App extends Activity implements CvCameraViewListener {
 
     private static final String TAG = "Pulse::App";
 
     private MyCameraBridgeViewBase camera;
-    private BpmView bpm;
+    private BpmView bpmView;
+    private PulseView pulseView;
     private Pulse pulse;
     
     private BaseLoaderCallback loaderCallback = new BaseLoaderCallback(this) {
@@ -90,7 +92,8 @@ public class App extends Activity implements CvCameraViewListener {
         camera.SetCaptureFormat(Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB);
         camera.setMaxFrameSize(650, 650);
         
-        bpm = (BpmView) findViewById(R.id.bpm);
+        bpmView = (BpmView) findViewById(R.id.bpm);
+        pulseView = (PulseView) findViewById(R.id.pulse);
     }
 
     @Override
@@ -128,11 +131,38 @@ public class App extends Activity implements CvCameraViewListener {
     @Override
     public Mat onCameraFrame(Mat frame) {
         pulse.onFrame(frame);
-        for (final Face face : pulse.getFaces()) {
-            bpm.setBpm(face.getBpm());
-//            System.out.println("Face "+face.getId()+": "+face.getBpm());
-//            System.out.println(face.getBox());
-//            System.out.println(face.getPulse());
+        Face[] faces = pulse.getFaces();
+        if (faces.length > 0) {
+            Face face = faces[0]; // TODO support multiple faces
+            if (face.existsPulse()) {
+                final double bpm = face.getBpm();
+                final double[] signal = face.getPulse();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        bpmView.setBpm(bpm);
+                        pulseView.setPulse(signal);
+                    }
+                });
+            } else {
+                // no pulse
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        bpmView.setNoBpm();
+                        pulseView.setNoPulse();
+                    }
+                });
+            }
+        } else {
+            // no faces
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    bpmView.setNoBpm();
+                    pulseView.setNoPulse();
+                }
+            });
         }
         return frame;
     }

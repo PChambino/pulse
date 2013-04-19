@@ -18,9 +18,9 @@ JNIEXPORT jint JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1id
 /*
  * Class:     pt_fraunhofer_pulse_Pulse_Face
  * Method:    _box
- * Signature: (JJ)J
+ * Signature: (JJ)V
  */
-JNIEXPORT jlong JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1box
+JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1box
   (JNIEnv *, jclass, jlong, jlong);
 
 /*
@@ -34,9 +34,17 @@ JNIEXPORT jdouble JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1bpm
 /*
  * Class:     pt_fraunhofer_pulse_Pulse_Face
  * Method:    _pulse
- * Signature: (J)J
+ * Signature: (JJ)V
  */
-JNIEXPORT jlong JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1pulse
+JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1pulse
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     pt_fraunhofer_pulse_Pulse_Face
+ * Method:    _existsPulse
+ * Signature: (J)Z
+ */
+JNIEXPORT jboolean JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1existsPulse
   (JNIEnv *, jclass, jlong);
 
 #ifdef __cplusplus
