@@ -277,13 +277,19 @@ void Pulse::peaks(Face& face) {
     meanStdDev(face.peaks.values, Scalar(), peakValuesStdDev);
     const double diff = (face.timestamps(face.raw.rows - 1) - face.timestamps(0)) / getTickFrequency();
     
+    Scalar peakTimestampsStdDev;
+    if (face.peaks.indices.rows >= 3) {
+        meanStdDev((face.peaks.timestamps.rowRange(1, face.peaks.timestamps.rows) - face.peaks.timestamps.rowRange(0, face.peaks.timestamps.rows - 1)) / getTickFrequency(), Scalar(), peakTimestampsStdDev);
+    }
+    
     // TODO extract constants to class?
     face.existsPulse = 
             3 <= face.peaks.indices.rows &&
             40/60 * diff <= face.peaks.indices.rows &&
             face.peaks.indices.rows <= 240/60 * diff &&
-            peakValuesStdDev(0) <= 0.5;
-    
+            peakValuesStdDev(0) <= 0.5 &&
+            peakTimestampsStdDev(0) <= 0.5;
+        
     // keep pulse for a few frames
     if (face.existsPulse) {
         face.noPulseIn = holdPulseFor;

@@ -1,5 +1,9 @@
 package pt.fraunhofer.pulse.view;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -8,6 +12,7 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.TextView;
 
 public class BpmView extends TextView {
@@ -30,6 +35,7 @@ public class BpmView extends TextView {
     private double bpm;
     
     private Paint circlePaint;
+    private ValueAnimator circlePaintAnimator;
 
     private void init() {
         setNoBpm();
@@ -37,15 +43,30 @@ public class BpmView extends TextView {
         setBackgroundColor(Color.DKGRAY);
         setTextColor(Color.LTGRAY);
         setTextSize(TypedValue.COMPLEX_UNIT_FRACTION_PARENT, 60f);
-        setTypeface(Typeface.MONOSPACE);
+        setTypeface(Typeface.createFromAsset(getContext().getAssets(), "fonts/ds_digital/DS-DIGIB.TTF"));
         setGravity(Gravity.CENTER);
         
         circlePaint = initCirclePaint();
+        
+        circlePaintAnimator = ObjectAnimator.ofInt(circlePaint, "Alpha", 0, 256);
+        circlePaintAnimator.setInterpolator(new AccelerateInterpolator());
+        circlePaintAnimator.setDuration(1000);
+        circlePaintAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        circlePaintAnimator.setRepeatMode(ValueAnimator.REVERSE);
+        circlePaintAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+                if (getText() == "-" && circlePaint.getAlpha() == 0) {
+                    animation.cancel();
+                }
+            }
+        });
     }
     
     private Paint initCirclePaint() {
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         p.setColor(Color.RED);
+        p.setAlpha(0);
         p.setStyle(Paint.Style.FILL);
         return p;
     }
@@ -72,6 +93,9 @@ public class BpmView extends TextView {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawCircle(20, getHeight() / 2f, 10, circlePaint);
+        if (getText() != "-" && !circlePaintAnimator.isStarted()) {
+            circlePaintAnimator.start();
+        }
     }
     
 }
