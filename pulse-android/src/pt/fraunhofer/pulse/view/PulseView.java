@@ -25,6 +25,8 @@ public class PulseView extends View {
     }
     
     private double[] pulse;
+    private int gridSize = 100;
+    private int gridStep = 5;
     
     private Paint pulsePaint;
     private Paint zeroPaint;
@@ -42,14 +44,14 @@ public class PulseView extends View {
     private Paint initPulsePaint() {
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         p.setColor(Color.RED);
-        p.setStrokeWidth(2);
+        p.setStrokeWidth(4);
         return p;
     }
 
     private Paint initZeroPaint() {
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         p.setColor(Color.LTGRAY);
-        p.setStrokeWidth(2);
+        p.setStrokeWidth(4);
         return p;
     }
     
@@ -73,18 +75,43 @@ public class PulseView extends View {
         setPulse(new double[0]);
     }
 
+    public int getGridSize() {
+        return gridSize;
+    }
+
+    public void setGridSize(int gridSize) {
+        this.gridSize = gridSize;
+        invalidate();
+    }
+
+    public int getGridStep() {
+        return gridStep;
+    }
+
+    public void setGridStep(int gridStep) {
+        this.gridStep = gridStep;
+        invalidate();
+    }
+    
     @Override
     protected void onDraw(Canvas canvas) {
-        canvas.drawLine(0, y(0), getWidth(), y(0), zeroPaint);
-        canvas.drawLine(0, 0, 0, getHeight(), gridPaint);
-        for (int i = 1; i < pulse.length; i++) {
+        // vertical grid lines
+        for (int i = 0; i < gridSize; i += gridStep) {
             canvas.drawLine(x(i), 0, x(i), getHeight(), gridPaint);
+        }
+
+        // vertical and horizontal zero lines
+        canvas.drawLine(2, 0, 2, getHeight(), zeroPaint);
+        canvas.drawLine(0, y(0), getWidth(), y(0), zeroPaint);
+        
+        // pulse signal
+        for (int i = 1; i < pulse.length; i++) {
             canvas.drawLine(x(i-1), y(pulse[i-1]), x(i), y(pulse[i]), pulsePaint);
         }
     }
     
     private float x(int x) {
-        return x * getWidth() / (pulse.length - 1);
+        return x * getWidth() / (gridSize - 1);
     }
     
     private float y(double y) {

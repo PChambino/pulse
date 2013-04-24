@@ -56,7 +56,7 @@ JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1box
     {
         if (self) {
             vector<Rect> v;
-            v.push_back(((Pulse::Face*)self)->box);
+            v.push_back(((Pulse::Face*)self)->evm.box);
             *((Mat*)mat) = Mat(v, true);
         }
     }

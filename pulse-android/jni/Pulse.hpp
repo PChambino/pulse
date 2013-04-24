@@ -24,6 +24,7 @@ public:
     void start(int width, int height);
     void onFrame(Mat& frame);
 
+    int maxSignalSize;
     double relativeMinFaceSize;
     double fps;
     struct {

@@ -9,7 +9,8 @@ using std::stringstream;
 using namespace cv;
 
 Pulse::Pulse() {
-    relativeMinFaceSize = 0.5;
+    maxSignalSize = 100;
+    relativeMinFaceSize = 0.4;
     deleteFaceIn = 1;
     holdPulseFor = 10;
     fps = 0;
@@ -166,7 +167,7 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
     }
 
     // capture raw value and timestamp, shifting if necessary
-    if (face.raw.rows >= 100) { // TODO extract constant to class?
+    if (face.raw.rows >= maxSignalSize) {
         PROFILE_SCOPED_DESC("shift raw and timestamp");
         const int total = face.raw.rows;
         face.raw.rowRange(1, total).copyTo(face.raw.rowRange(0, total - 1));
@@ -213,7 +214,9 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
         face.bpm = 0;
     }
     
+#ifndef __ANDROID__
     draw(frame, face, box);
+#endif
 }
 
 // Algorithm based on: Pulse onset detection

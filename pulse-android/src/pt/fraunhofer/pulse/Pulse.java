@@ -31,6 +31,10 @@ public class Pulse {
         }
         return faces;
     }
+    
+    public int getMaxSignalSize() {
+        return _maxSignalSize(self);
+    }
 
     public void release() {
         _destroy(self);
@@ -50,6 +54,7 @@ public class Pulse {
     private static native void _onFrame(long self, long frame);
     private static native int _facesCount(long self);
     private static native long _face(long self, int i);
+    private static native int _maxSignalSize(long self);
     private static native void _destroy(long self);
     
     public static class Face {

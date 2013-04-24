@@ -11,7 +11,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -98,6 +97,8 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
          * TODO: pass the parameters specifying the format of the frame (BPP, YUV or RGB and etc)
          */
         public Mat onCameraFrame(Mat inputFrame);
+        
+        public void onCameraFrame(Canvas canvas);
     }
 
     public interface CvCameraViewListener2 {
@@ -121,6 +122,8 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
          * TODO: pass the parameters specifying the format of the frame (BPP, YUV or RGB and etc)
          */
         public Mat onCameraFrame(MyCameraBridgeViewBase.CvCameraViewFrame inputFrame);
+
+        public void onCameraFrame(Canvas canvas);
     };
 
     protected class CvCameraViewListenerAdapter implements MyCameraBridgeViewBase.CvCameraViewListener2  {
@@ -155,6 +158,11 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
             return result;
         }
 
+        @Override
+        public void onCameraFrame(Canvas canvas) {
+            mOldStyleListener.onCameraFrame(canvas);
+        }
+        
         public void setFrameFormat(int format) {
             mPreviewFormat = format;
         }
@@ -400,6 +408,9 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
         }
 
         if (bmpValid && mCacheBitmap != null) {
+            if (mListener != null) {
+                mListener.onCameraFrame(new Canvas(mCacheBitmap));
+            }
             Canvas canvas = getHolder().lockCanvas();
             if (canvas != null) {
                 canvas.drawColor(0, android.graphics.PorterDuff.Mode.CLEAR);

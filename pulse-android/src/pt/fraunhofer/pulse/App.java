@@ -2,6 +2,10 @@ package pt.fraunhofer.pulse;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.WindowManager;
@@ -15,6 +19,7 @@ import org.opencv.android.MyCameraBridgeViewBase.CvCameraViewListener;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
+import org.opencv.core.Rect;
 import org.opencv.highgui.Highgui;
 import pt.fraunhofer.pulse.Pulse.Face;
 import pt.fraunhofer.pulse.view.BpmView;
@@ -28,6 +33,8 @@ public class App extends Activity implements CvCameraViewListener {
     private BpmView bpmView;
     private PulseView pulseView;
     private Pulse pulse;
+    
+    private Paint faceBoxPaint;
     
     private BaseLoaderCallback loaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -54,6 +61,8 @@ public class App extends Activity implements CvCameraViewListener {
         File file = createFileFromResource(dir, R.raw.lbpcascade_frontalface, "xml");
         pulse.load(file.getAbsolutePath());
         dir.delete();
+        
+        pulseView.setGridSize(pulse.getMaxSignalSize());
 
         camera.enableView();
     }
@@ -94,6 +103,8 @@ public class App extends Activity implements CvCameraViewListener {
         
         bpmView = (BpmView) findViewById(R.id.bpm);
         pulseView = (PulseView) findViewById(R.id.pulse);
+        
+        faceBoxPaint = initFaceBoxPaint();
     }
 
     @Override
@@ -131,29 +142,14 @@ public class App extends Activity implements CvCameraViewListener {
     @Override
     public Mat onCameraFrame(Mat frame) {
         pulse.onFrame(frame);
+        return frame;
+    }
+
+    @Override
+    public void onCameraFrame(Canvas canvas) {
         Face[] faces = pulse.getFaces();
         if (faces.length > 0) {
-            Face face = faces[0]; // TODO support multiple faces
-            if (face.existsPulse()) {
-                final double bpm = face.getBpm();
-                final double[] signal = face.getPulse();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        bpmView.setBpm(bpm);
-                        pulseView.setPulse(signal);
-                    }
-                });
-            } else {
-                // no pulse
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        bpmView.setNoBpm();
-                        pulseView.setNoPulse();
-                    }
-                });
-            }
+            onFace(canvas, faces[0]); // TODO support multiple faces
         } else {
             // no faces
             runOnUiThread(new Runnable() {
@@ -164,7 +160,64 @@ public class App extends Activity implements CvCameraViewListener {
                 }
             });
         }
-        return frame;
     }
-
+        
+    private void onFace(Canvas canvas, Face face) {
+        // draw face box
+        canvas.drawPath(createFaceBoxPath(face.getBox()), faceBoxPaint);
+        
+        // update views
+        if (face.existsPulse()) {
+            final double bpm = face.getBpm();
+            final double[] signal = face.getPulse();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    bpmView.setBpm(bpm);
+                    pulseView.setPulse(signal);
+                }
+            });
+        } else {
+            // no pulse
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    bpmView.setNoBpm();
+                    pulseView.setNoPulse();
+                }
+            });
+        }
+    }
+    
+    private Paint initFaceBoxPaint() {
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        p.setColor(Color.WHITE);
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(4);
+        p.setStrokeCap(Paint.Cap.ROUND);
+        p.setStrokeJoin(Paint.Join.ROUND);
+        return p;
+    }
+    
+    private Path createFaceBoxPath(Rect box) {
+        float size = box.width * 0.25f;
+        Path path = new Path();
+        // top left
+        path.moveTo(box.x, box.y + size);
+        path.lineTo(box.x, box.y);
+        path.lineTo(box.x + size, box.y);
+        // top right
+        path.moveTo(box.x + box.width, box.y + size);
+        path.lineTo(box.x + box.width, box.y);
+        path.lineTo(box.x + box.width - size, box.y);
+        // bottom left
+        path.moveTo(box.x, box.y + box.height - size);
+        path.lineTo(box.x, box.y + box.height);
+        path.lineTo(box.x + size, box.y + box.height);
+        // bottom right
+        path.moveTo(box.x + box.width, box.y + box.height - size);
+        path.lineTo(box.x + box.width, box.y + box.height);
+        path.lineTo(box.x + box.width - size, box.y + box.height);
+        return path;
+    }
 }
