@@ -35,6 +35,22 @@ public class Pulse {
     public int getMaxSignalSize() {
         return _maxSignalSize(self);
     }
+    
+    public boolean hasMagnification() {
+        return _magnification(self);
+    }
+    
+    public void setMagnification(boolean m) {
+        _magnification(self, m);
+    }
+    
+    public int getMagnificationFactor() {
+        return _magnificationFactor(self);
+    }
+    
+    public void setMagnificationFactor(int m) {
+        _magnificationFactor(self, m);
+    }
 
     public void release() {
         _destroy(self);
@@ -55,6 +71,10 @@ public class Pulse {
     private static native int _facesCount(long self);
     private static native long _face(long self, int i);
     private static native int _maxSignalSize(long self);
+    private static native boolean _magnification(long self);
+    private static native void _magnification(long self, boolean m);
+    private static native int _magnificationFactor(long self);
+    private static native void _magnificationFactor(long self, int m);
     private static native void _destroy(long self);
     
     public static class Face {

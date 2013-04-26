@@ -65,6 +65,38 @@ JNIEXPORT jint JNICALL Java_pt_fraunhofer_pulse_Pulse__1maxSignalSize
 
 /*
  * Class:     pt_fraunhofer_pulse_Pulse
+ * Method:    _magnification
+ * Signature: (J)Z
+ */
+JNIEXPORT jboolean JNICALL Java_pt_fraunhofer_pulse_Pulse__1magnification__J
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     pt_fraunhofer_pulse_Pulse
+ * Method:    _magnification
+ * Signature: (JZ)V
+ */
+JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse__1magnification__JZ
+  (JNIEnv *, jclass, jlong, jboolean);
+
+/*
+ * Class:     pt_fraunhofer_pulse_Pulse
+ * Method:    _magnificationFactor
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_pt_fraunhofer_pulse_Pulse__1magnificationFactor__J
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     pt_fraunhofer_pulse_Pulse
+ * Method:    _magnificationFactor
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse__1magnificationFactor__JI
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     pt_fraunhofer_pulse_Pulse
  * Method:    _destroy
  * Signature: (J)V
  */

@@ -216,6 +216,122 @@ JNIEXPORT jint JNICALL Java_pt_fraunhofer_pulse_Pulse__1maxSignalSize
 
 /*
  * Class:     pt_fraunhofer_pulse_Pulse
+ * Method:    _magnification
+ * Signature: (J)Z
+ */
+JNIEXPORT jboolean JNICALL Java_pt_fraunhofer_pulse_Pulse__1magnification__J
+  (JNIEnv *jenv, jclass, jlong self)
+  {
+    LOGD("Java_pt_fraunhofer_pulse_Pulse__1magnification__J enter");
+    jboolean result = false;
+    try
+    {
+        if (self)
+            result = ((Pulse*)self)->evm.magnify;
+    }
+    catch(cv::Exception& e)
+    {
+        jclass je = jenv->FindClass("org/opencv/core/CvException");
+        if(!je) je = jenv->FindClass("java/lang/Exception");
+        jenv->ThrowNew(je, e.what());
+    }
+    catch (...)
+    {
+        jclass je = jenv->FindClass("java/lang/Exception");
+        jenv->ThrowNew(je, "Unknown exception in JNI code.");
+    }
+    LOGD("Java_pt_fraunhofer_pulse_Pulse__1magnification__J exit");
+    return result;
+  }
+
+/*
+ * Class:     pt_fraunhofer_pulse_Pulse
+ * Method:    _magnification
+ * Signature: (JZ)V
+ */
+JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse__1magnification__JZ
+  (JNIEnv *jenv, jclass, jlong self, jboolean m)
+  {
+    LOGD("Java_pt_fraunhofer_pulse_Pulse__1magnification__JZ enter");
+    try
+    {
+        if (self)
+            ((Pulse*)self)->evm.magnify = m;
+    }
+    catch(cv::Exception& e)
+    {
+        jclass je = jenv->FindClass("org/opencv/core/CvException");
+        if(!je) je = jenv->FindClass("java/lang/Exception");
+        jenv->ThrowNew(je, e.what());
+    }
+    catch (...)
+    {
+        jclass je = jenv->FindClass("java/lang/Exception");
+        jenv->ThrowNew(je, "Unknown exception in JNI code.");
+    }
+    LOGD("Java_pt_fraunhofer_pulse_Pulse__1magnification__JZ exit");
+  }
+
+/*
+ * Class:     pt_fraunhofer_pulse_Pulse
+ * Method:    _magnificationFactor
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_pt_fraunhofer_pulse_Pulse__1magnificationFactor__J
+  (JNIEnv *jenv, jclass, jlong self)
+  {
+    LOGD("Java_pt_fraunhofer_pulse_Pulse__1maxSignalSize enter");
+    jint result = 0;
+    try
+    {
+        if (self)
+            result = ((Pulse*)self)->evm.alpha;
+    }
+    catch(cv::Exception& e)
+    {
+        jclass je = jenv->FindClass("org/opencv/core/CvException");
+        if(!je) je = jenv->FindClass("java/lang/Exception");
+        jenv->ThrowNew(je, e.what());
+    }
+    catch (...)
+    {
+        jclass je = jenv->FindClass("java/lang/Exception");
+        jenv->ThrowNew(je, "Unknown exception in JNI code.");
+    }
+    LOGD("Java_pt_fraunhofer_pulse_Pulse__1maxSignalSize exit");
+    return result;
+  }
+
+/*
+ * Class:     pt_fraunhofer_pulse_Pulse
+ * Method:    _magnificationFactor
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse__1magnificationFactor__JI
+  (JNIEnv *jenv, jclass, jlong self, jint m)
+  {
+    LOGD("Java_pt_fraunhofer_pulse_Pulse__1maxSignalSize enter");
+    try
+    {
+        if (self)
+            ((Pulse*)self)->evm.alpha = m;
+    }
+    catch(cv::Exception& e)
+    {
+        jclass je = jenv->FindClass("org/opencv/core/CvException");
+        if(!je) je = jenv->FindClass("java/lang/Exception");
+        jenv->ThrowNew(je, e.what());
+    }
+    catch (...)
+    {
+        jclass je = jenv->FindClass("java/lang/Exception");
+        jenv->ThrowNew(je, "Unknown exception in JNI code.");
+    }
+    LOGD("Java_pt_fraunhofer_pulse_Pulse__1maxSignalSize exit");
+  }
+
+/*
+ * Class:     pt_fraunhofer_pulse_Pulse
  * Method:    _destroy
  * Signature: (J)V
  */

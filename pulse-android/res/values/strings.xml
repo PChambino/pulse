@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Pulse</string>
+    
+    <!-- Tabs -->
+    <string name="measure">Measure</string>
+    <string name="history">History</string>
+    
+    <!-- Measure menu -->
+    <string name="config">Config</string>
+    
+    <!-- Measure Config dialog -->
+    <string name="magnification">Magnification</string>
 </resources>

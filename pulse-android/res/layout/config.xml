@@ -1,0 +1,31 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/magnification"
+            android:padding="10dp"/>
+
+        <Switch
+            android:id="@+id/magnification"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"/>
+
+    </RelativeLayout>
+
+    <SeekBar
+        android:id="@+id/magnificationFactor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="400"/>
+        
+</LinearLayout>
