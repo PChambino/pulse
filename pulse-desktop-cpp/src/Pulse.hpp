@@ -68,6 +68,7 @@ public:
         Face(int id, const Rect& box, int deleteIn);
         int nearestBox(const vector<Rect>& boxes);
         void updateBox(const Rect& box);
+        void reset();
     };
 
     vector<Face> faces;
