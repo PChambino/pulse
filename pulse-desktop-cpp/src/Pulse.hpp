@@ -38,7 +38,6 @@ public:
         bool selected;
         
         Rect box;
-        Rect roi;
         Mat1d timestamps;
         Mat1d raw;
         Mat1d pulse;

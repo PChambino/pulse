@@ -6,9 +6,10 @@
     <string name="measure">Measure</string>
     <string name="history">History</string>
     
-    <!-- Measure menu -->
+    <!-- App Menu -->
+    <string name="switch_camera">Switch Camera</string>
     <string name="config">Config</string>
     
-    <!-- Measure Config dialog -->
+    <!-- App Config Dialog -->
     <string name="magnification">Magnification</string>
 </resources>

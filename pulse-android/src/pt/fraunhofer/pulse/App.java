@@ -1,7 +1,6 @@
 package pt.fraunhofer.pulse;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -12,11 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.CompoundButton;
-import android.widget.SeekBar;
-import android.widget.Switch;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -30,6 +25,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.highgui.Highgui;
 import pt.fraunhofer.pulse.Pulse.Face;
+import pt.fraunhofer.pulse.dialog.AppConfigDialog;
 import pt.fraunhofer.pulse.view.BpmView;
 import pt.fraunhofer.pulse.view.PulseView;
 
@@ -44,6 +40,8 @@ public class App extends Activity implements CvCameraViewListener {
     
     private Paint faceBoxPaint;
     
+    private AppConfigDialog configDialog;
+
     private BaseLoaderCallback loaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -64,7 +62,7 @@ public class App extends Activity implements CvCameraViewListener {
         System.loadLibrary("pulse");
         
         pulse = new Pulse();
-        
+                
         File dir = getDir("cascade", Context.MODE_PRIVATE);
         File file = createFileFromResource(dir, R.raw.lbpcascade_frontalface, "xml");
         pulse.load(file.getAbsolutePath());
@@ -72,6 +70,8 @@ public class App extends Activity implements CvCameraViewListener {
         
         pulseView.setGridSize(pulse.getMaxSignalSize());
 
+        configDialog = new AppConfigDialog(pulse);
+        
         camera.enableView();
     }
     
@@ -116,6 +116,21 @@ public class App extends Activity implements CvCameraViewListener {
     }
 
     @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        
+        camera.setCameraId(savedInstanceState.getInt("cameraId"));
+    }
+    
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        
+        outState.putInt("cameraId", camera.getCameraId());
+    }
+    
+    
+    @Override
     public void onResume() {
         super.onResume();
         OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_5, this, loaderCallback);
@@ -147,54 +162,16 @@ public class App extends Activity implements CvCameraViewListener {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.switch_camera:
+                camera.switchCamera();
+                return true;
             case R.id.config:
-                getConfigDialog().show();
+                if (configDialog != null) configDialog.show(getFragmentManager(), null);
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
-    
-    private AlertDialog configDialog;
-
-    private AlertDialog getConfigDialog() {
-        if (configDialog == null) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.config);
-            View dialogView = getLayoutInflater().inflate(R.layout.config, null);
-            builder.setView(dialogView);
-            configDialog = builder.create();
             
-            Switch magnificationView = ((Switch)dialogView.findViewById(R.id.magnification));
-            magnificationView.setChecked(pulse.hasMagnification());
-            magnificationView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    configDialog.findViewById(R.id.magnificationFactor).setEnabled(isChecked);
-                    pulse.setMagnification(isChecked);
-                }
-            });
-
-            SeekBar magnificationFactorView = ((SeekBar)dialogView.findViewById(R.id.magnificationFactor));
-            magnificationFactorView.setProgress(pulse.getMagnificationFactor());
-            magnificationFactorView.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    pulse.setMagnificationFactor(progress);
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-                }
-            });
-        }
-        
-        return configDialog;
-    }
-        
     @Override
     public void onCameraViewStarted(int width, int height) {
         Log.d(TAG, "onCameraViewStarted("+width+", "+height+")");

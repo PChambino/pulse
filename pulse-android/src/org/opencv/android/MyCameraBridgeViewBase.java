@@ -223,6 +223,24 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
             checkCurrentState();
         }
     }
+    
+    public void switchCamera() {
+        setCameraId((mCameraIndex + 1) % 2);
+    }
+    
+    public int getCameraId() {
+        return mCameraIndex;
+    }
+    
+    public void setCameraId(int cameraId) {
+        if (mCameraIndex != cameraId) {
+            mCameraIndex = cameraId;
+            if (mEnabled) {
+                disableView();
+                enableView();
+            }
+        }
+    }
 
     /**
      * This method is provided for clients, so they can enable the camera connection.

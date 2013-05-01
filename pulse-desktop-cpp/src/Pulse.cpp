@@ -162,10 +162,6 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
         // apply Eulerian video magnification on face box
         face.evm.evm.onFrame(face.evm.mat, face.evm.mat);
 
-        PROFILE_START_DESC("resize and draw face box back to frame");
-        resize(face.evm.mat, face.evm.mat, face.evm.box.size(), 0, 0, CV_INTER_NN);
-        face.evm.mat.copyTo(frame(face.evm.box));
-        PROFILE_STOP();
     } else if (!face.evm.evm.first) {
         // reset after changing magnify value
         face.reset();
@@ -181,7 +177,7 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
         face.timestamps.pop_back();
     }
     PROFILE_START_DESC("push back raw and timestamp");
-    face.raw.push_back<double>(mean(frame(face.roi))(1));
+    face.raw.push_back<double>(mean(evm.magnify ? face.evm.mat : frame(face.evm.box))(1)); // grab green channel
     face.timestamps.push_back<double>(getTickCount());
     PROFILE_STOP();
 
@@ -225,6 +221,12 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
         face.peaks.clear();
         face.bpms.pop_back(face.bpms.rows);
         face.bpm = 0;
+    }
+    
+    // only show magnified face when there is pulse
+    if (evm.magnify && face.existsPulse) {
+        PROFILE_SCOPED_DESC("resize and draw face box back to frame");
+        resize(face.evm.mat, frame(face.evm.box), face.evm.box.size(), 0, 0, CV_INTER_NN);
     }
 
 #ifndef __ANDROID__
@@ -383,7 +385,6 @@ void Pulse::draw(Mat& frame, const Face& face, const Rect& box) {
     rectangle(frame, box, BLUE);
     rectangle(frame, face.box, BLUE, 2);
     rectangle(frame, face.evm.box, GREEN);
-    rectangle(frame, face.roi, RED);
 
     // bottom left point of face box
     Point bl = face.box.tl() + Point(0, face.box.height);
@@ -457,11 +458,6 @@ void Pulse::Face::updateBox(const Rect& a) {
     Point c = box.tl() + Point(box.size().width * .5, box.size().height * 0.5);
     Point r(box.width * 0.3, box.height * 0.45);
     evm.box = Rect(c - r, c + r);
-
-    // update ROI box
-    c = box.tl() + Point(box.size().width * .5, box.size().height * 0.7);
-    r = Point(box.width * 0.2, box.height * 0.2);
-    roi = Rect(c - r, c + r);
 }
 
 void Pulse::Face::reset() {

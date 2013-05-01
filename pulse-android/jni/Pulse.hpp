@@ -38,7 +38,6 @@ public:
         bool selected;
         
         Rect box;
-        Rect roi;
         Mat1d timestamps;
         Mat1d raw;
         Mat1d pulse;
@@ -68,6 +67,7 @@ public:
         Face(int id, const Rect& box, int deleteIn);
         int nearestBox(const vector<Rect>& boxes);
         void updateBox(const Rect& box);
+        void reset();
     };
 
     vector<Face> faces;
