@@ -1,5 +1,6 @@
 package pt.fraunhofer.pulse.dialog;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -8,19 +9,19 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
+import org.opencv.android.MyCameraBridgeViewBase;
+import pt.fraunhofer.pulse.App;
 import pt.fraunhofer.pulse.Pulse;
 import pt.fraunhofer.pulse.R;
 
 public class AppConfigDialog extends DialogFragment {
 
+    private MyCameraBridgeViewBase camera;
     private Pulse pulse;
 
-    public AppConfigDialog(Pulse pulse) {
-        this.pulse = pulse;
-    }
-
-    private Switch magnificationView;
-    private SeekBar magnificationFactorView;
+    private Switch magnificationSwitch;
+    private SeekBar magnificationSeekBar;
+    private Switch fpsSwitch;
         
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -31,26 +32,38 @@ public class AppConfigDialog extends DialogFragment {
         View dialogView = getActivity().getLayoutInflater().inflate(R.layout.config, null);
         builder.setView(dialogView);
 
-        magnificationView = ((Switch)dialogView.findViewById(R.id.magnification));
-        magnificationView.setChecked(pulse.hasMagnification());
-        magnificationView.setOnCheckedChangeListener(new MagnificationViewConfig());
+        magnificationSwitch = ((Switch)dialogView.findViewById(R.id.magnification));
+        magnificationSwitch.setChecked(pulse.hasMagnification());
+        magnificationSwitch.setOnCheckedChangeListener(new MagnificationSwitchConfig());
 
-        magnificationFactorView = ((SeekBar)dialogView.findViewById(R.id.magnificationFactor));
-        magnificationFactorView.setProgress(pulse.getMagnificationFactor());
-        magnificationFactorView.setOnSeekBarChangeListener(new MagnificationFactorViewConfig());
+        magnificationSeekBar = ((SeekBar)dialogView.findViewById(R.id.magnificationFactor));
+        magnificationSeekBar.setProgress(pulse.getMagnificationFactor());
+        magnificationSeekBar.setOnSeekBarChangeListener(new MagnificationSeekBarConfig());
         
+        fpsSwitch = ((Switch)dialogView.findViewById(R.id.fps));
+        fpsSwitch.setChecked(camera.isFpsMeterEnabled());
+        fpsSwitch.setOnCheckedChangeListener(new FpsSwitchConfig());
+
         return builder.create();
     }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        App app = (App)activity;
+        camera = app.getCamera();
+        pulse = app.getPulse();
+    }
     
-    private class MagnificationViewConfig implements CompoundButton.OnCheckedChangeListener {
+    private class MagnificationSwitchConfig implements CompoundButton.OnCheckedChangeListener {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            magnificationFactorView.setEnabled(isChecked);
+            magnificationSeekBar.setEnabled(isChecked);
             pulse.setMagnification(isChecked);
         }
     }
     
-    private class MagnificationFactorViewConfig implements SeekBar.OnSeekBarChangeListener {
+    private class MagnificationSeekBarConfig implements SeekBar.OnSeekBarChangeListener {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             pulse.setMagnificationFactor(progress);
@@ -65,4 +78,10 @@ public class AppConfigDialog extends DialogFragment {
         }        
     }
     
+    private class FpsSwitchConfig implements CompoundButton.OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            camera.toggleFpsMeter();
+        }
+    }
 }

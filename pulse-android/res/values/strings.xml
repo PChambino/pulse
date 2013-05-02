@@ -12,5 +12,6 @@
     
     <!-- App Config Dialog -->
     <string name="magnification">Magnification</string>
+    <string name="fps">FPS</string>
     <string name="done">Done</string>
 </resources>

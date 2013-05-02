@@ -70,7 +70,7 @@ public class App extends Activity implements CvCameraViewListener {
         
         pulseView.setGridSize(pulse.getMaxSignalSize());
 
-        configDialog = new AppConfigDialog(pulse);
+        configDialog = new AppConfigDialog();
         
         camera.enableView();
     }
@@ -165,7 +165,15 @@ public class App extends Activity implements CvCameraViewListener {
         }
         return super.onOptionsItemSelected(item);
     }
-            
+
+    public Pulse getPulse() {
+        return pulse;
+    }
+
+    public MyCameraBridgeViewBase getCamera() {
+        return camera;
+    }
+    
     @Override
     public void onCameraViewStarted(int width, int height) {
         Log.d(TAG, "onCameraViewStarted("+width+", "+height+")");

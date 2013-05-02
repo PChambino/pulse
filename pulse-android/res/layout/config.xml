@@ -4,6 +4,7 @@
     android:orientation="vertical"
     android:padding="10dp">
 
+    <!-- Magnification -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -27,5 +28,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:max="400"/>
-        
+
+    <!-- FPS -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fps"
+            android:padding="10dp"/>
+
+        <Switch
+            android:id="@+id/fps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"/>
+
+    </RelativeLayout>
+
 </LinearLayout>
