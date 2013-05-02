@@ -12,7 +12,7 @@ Pulse::Pulse() {
     maxSignalSize = 100;
     relativeMinFaceSize = 0.4;
     deleteFaceIn = 1;
-    holdPulseFor = 10;
+    holdPulseFor = 30;
     fps = 0;
     evm.magnify = true;
     evm.alpha = 200;
