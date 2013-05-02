@@ -195,9 +195,6 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
 
         // detects peaks and validates pulse
         peaks(face);
-    } else if (face.existsPulse && face.noPulseIn > 0) {
-        // keep pulse for a few frames if it exists
-        face.noPulseIn--;
     } else {
         // too noisy to detect pulse
         face.existsPulse = false;
@@ -298,19 +295,21 @@ void Pulse::peaks(Face& face) {
     }
 
     // TODO extract constants to class?
-    face.existsPulse =
-            3 <= face.peaks.indices.rows &&
+    bool validPulse =
+            2 <= face.peaks.indices.rows &&
             40/60 * diff <= face.peaks.indices.rows &&
             face.peaks.indices.rows <= 240/60 * diff &&
             peakValuesStdDev(0) <= 0.5 &&
             peakTimestampsStdDev(0) <= 0.5;
 
-    // keep pulse for a few frames
-    if (face.existsPulse) {
+    if (!face.existsPulse && validPulse) {
+        // pulse become valid
         face.noPulseIn = holdPulseFor;
-    } else if (face.noPulseIn > 0) {
-        face.noPulseIn--;
         face.existsPulse = true;
+    } else if (face.existsPulse && !validPulse) {
+        // pulse become invalid
+        if (face.noPulseIn > 0) face.noPulseIn--; // keep pulse for a few frames
+        else face.existsPulse = false; // pulse has been invalid for too long
     }
 }
 
