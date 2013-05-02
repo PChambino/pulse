@@ -26,6 +26,8 @@ public class AppConfigDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.config);
+        builder.setNeutralButton(R.string.done, null);
+        
         View dialogView = getActivity().getLayoutInflater().inflate(R.layout.config, null);
         builder.setView(dialogView);
 

@@ -12,4 +12,5 @@
     
     <!-- App Config Dialog -->
     <string name="magnification">Magnification</string>
+    <string name="done">Done</string>
 </resources>
