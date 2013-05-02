@@ -451,11 +451,11 @@ void Pulse::Face::updateBox(const Rect& a) {
     // update box position and size
     Point p = box.tl() - a.tl();
     double d = (p.x * p.x + p.y * p.y) / pow(box.width / 3., 2.);
-    interpolate(box, a, box, max(0.1, min(1., d)));
+    interpolate(box, a, box, min(1., d));
 
     // update EVM box
-    Point c = box.tl() + Point(box.size().width * .5, box.size().height * 0.5);
-    Point r(box.width * 0.3, box.height * 0.45);
+    Point c = box.tl() + Point(box.size().width * .5, box.size().height * .5);
+    Point r(box.width * .275, box.height * .425);
     evm.box = Rect(c - r, c + r);
 }
 
