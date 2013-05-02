@@ -141,15 +141,9 @@ public class App extends Activity implements CvCameraViewListener {
         if (camera != null) {
             camera.disableView();
         }
+        bpmView.setNoBpm();
+        pulseView.setNoPulse();
         super.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        if (camera != null) {
-            camera.disableView();
-        }
-        super.onDestroy();
     }
 
     @Override
