@@ -282,7 +282,7 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
                 if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
                     Core.flip(frame.t(), frame, -1);
                 } else {
-                    Core.flip(frame.t(), frame, 0);
+                    Core.flip(frame.t(), frame, 1);
                 }
             } else {
                 if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
