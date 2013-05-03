@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Pulse</string>
-    
-    <!-- Tabs -->
-    <string name="measure">Measure</string>
-    <string name="history">History</string>
-    
+        
     <!-- App Menu -->
+    <string name="record">Record</string>
     <string name="switch_camera">Switch Camera</string>
     <string name="config">Config</string>
     
-    <!-- App Config Dialog -->
+    <!-- Config Dialog -->
     <string name="magnification">Magnification</string>
     <string name="fps">FPS</string>
     <string name="done">Done</string>
+
+    <!-- Bpm Dialog -->
+    <string name="average_bpm">Average BPM</string>
 </resources>

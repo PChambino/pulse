@@ -16,6 +16,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.List;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.MyCameraBridgeViewBase;
 import org.opencv.android.MyCameraBridgeViewBase.CvCameraViewListener;
@@ -25,7 +27,8 @@ import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.highgui.Highgui;
 import pt.fraunhofer.pulse.Pulse.Face;
-import pt.fraunhofer.pulse.dialog.AppConfigDialog;
+import pt.fraunhofer.pulse.dialog.BpmDialog;
+import pt.fraunhofer.pulse.dialog.ConfigDialog;
 import pt.fraunhofer.pulse.view.BpmView;
 import pt.fraunhofer.pulse.view.PulseView;
 
@@ -40,7 +43,7 @@ public class App extends Activity implements CvCameraViewListener {
     
     private Paint faceBoxPaint;
     
-    private AppConfigDialog configDialog;
+    private ConfigDialog configDialog;
 
     private BaseLoaderCallback loaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -110,11 +113,12 @@ public class App extends Activity implements CvCameraViewListener {
         camera.setMaxFrameSize(650, 650);
         
         bpmView = (BpmView) findViewById(R.id.bpm);
+        bpmView.setBackgroundColor(Color.DKGRAY);
+        bpmView.setTextColor(Color.LTGRAY);
+
         pulseView = (PulseView) findViewById(R.id.pulse);
         
         faceBoxPaint = initFaceBoxPaint();
-        
-        configDialog = new AppConfigDialog();
     }
     
     private static final String CAMERA_ID = "camera-id";
@@ -170,18 +174,50 @@ public class App extends Activity implements CvCameraViewListener {
         inflater.inflate(R.menu.app, menu);
         return true;
     }
-    
+        
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.record:
+                onRecord(item);
+                return true;
             case R.id.switch_camera:
                 camera.switchCamera();
                 return true;
             case R.id.config:
+                if (configDialog == null) configDialog = new ConfigDialog();
                 configDialog.show(getFragmentManager(), null);
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    
+    private boolean recording = false;
+    private List<Double> recordedBpms;
+    private BpmDialog bpmDialog;
+    private double recordedBpmAverage;
+
+    private void onRecord(MenuItem item) {
+        recording = !recording;
+        if (recording) {
+            item.setIcon(android.R.drawable.ic_media_pause);
+            
+            if (recordedBpms == null) recordedBpms = new LinkedList<Double>();
+            else recordedBpms.clear();
+        } else {
+            item.setIcon(android.R.drawable.ic_media_play);
+            
+            recordedBpmAverage = 0;
+            for (double bpm : recordedBpms) recordedBpmAverage += bpm;
+            recordedBpmAverage /= recordedBpms.size();
+            
+            if (bpmDialog == null) bpmDialog = new BpmDialog();
+            bpmDialog.show(getFragmentManager(), null);
+        }
+    }
+    
+    public double getRecordedBpmAverage() {
+        return recordedBpmAverage;
     }
 
     public Pulse getPulse() {
@@ -271,6 +307,9 @@ public class App extends Activity implements CvCameraViewListener {
                     pulseView.setPulse(signal);
                 }
             });
+            if (recording) {
+                recordedBpms.add(bpm);
+            }
         } else {
             // no pulse
             runOnUiThread(new Runnable() {

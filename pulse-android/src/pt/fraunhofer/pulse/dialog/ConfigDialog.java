@@ -14,7 +14,7 @@ import pt.fraunhofer.pulse.App;
 import pt.fraunhofer.pulse.Pulse;
 import pt.fraunhofer.pulse.R;
 
-public class AppConfigDialog extends DialogFragment {
+public class ConfigDialog extends DialogFragment {
 
     private MyCameraBridgeViewBase camera;
     private Pulse pulse;

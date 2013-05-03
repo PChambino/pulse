@@ -40,8 +40,6 @@ public class BpmView extends TextView {
     private void init() {
         setNoBpm();
         
-        setBackgroundColor(Color.DKGRAY);
-        setTextColor(Color.LTGRAY);
         setTextSize(TypedValue.COMPLEX_UNIT_FRACTION_PARENT, 60f);
         setTypeface(Typeface.createFromAsset(getContext().getAssets(), "fonts/ds_digital/DS-DIGIB.TTF"));
         setGravity(Gravity.CENTER);
@@ -59,6 +57,12 @@ public class BpmView extends TextView {
                 if (getText() == "-" && circlePaint.getAlpha() == 0) {
                     animation.cancel();
                 }
+            }
+        });
+        circlePaintAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                invalidate();
             }
         });
     }
