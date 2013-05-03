@@ -125,10 +125,16 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
                     {
                         params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
                     }
+                    
+                    if (params.isVideoStabilizationSupported()) {
+                        params.setVideoStabilization(true);
+                    }
+                    
+                    params.setRecordingHint(true);
 
                     mCamera.setParameters(params);
                     params = mCamera.getParameters();
-
+                    
                     mFrameWidth = params.getPreviewSize().width;
                     mFrameHeight = params.getPreviewSize().height;
 
