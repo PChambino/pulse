@@ -33,16 +33,18 @@ public class AppConfigDialog extends DialogFragment {
         builder.setView(dialogView);
 
         magnificationSwitch = ((Switch)dialogView.findViewById(R.id.magnification));
-        magnificationSwitch.setChecked(pulse.hasMagnification());
         magnificationSwitch.setOnCheckedChangeListener(new MagnificationSwitchConfig());
 
         magnificationSeekBar = ((SeekBar)dialogView.findViewById(R.id.magnificationFactor));
-        magnificationSeekBar.setProgress(pulse.getMagnificationFactor());
         magnificationSeekBar.setOnSeekBarChangeListener(new MagnificationSeekBarConfig());
         
         fpsSwitch = ((Switch)dialogView.findViewById(R.id.fps));
-        fpsSwitch.setChecked(camera.isFpsMeterEnabled());
         fpsSwitch.setOnCheckedChangeListener(new FpsSwitchConfig());
+
+        magnificationSwitch.setChecked(pulse.hasMagnification());
+        magnificationSeekBar.setEnabled(pulse.hasMagnification());
+        magnificationSeekBar.setProgress(pulse.getMagnificationFactor());
+        fpsSwitch.setChecked(camera.isFpsMeterEnabled());
 
         return builder.create();
     }
@@ -81,7 +83,7 @@ public class AppConfigDialog extends DialogFragment {
     private class FpsSwitchConfig implements CompoundButton.OnCheckedChangeListener {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            camera.toggleFpsMeter();
+            camera.setFpsMeter(isChecked);
         }
     }
 }

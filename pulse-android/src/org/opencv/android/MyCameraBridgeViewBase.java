@@ -282,9 +282,9 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
         return mFpsMeter != null;
     }
     
-    public void toggleFpsMeter() {
-        if (isFpsMeterEnabled()) disableFpsMeter();
-        else enableFpsMeter();
+    public void setFpsMeter(boolean enable) {
+        if (enable) enableFpsMeter();
+        else disableFpsMeter();
     }
 
     /**

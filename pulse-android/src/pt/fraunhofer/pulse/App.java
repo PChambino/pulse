@@ -62,6 +62,8 @@ public class App extends Activity implements CvCameraViewListener {
         System.loadLibrary("pulse");
         
         pulse = new Pulse();
+        pulse.setMagnification(initMagnification);
+        pulse.setMagnificationFactor(initMagnificationFactor);
                 
         File dir = getDir("cascade", Context.MODE_PRIVATE);
         File file = createFileFromResource(dir, R.raw.lbpcascade_frontalface, "xml");
@@ -69,8 +71,6 @@ public class App extends Activity implements CvCameraViewListener {
         dir.delete();
         
         pulseView.setGridSize(pulse.getMaxSignalSize());
-
-        configDialog = new AppConfigDialog();
         
         camera.enableView();
     }
@@ -113,20 +113,38 @@ public class App extends Activity implements CvCameraViewListener {
         pulseView = (PulseView) findViewById(R.id.pulse);
         
         faceBoxPaint = initFaceBoxPaint();
+        
+        configDialog = new AppConfigDialog();
     }
+    
+    private static final String CAMERA_ID = "camera-id";
+    private static final String FPS_METER = "fps-meter";
+    private static final String MAGNIFICATION = "magnification";
+    private static final String MAGNIFICATION_FACTOR = "magnification-factor";
+    
+    private boolean initMagnification = true;
+    private int initMagnificationFactor = 100;
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         
-        camera.setCameraId(savedInstanceState.getInt("cameraId"));
+        camera.setCameraId(savedInstanceState.getInt(CAMERA_ID));
+        camera.setFpsMeter(savedInstanceState.getBoolean(FPS_METER));
+
+        initMagnification = savedInstanceState.getBoolean(MAGNIFICATION, initMagnification);
+        initMagnificationFactor = savedInstanceState.getInt(MAGNIFICATION_FACTOR, initMagnificationFactor);
     }
     
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         
-        outState.putInt("cameraId", camera.getCameraId());
+        outState.putInt(CAMERA_ID, camera.getCameraId());
+        outState.putBoolean(FPS_METER, camera.isFpsMeterEnabled());
+        
+        outState.putBoolean(MAGNIFICATION, pulse.hasMagnification());
+        outState.putInt(MAGNIFICATION_FACTOR, pulse.getMagnificationFactor());
     }
     
     
@@ -160,7 +178,7 @@ public class App extends Activity implements CvCameraViewListener {
                 camera.switchCamera();
                 return true;
             case R.id.config:
-                if (configDialog != null) configDialog.show(getFragmentManager(), null);
+                configDialog.show(getFragmentManager(), null);
                 return true;
         }
         return super.onOptionsItemSelected(item);
