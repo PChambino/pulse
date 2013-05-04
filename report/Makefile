@@ -87,7 +87,7 @@ EXTS=aux toc idx ind ilg log out lof lot lol bbl blg
 ##clean
 clean:
 	for EXT in ${EXTS}; do \
-	  find `pwd` -name \*\.$${EXT} -exec rm -v \{\} \; ; done
+	  find "`pwd`" -name \*\.$${EXT} -exec rm -v \{\} \; ; done
 
 ##show PDF
 display: $(TARGET).pdf
