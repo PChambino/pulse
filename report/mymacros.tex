@@ -1,11 +1,21 @@
-%some macro definitions
-
-% format
+% misc shorthands
+%
 \newcommand{\class}[1]{{\normalfont\slshape #1\/}}
 
-% entities
+% text shorthands
+%
 \newcommand{\Feup}{Faculdade de Engenharia da Universidade do Porto}
+\newcommand{\evm}{Eulerian Video Magnification}
+\newcommand{\ica}{Independent Component Analysis}
 
-\newcommand{\svg}{\class{SVG}}
-\newcommand{\scada}{\class{SCADA}}
-\newcommand{\scadadms}{\class{SCADA/DMS}}
+% figure shorthand
+%
+\newcommand{\fig}[3][1]{% size, filename, caption
+\begin{figure}[t]
+  \begin{center}
+    \leavevmode
+    \includegraphics[width=#1\textwidth]{#2}
+    \caption{#3}
+    \label{fig:#2}
+  \end{center}
+\end{figure}}

@@ -1,0 +1,139 @@
+\chapter{Approach} \label{chap:approach}
+
+\section*{}
+
+In this chapter, a simple description of the approach to be taken during 
+this research work is presented on section~\ref{sec:approach}. Moreover, 
+the solution perspective and the difficulties and problems that may arise 
+are described on section~\ref{sec:solution} and~\ref{sec:difficulties},
+respectively. The last section~\ref{sec:evaluation}, describes the 
+evaluation process.
+
+\section{Overview} \label{sec:approach}
+
+% Incremental implementation of the application...
+
+The approach or methodology taken to reach this research work objectives
+is an incremental implementation of the application features or requirements.
+It should be taken into consideration that this approach plan may be modified 
+during the duration of the research work and is not a strict line of action.
+
+Starting with the creation of a simple \emph{Android} application that uses
+the \emph{OpenCV} library. Follows the implementation of face detection using 
+the \emph{OpenCV} library, and the \evm{} method showing the resulting video 
+in real-time. Then, after the implementation of a simple heart rate detection 
+algorithm based on the \evm{} method, the evaluation of application will
+be executed. This evaluation should then be executed every time a significant 
+modification to the heart rate detection algorithm is made.
+
+\section{Solution Perspective} \label{sec:solution}
+
+% Explain the solution and why it was chosen...
+
+To extract the cardiac pulse from a person's face, first, a face must be  
+discovered on the input video, for that a simple \emph{OpenCV} face detection
+algorithm will be used.
+
+Then, in order to obtain the heart rate signal, 
+there is the need to focus on an area to extract that signal. However,
+the amplitude variation of the signal of interest is often must smaller 
+than the noise inherent in the video. To enhance these subtle signals 
+spatial polling can be used. Despite of that if the spatial polling 
+applied is not large enough, the signal of interest will not be revealed.
+Retrieved from the article~\cite{Wu2012Eulerian}, the equation~\ref{eq:noise}
+gives an estimate for the size of the spatial polling need to revel the 
+signal of interest at a certain noise power level.
+
+\begin{equation} \label{eq:noise}
+  S(r) = \sigma'^2 = k \frac{\sigma^2}{r^2}
+\end{equation}
+
+Where $\sigma^2$ is the noise power level, which can be estimated by using 
+a technique as in~\cite{Liu2006Noise}, and $S(r)$ is the signal power of
+such spatial polling filter. Thus, since the filtered noise power level,
+$\sigma'^2$, is inversely proportional to $r^2$, it is possible to solve the 
+equation~\ref{eq:noise} for $r$, where $k$ is a constant that depends on the shape of the spatial filter.
+
+This area of interest can then be tracked using a simple \emph{OpenCV} 
+feature tracking algorithm to deal with artifacts' motion.
+
+In addition, the \evm{} method can be configured to amplify the color
+variation as explained on section~\ref{sec:evm-color}.
+
+The signal extracted should be recognizable as a cardiac pulse signal,
+however further processing may be needed to detrend the signal. Also, 
+since the pulse computation may be affected by noise, historical estimations
+to reject artifacts may be implemented as in~\cite{Poh2010Non}.
+
+To create the \emph{augmented reality effect} of the blood flow, 
+the raw \evm{} method result is added to the input video.
+
+An important part of the development is focused on the complete 
+implementation of the \evm{} since the available framework is not 
+destined to be used in real-time nor on smartphones.
+
+\section{Difficulties} \label{sec:difficulties}
+
+% Difficulties and how to overcome those...
+
+During the course of this research work a number of possible problems may
+occur which will hinder the development of the project and research. Some
+of these difficulties have been predicted and a few possible solutions to 
+those will be described below.
+
+\begin{itemize}
+
+\item
+\textbf{Problem}
+Noise created by smartphone and person motion, and by lighting changes.
+
+Every small movement may heavily influence the method result since it
+also amplifies motion. Thus, too much noise may obfuscate the cardiac 
+pulse intended to be detected.
+
+\textbf{Solution Perspective}
+Noise reduction may be accomplished by using face detection (and feature 
+tracking) to focus on a small area on the person's face that is independent
+enough to not suffer large intensity variations due to the identified 
+artifacts. In addition, historical estimations to reject artifacts may be
+implemented and specific configuration to the \evm{} method to 
+emphasize the color change as much as possible~\cite{Wu2012Eulerian} as
+explained on section~\ref{sec:evm-color}.
+
+\pagebreak
+
+\item
+\textbf{Problem}
+Smartphone computing power may not be enough for real-time processing.
+
+The \evm{} method is able to run in real-time~\cite{Wu2012Eulerian}. However, 
+the lower computing power of smartphones and extra processing, such as, 
+face detection and tracking, noise reduction techniques, and signal 
+normalization algorithms, may cause the method to not be able to execute 
+in real-time.
+
+\textbf{Solution Perspective}
+If this problem arises, a possible solution is to reduce the computing power
+required, by switching to different approaches or even the removal of 
+some features, such as, feature tracking.
+
+\end{itemize}
+
+\section{Evaluation} \label{sec:evaluation}
+
+% The evaluation should compare results and benchmark the algorithms...
+
+The evaluation main goal is the validation of the cardiac pulse assessed.
+This may be accomplished, by comparing the signal and average of the heart 
+rate detected by the application with the one captured by an heart rate monitor
+or a pulse oximeter. These measurements should be done simultaneously so they 
+can be correctly compared.
+
+In addition, these measurements will be obtained in different settings, 
+such as, indoor, outdoor, with face motion, with face tilting, while the 
+person is speaking, during lighting variations, to verify the application 
+robustness.
+
+At the end, the application will also be compared against the one developed
+by \emph{Philips} -- Vital Signs Camera. The comparison will focus on both:
+average heart rate detected, and application performance.
