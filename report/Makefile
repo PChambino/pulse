@@ -15,14 +15,8 @@ DVI2PS=dvips -t landscape -x 707
 PS2PDF=ps2pdf -dEmbedAllFonts#true
 MKIDX=makeindex
 
-## Basename for result in PT
-TARGET=mieic
 ## Basename for result in EN
-#TARGET=mieic-en
-
-## Basename for PDIS
-#TARGET=pdis
-#TARGET=pdis-en
+TARGET=mieic
 
 ## .tex files
 TEXFILES=$(wildcard *.tex **/*.tex)
@@ -97,7 +91,7 @@ clean:
 
 ##show PDF
 display: $(TARGET).pdf
-	acroread $(TARGET).pdf &
+	open $(TARGET).pdf &
 
 ### misc
 .SUFFIXES: .tex .aux .toc .lof .lot .log .dvi .dvi2 .ps .ps2 .pdf .bib .bbl
