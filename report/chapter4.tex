@@ -1,0 +1,91 @@
+\chapter{Implementação}\label{chap:chap4}
+
+\section*{}
+
+Este capítulo pode ser dedicado à apresentação de detalhes de nível
+mais baixo relacionados com o enquadramento e implementação das
+soluções preconizadas no capítulo anterior.
+Note-se no entanto que detalhes desnecessários à compreensão do
+trabalho devem ser remetidos para anexos.
+
+Dependendo do volume, a avaliação do trabalho pode ser incluída neste
+capítulo ou pode constituir um capítulo separado.
+
+\section{Secção Exemplo}
+
+%\todofigure{Inserir uma figura sobre o Map/Reduce}
+
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Integer
+hendrerit commodo ante. Pellentesque nibh libero, aliquam at, faucibus
+id, commodo a, velit. 
+%\todoline{Escrever sobre o map/reduce}
+Duis eleifend sem eget leo. Morbi in est. Suspendisse magna sem,
+varius nec, hendrerit non, tincidunt quis, quam. Aenean congue. 
+%\todolines{A short entry in the list of todos}{A very long todonote
+%  that certainly will fill more than a single line in the list of
+%  todos. Just to make sure let's add some more text.} 
+Vivamus vel est sit amet sem iaculis posuere. Cras mollis, enim vel
+gravida aliquam, libero nunc ullamcorper dui, ullamcorper sodales
+lectus nulla sed urna. Morbi aliquet porta risus. 
+Proin vestibulum ligula a purus. Maecenas a nulla. 
+Maecenas mattis est vitae neque auctor tempus. Etiam nulla dui,
+mattis vitae, porttitor sed, aliquet ut, enim. Cras nisl magna,
+aliquet et, laoreet at, gravida ac, neque. Sed id est. Nulla dapibus
+dolor quis ipsum rhoncus cursus. 
+
+\section{Mais uma Secção}
+
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Quisque
+purus sapien, interdum ut, vestibulum a, accumsan ullamcorper,
+erat. Mauris a magna ut leo porta imperdiet. Donec dui odio, porta in,
+pretium non, semper quis, orci. Quisque erat diam, pharetra vel,
+laoreet ac, hendrerit vel, enim. Donec tristique luctus risus. Fusce
+dolor est, eleifend id, elementum sit amet, varius vitae, neque. Morbi
+at augue. Ut sem ligula, auctor vitae, facilisis id, pharetra non,
+lectus. Nulla lacus augue, aliquam eget, sollicitudin sed, hendrerit
+eu, leo. Suspendisse ac tortor. Mauris at odio. Etiam vehicula. Nam
+lacinia purus at nibh. Aliquam fringilla lorem ac justo. Ut nec
+enim. 
+%\todoref{Citar Map/reduce}
+
+Quisque ullamcorper. Aliquam vel magna. Sed pulvinar dictum
+ligula. Sed ultrices dolor ut turpis. Vivamus sagittis orci malesuada
+arcu venenatis auctor. Proin vehicula pharetra urna. Aliquam egestas
+nunc quis nisl. Donec ullamcorper. Nulla purus. Ut suscipit lacus
+vitae dui. Mauris semper. Ut eget sem. Integer orci. Nam vitae dui
+eget nisi placerat convallis. 
+
+\begin{lstlisting}[float,language=Java, label=src:mapreduce, caption=Example map and reduce functions for word counting]
+map(String key, String value): 
+// key: document name 
+// value: document contents 
+for each word w in value:
+EmitIntermediate(w, "1");
+
+reduce(String key, Iterator values):
+// key: a word 
+// values: a list of counts 
+int result = 0;
+for each v in values: 
+result += ParseInt(v);
+
+Emit(AsString(result))
+\end{lstlisting}
+
+Sed id lorem. Proin gravida bibendum lacus. Sed molestie, urna quis
+euismod laoreet, diam dolor dictum diam, vitae consectetuer leo ipsum
+id ante. Integer eu lectus non mauris pharetra viverra. In feugiat
+libero ut massa. Morbi cursus, lorem sollicitudin blandit semper,
+felis magna pellentesque lacus, ut rhoncus leo neque at tellus. Sed
+mattis, diam eget eleifend tincidunt, ligula eros tincidunt diam,
+vitae auctor turpis est vel nunc. In eu magna. Donec dolor metus,
+egestas sit amet, ultrices in, faucibus sed, lectus. Etiam est enim,
+vehicula pharetra, porta non, viverra vel, nunc. Ut non sem. Etiam nec
+neque. 
+
+\section{Resumo ou Conclusões}
+
+Proin vehicula pharetra urna. Aliquam egestas
+nunc quis nisl. Donec ullamcorper. Nulla purus. Ut suscipit lacus
+vitae dui. Mauris semper. Ut eget sem. Integer orci. Nam vitae dui
+eget nisi placerat convallis. 

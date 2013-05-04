@@ -1,0 +1,174 @@
+%% FEUP THESIS STYLE for LaTeX2e
+%% how to use feupteses (portuguese version)
+%%
+%% FEUP, JCL & JCF, 31 Jul 2012
+%%
+%% PLEASE send improvements to jlopes at fe.up.pt and to jcf at fe.up.pt
+%%
+
+%%========================================
+%% Commands: pdflatex tese
+%%           bibtex tese
+%%           makeindex tese (only if creating an index) 
+%%           pdflatex tese
+%% Alternative:
+%%          latexmk -pdf tese.tex
+%%========================================
+
+\documentclass[11pt,a4paper,twoside,openright]{report}
+
+%% For iso-8859-1 (latin1), comment next line and uncomment the second line
+\usepackage[utf8]{inputenc}
+%\usepackage[latin1]{inputenc}
+
+%% Portuguese version
+
+%% MIEIC options
+\usepackage[portugues,mieic]{feupteses}
+%\usepackage[portugues,mieic,juri]{feupteses}
+%\usepackage[portugues,mieic,final]{feupteses}
+%\usepackage[portugues,mieic,final,onpaper]{feupteses}
+
+%% Options: 
+%% - portugues: titles, etc in portuguese
+%% - onpaper: links are not shown (for paper versions)
+%% - backrefs: include back references from bibliography to citation place
+
+%% Uncomment the next lines if side by side graphics used
+%\usepackage[lofdepth,lotdepth]{subfig}
+%\usepackage{graphicx}
+%\usepackage{float}
+
+%% Include color package
+\usepackage{color}
+\definecolor{cloudwhite}{cmyk}{0,0,0,0.025}
+
+%% Include source-code listings package
+\usepackage{listings}
+\lstset{ %
+ language=C,                        % choose the language of the code
+ basicstyle=\footnotesize\ttfamily,
+ keywordstyle=\bfseries,
+ numbers=left,                      % where to put the line-numbers
+ numberstyle=\scriptsize\texttt,    % the size of the fonts that are used for the line-numbers
+ stepnumber=1,                      % the step between two line-numbers. If it's 1 each line will be numbered
+ numbersep=8pt,                     % how far the line-numbers are from the code
+ frame=tb,
+ float=htb,
+ aboveskip=8mm,
+ belowskip=4mm,
+ backgroundcolor=\color{cloudwhite},
+ showspaces=false,                  % show spaces adding particular underscores
+ showstringspaces=false,            % underline spaces within strings
+ showtabs=false,                    % show tabs within strings adding particular underscores
+ tabsize=2,	                    % sets default tabsize to 2 spaces
+ captionpos=b,                      % sets the caption-position to bottom
+ breaklines=true,                   % sets automatic line breaking
+ breakatwhitespace=false,           % sets if automatic breaks should only happen at whitespace
+ escapeinside={\%*}{*)},            % if you want to add a comment within your code
+ morekeywords={*,var,template,new}  % if you want to add more keywords to the set
+}
+
+%% Uncomment next line to set the depth of sectional units listed in the toc
+%\setcounter{tocdepth}{3}
+
+%% Uncomment to create an index (at the end of the document)
+%\makeindex
+
+%% Path to the figures directory
+%% TIP: use folder ``figures'' to keep all your figures
+\graphicspath{{figures/}}
+
+%%----------------------------------------
+%% TIP: if you want to define more macros, use an external file to keep them
+\include{mymacros}
+%%----------------------------------------
+
+%%========================================
+%% Start of document
+%%========================================
+\begin{document}
+
+%%----------------------------------------
+%% Information about the work
+%%----------------------------------------
+\title{Título da Dissertação}
+\author{Nome do Autor}
+
+%% Uncomment next line for date of submission
+%\thesisdate{31 de Julho de 2008}
+
+%% Uncomment next line for copyright text if used
+%\copyrightnotice{Nome do Autor, 2008}
+
+\supervisor{Orientador}{Nome do Orientador}
+
+%% Uncomment next line if necessary
+%\supervisor{Co-orientador}{Nome de Outro Orientador}
+
+%% Uncomment committee stuff in the final version
+%\committeetext{Aprovado em provas públicas pelo Júri:}
+%\committeemember{Presidente}{Nome do presidente do júri}
+%\committeemember{Arguente}{Nome do arguente do júri}
+%\committeemember{Vogal}{Nome do vogal do júri}
+%\signature
+
+%% Specify cover logo (in folder ``figures'')
+\logo{uporto-feup.pdf}
+
+%% Uncomment next line for additional text below the author's name (front page)
+\additionalfronttext{Preparação da Dissertação}
+
+%%----------------------------------------
+%% Preliminary materials
+%%----------------------------------------
+
+% remove unnecessary \include{} commands
+\begin{Prolog}
+  \include{abstract} % the abstract
+  \include{acknows}  % the acknowledgments
+  \include{quote}    % initial quotation if desired
+  \cleardoublepage
+  \pdfbookmark[0]{Conteúdo}{contents}
+  \tableofcontents
+  \cleardoublepage
+  \pdfbookmark[0]{Lista de Figuras}{figures}
+  \listoffigures
+  \cleardoublepage
+  \pdfbookmark[0]{Lista de Tabelas}{tables}
+  \listoftables
+  \include{abbrevs}  % the list of abbreviations used
+\end{Prolog}
+
+%%----------------------------------------
+%% Body
+%%----------------------------------------
+
+\StartBody
+
+%% TIP: use a separate file for each chapter
+\include{chapter1} 
+\include{chapter2}
+\include{chapter3}
+\include{chapter4}
+\include{chapter5} 
+
+%%----------------------------------------
+%% Final materials
+%%----------------------------------------
+
+%% Bibliography
+%% Comment the next command if BibTeX file not used, 
+%% Assumes that bibliography is in ``myrefs.bib''
+\PrintBib{myrefs}
+
+%% Comment next 2 commands if numbered appendices are not used
+\appendix
+\include{appendix1}
+
+%% Index
+%% Uncomment next command if index is required, 
+%% don't forget to run ``makeindex pdis'' command
+%\PrintIndex
+
+\end{document}

@@ -1,0 +1,169 @@
+%% FEUP THESIS STYLE for LaTeX2e
+%% how to use feupteses (English version)
+%%
+%% FEUP, JCL & JCF, 31 July 2012
+%%
+%% PLEASE send improvements to jlopes at fe.up.pt and to jcf at fe.up.pt
+%%
+
+%%========================================
+%% Commands: pdflatex tese
+%%           bibtex tese
+%%           makeindex tese (only if creating an index)
+%%           pdflatex tese
+%% Alternative:
+%%          latexmk -pdf tese.tex
+%%========================================
+
+\documentclass[11pt,a4paper,twoside,openright]{report}
+
+%% For iso-8859-1 (latin1), comment next line and uncomment the second line
+\usepackage[utf8]{inputenc}
+%\usepackage[latin1]{inputenc}
+
+%% English version
+
+%% MIEIC options
+\usepackage[mieic]{feupteses}
+%\usepackage[mieic,juri]{feupteses}
+%\usepackage[mieic,final]{feupteses}
+%\usepackage[mieic,final,onpaper]{feupteses}
+
+%% Additional options for feupteses.sty: 
+%% - onpaper: links are not shown (for paper versions)
+%% - backrefs: include back references from bibliography to citation place
+
+%% Uncomment the next lines if side by side graphics used
+%\usepackage[lofdepth,lotdepth]{subfig}
+%\usepackage{graphicx}
+%\usepackage{float}
+
+%% Include color package
+\usepackage{color}
+\definecolor{cloudwhite}{cmyk}{0,0,0,0.025}
+
+%% Include source-code listings package
+\usepackage{listings}
+\lstset{ %
+ language=C,                        % choose the language of the code
+ basicstyle=\footnotesize\ttfamily,
+ keywordstyle=\bfseries,
+ numbers=left,                      % where to put the line-numbers
+ numberstyle=\scriptsize\texttt,    % the size of the fonts that are used for the line-numbers
+ stepnumber=1,                      % the step between two line-numbers. If it's 1 each line will be numbered
+ numbersep=8pt,                     % how far the line-numbers are from the code
+ frame=tb,
+ float=htb,
+ aboveskip=8mm,
+ belowskip=4mm,
+ backgroundcolor=\color{cloudwhite},
+ showspaces=false,                  % show spaces adding particular underscores
+ showstringspaces=false,            % underline spaces within strings
+ showtabs=false,                    % show tabs within strings adding particular underscores
+ tabsize=2,	                    % sets default tabsize to 2 spaces
+ captionpos=b,                      % sets the caption-position to bottom
+ breaklines=true,                   % sets automatic line breaking
+ breakatwhitespace=false,           % sets if automatic breaks should only happen at whitespace
+ escapeinside={\%*}{*)},            % if you want to add a comment within your code
+ morekeywords={*,var,template,new}  % if you want to add more keywords to the set
+}
+
+%% Uncomment to create an index (at the end of the document)
+%\makeindex
+
+%% Path to the figures directory
+%% TIP: use folder ``figures'' to keep all your figures
+\graphicspath{{figures/}}
+
+%%----------------------------------------
+%% TIP: if you want to define more macros, use an external file to keep them
+\include{mymacros}
+%%----------------------------------------
+
+%%========================================
+%% Start of document
+%%========================================
+\begin{document}
+
+%%----------------------------------------
+%% Information about the work
+%%----------------------------------------
+\title{Title of the Dissertation}
+\author{Name of the Author}
+
+%% Uncomment next line for date of submission
+%\thesisdate{July 31, 2008}
+
+%%Uncomment next line for copyright text if used
+%\copyrightnotice{Name of the Author, 2008}
+
+\supervisor{Supervisor}{Name of the Supervisor}
+
+%% Uncomment next line if necessary
+%\supervisor{Second Supervisor}{Name of the Supervisor}
+
+%% Uncomment committee stuff in the final version if used
+%\committeetext{Approved in oral examination by the committee:}
+%\committeemember{Chair}{Doctor Name of the President}
+%\committeemember{External Examiner}{Doctor Name of the Examiner}
+%\committeemember{Supervisor}{Doctor Name of the Supervisor}
+%\signature
+
+%% Specify cover logo (in folder ``figures'')
+\logo{uporto-feup.pdf}
+
+%% Uncomment next line for additional text  below the author's name (front page)
+\additionalfronttext{Dissertation Planning}
+
+%%----------------------------------------
+%% Preliminary materials
+%%----------------------------------------
+
+% remove unnecssary \include{} commands
+\begin{Prolog}
+  \include{abstract_en} % the abstract
+  \include{acknows_en}  % the acknowledgments
+  \include{quote}       % initial quotation if desired
+  \cleardoublepage
+  \pdfbookmark[0]{Table of Contents}{contents}
+  \tableofcontents
+  \cleardoublepage
+  \pdfbookmark[0]{List of Figures}{figures}
+  \listoffigures
+  \cleardoublepage
+  \pdfbookmark[0]{List of Tables}{tables}
+  \listoftables
+  \include{abbrevs_en}  % the list of abbreviations used
+\end{Prolog}
+
+%%----------------------------------------
+%% Body
+%%----------------------------------------
+\StartBody
+
+%% TIP: use a separate file for each chapter
+\include{chapter1} 
+\include{chapter2}
+\include{chapter3}
+\include{chapter4}
+\include{chapter5} 
+
+%%----------------------------------------
+%% Final materials
+%%----------------------------------------
+
+%% Bibliography
+%% Comment the next command if BibTeX file not used
+%% bibliography is in ``myrefs.bib''
+\PrintBib{myrefs}
+
+%% comment next 2 commands if numbered appendices are not used
+\appendix
+\include{appendix1}
+
+%% Index
+%% Uncomment next command if index is required
+%% don't forget to run ``makeindex pdis-en'' command
+%\PrintIndex
+
+\end{document}
