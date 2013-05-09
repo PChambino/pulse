@@ -9,112 +9,119 @@
 % apresentando um breve resumo de cada um dos capítulos
 % posteriores.
 
-\evm{} is a method, recently presented at 
-\emph{SIGGRAPH}\footnote{\url{http://www.siggraph.org/}} 2012, capable of 
-revealing temporal variations in videos that are impossible to see 
-with the naked eye. Using this method, it is possible to visualize 
-the flow of blood as it fills the face~\cite{Wu2012Eulerian}. 
-Which provides enough information to assess the heart rate in a 
-contact-free way using a camera~\cite{Wu2012Eulerian, 
+\evm{} is a method, recently presented at
+\emph{SIGGRAPH}\footnote{\url{http://www.siggraph.org/}} 2012, capable of
+revealing temporal variations in videos that are impossible to see
+with the naked eye. Using this method, it is possible to visualize
+the flow of blood as it fills the face~\cite{Wu2012Eulerian}.
+Which provides enough information to assess the heart rate in a
+contact-free way using a camera~\cite{Wu2012Eulerian,
 Poh2010Non, Poh2011Advancements, Philips2013}.
 
-\section{Context} \label{sec:context}
+\section{Context} \label{sec:intro:context}
 
-The main field of this research work is \emph{image processing 
-and computer vision}, whose main purpose is to translate dimensional 
-data from the real world in the form of images into numerical 
+% Esta secção descreve a área em que o trabalho se insere, podendo
+% referir um eventual projeto de que faz parte e apresentar uma breve
+% descrição da empresa onde o trabalho decorreu.
+
+The main field of this research work is \emph{image processing
+and computer vision}, whose main purpose is to translate dimensional
+data from the real world in the form of images into numerical
 or symbolical information.
 
-Other fields include \emph{medical applications}, \emph{software 
+Other fields include \emph{medical applications}, \emph{software
 development for mobile devices}, \emph{digital signal processing}.
 
-This research work is an internal project of \emph{Fraunhofer 
-Portugal}\footnote{\url{http://www.fraunhofer.pt/}} proposed by 
-Luís Rosado. Fraunhofer Portugal a is non-profit private association 
+This research work is an internal project of \emph{Fraunhofer
+Portugal}\footnote{\url{http://www.fraunhofer.pt/}} proposed by
+Luís Rosado. Fraunhofer Portugal a is non-profit private association
 founded by Fraunhofer-Gesellschaft\footnote{\url{http://www.fraunhofer.de/en/about-fraunhofer/}}~\cite{Fraunhofer2013} and
 
 \begin{quote}
-  ``aims on the creation of scientific knowledge capable of 
-  generating added value to its clients and partners, exploring 
-  technology innovations oriented towards economic growth, the 
-  social well-being and the improvement of the quality of life of 
+  ``aims on the creation of scientific knowledge capable of
+  generating added value to its clients and partners, exploring
+  technology innovations oriented towards economic growth, the
+  social well-being and the improvement of the quality of life of
   its end-users.''~\cite{Fraunhofer2013}
 \end{quote}
 
-\section{Motivation} \label{sec:motivation}
+\section{Motivation} \label{sec:intro:motivation}
 
-Due to being recently proposed, the \evm{} method implementation 
+% Apresenta a motivação e enumera os objetivos do trabalho terminando
+% com um resumo das metodologias para a prossecução dos objetivos.
+
+Due to being recently proposed, the \evm{} method implementation
 has not been tested in smartphones yet.
 
-There has been some successful effort on the assessment of vital 
-signs, such as, heart rate, and breathing rate, in a contact-free 
-way using a webcamera~\cite{Wu2012Eulerian, Poh2010Non, Poh2011Advancements}, 
+There has been some successful effort on the assessment of vital
+signs, such as, heart rate, and breathing rate, in a contact-free
+way using a webcamera~\cite{Wu2012Eulerian, Poh2010Non, Poh2011Advancements},
 and even a smartphone~\cite{Philips2013}.
 
-Other similar products, which require specialist hardware and are 
-thus expensive, include \emph{laser Doppler}~\cite{Ulyanov1993Pulse}, 
-\emph{microwave Doppler radar}~\cite{Greneker1997Radar}, and 
+Other similar products, which require specialist hardware and are
+thus expensive, include \emph{laser Doppler}~\cite{Ulyanov1993Pulse},
+\emph{microwave Doppler radar}~\cite{Greneker1997Radar}, and
 \emph{thermal imaging}~\cite{Garbey2007Contact}.
 
-Since it is a cheaper method of assessing vital signs in a 
-contact-free way than the above products, this research work has 
-potential for advancing fields, such as, \emph{telemedicine}, 
+Since it is a cheaper method of assessing vital signs in a
+contact-free way than the above products, this research work has
+potential for advancing fields, such as, \emph{telemedicine},
 \emph{personal health-care}, and \emph{ambient assisting living}.
 
-Despite the existence of a very similar product by 
-\emph{Philips}~\cite{Philips2013} -- \emph{Vital Signs Camera} -- 
-to the one proposed on this research work, the product to be developed 
-during this research work will have additional features, such as, 
-feature tracking while assessing the heart rate, and augmented reality 
+Despite the existence of a very similar product by
+\emph{Philips}~\cite{Philips2013} -- \emph{Vital Signs Camera} --
+to the one proposed on this research work, the product to be developed
+during this research work will have additional features, such as,
+feature tracking while assessing the heart rate, and augmented reality
 to visualize the blood flow.
 
-\section{Objectives} \label{sec:objectives}
+\section{Objectives} \label{sec:intro:objectives}
 
 % Enumera os objetivos do trabalho terminando
 % com um resumo das metodologias para a prossecução dos objetivos.
 
-This research work goal is to test the feasibility of the 
+This research work goal is to test the feasibility of the
 implementation of the \evm{} method on smartphones by developing
-an \emph{Android} application for monitoring vital signs based on 
+an \emph{Android} application for monitoring vital signs based on
 the \evm{} method.
 
 The proposed application should include the following features:
 
 \begin{itemize}
-  \item heart rate detection and assessment based on the \evm{} 
+  \item heart rate detection and assessment based on the \evm{}
         method;
-  \item display real-time changes, such as, the magnified blood 
+  \item display real-time changes, such as, the magnified blood
         flow, obtained from the \evm{} method;
-  \item deal with artifacts' motion, due to, person and/or 
+  \item deal with artifacts' motion, due to, person and/or
         smartphone movement.
 \end{itemize}
 
 The application performance will then be evaluated through tests
 with several individuals and the assessed heart rate compared to
-the one detected by the \emph{Philips} application~\cite{Philips2013}, 
-and to the measurement of an heart rate monitor or a pulse 
+the one detected by the \emph{Philips} application~\cite{Philips2013},
+and to the measurement of an heart rate monitor or a pulse
 oximeter.
 
-In order to achieve the objectives proposed and solve any possible 
-problem, a review of the state of the art in the domain of vital 
-signs monitoring through image processing and analysis that can be 
+In order to achieve the objectives proposed and solve any possible
+problem, a review of the state of the art in the domain of vital
+signs monitoring through image processing and analysis that can be
 applicable to smartphones will also be held during this research work.
 
 \pagebreak
 
-\section{Outline} \label{sec:outline}
+\section{Outline} \label{sec:intro:outline}
 
 The rest of the document is organized as follows:
 
 \begin{description}
-  \item[Chapter~\ref{chap:sota}] introduces the concepts necessary to 
+  \item[Chapter~\ref{chap:sota}] introduces the concepts necessary to
         understand the presented problem. In addition, it presents
-        the existing related work, and a description of the technologies 
+        the existing related work, and a description of the technologies
         to be used.
-  \item[Chapter~\ref{chap:approach}] presents the approach taken to 
-        solve the problem. Moreover, it introduces the testing and 
+  \item[Chapter~\ref{chap:approach}] presents the approach taken to
+        solve the problem. Moreover, it introduces the testing and
         evaluation methodologies.
-  \item[Chapter~\ref{chap:workplan}] presents the work to be completed 
-        during the master thesis, split in main tasks, including an 
-        estimated schedule.        
+  \item[Chapter~\ref{chap:workplan}] presents the work to be completed
+        during the master thesis, split in main tasks, including an
+        estimated schedule.
 \end{description}

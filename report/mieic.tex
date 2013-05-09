@@ -123,8 +123,8 @@
 % remove unnecssary \include{} commands
 \begin{Prolog}
   \include{abstract} % the abstract
-  \include{acknows}  % the acknowledgments
-  \include{quote}       % initial quotation if desired
+  %\include{acknows}  % the acknowledgments
+  %\include{quote}       % initial quotation if desired
   \cleardoublepage
   \pdfbookmark[0]{Table of Contents}{contents}
   %\setcounter{tocdepth}{1} % limit table of contents depth
@@ -145,9 +145,12 @@
 
 %% TIP: use a separate file for each chapter
 \include{introduction}
-\include{sota}
-\include{approach}
-\include{workplan}
+\include{stateoftheart}
+\include{problem}
+\include{solution}
+\include{implementation}
+\include{results}
+\include{conclusions}
 
 %%----------------------------------------
 %% Final materials
@@ -159,8 +162,8 @@
 \PrintBib{myrefs}
 
 %% comment next 2 commands if numbered appendices are not used
-\appendix
-\include{appendix1}
+%\appendix
+%\include{appendix1}
 
 %% Index
 %% Uncomment next command if index is required
