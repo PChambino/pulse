@@ -5,9 +5,21 @@
 % O primeiro capítulo da dissertação deve servir para apresentar o
 % enquadramento e a motivação do trabalho e para identificar e
 % definir os problemas que a dissertação aborda.
+
 % Deve resumir as metodologias utilizadas no trabalho e termina
 % apresentando um breve resumo de cada um dos capítulos
 % posteriores.
+
+This chapter introduces this work, by first presenting its context,
+motivation, and project's objectives, on sections \ref{sec:intro:context},
+\ref{sec:intro:motivation}, and \ref{sec:intro:objectives}, respectively.
+Finally, section \ref{sec:intro:outline} describes the document outline.
+
+\section{Context} \label{sec:intro:context}
+
+% Esta secção descreve a área em que o trabalho se insere, podendo
+% referir um eventual projeto de que faz parte e apresentar uma breve
+% descrição da empresa onde o trabalho decorreu.
 
 \evm{} is a method, recently presented at
 \emph{SIGGRAPH}\footnote{\url{http://www.siggraph.org/}} 2012, capable of
@@ -16,13 +28,7 @@ with the naked eye. Using this method, it is possible to visualize
 the flow of blood as it fills the face~\cite{Wu2012Eulerian}.
 Which provides enough information to assess the heart rate in a
 contact-free way using a camera~\cite{Wu2012Eulerian,
-Poh2010Non, Poh2011Advancements, Philips2013}.
-
-\section{Context} \label{sec:intro:context}
-
-% Esta secção descreve a área em que o trabalho se insere, podendo
-% referir um eventual projeto de que faz parte e apresentar uma breve
-% descrição da empresa onde o trabalho decorreu.
+Poh2010Non, Poh2011Advancements}.
 
 The main field of this research work is \emph{image processing
 and computer vision}, whose main purpose is to translate dimensional
@@ -33,7 +39,7 @@ Other fields include \emph{medical applications}, \emph{software
 development for mobile devices}, \emph{digital signal processing}.
 
 This research work is an internal project of \emph{Fraunhofer
-Portugal}\footnote{\url{http://www.fraunhofer.pt/}} proposed by
+Portugal}\footnote{\url{http://www.fraunhofer.pt/}} supervised by
 Luís Rosado. Fraunhofer Portugal a is non-profit private association
 founded by Fraunhofer-Gesellschaft\footnote{\url{http://www.fraunhofer.de/en/about-fraunhofer/}}~\cite{Fraunhofer2013} and
 
@@ -56,7 +62,7 @@ has not been tested in smartphones yet.
 There has been some successful effort on the assessment of vital
 signs, such as, heart rate, and breathing rate, in a contact-free
 way using a webcamera~\cite{Wu2012Eulerian, Poh2010Non, Poh2011Advancements},
-and even a smartphone~\cite{Philips2013}.
+and even a smartphone~\cite{Vitrox2013, Philips2013}.
 
 Other similar products, which require specialist hardware and are
 thus expensive, include \emph{laser Doppler}~\cite{Ulyanov1993Pulse},
@@ -68,11 +74,12 @@ contact-free way than the above products, this research work has
 potential for advancing fields, such as, \emph{telemedicine},
 \emph{personal health-care}, and \emph{ambient assisting living}.
 
-Despite the existence of a very similar product by
-\emph{Philips}~\cite{Philips2013} -- \emph{Vital Signs Camera} --
+Despite the existence of very similar products by
+\emph{Philips}~\cite{Philips2013} and
+\emph{ViTrox Technologies}~\cite{Vitrox2013}
 to the one proposed on this research work, the product to be developed
 during this research work will have additional features, such as,
-feature tracking while assessing the heart rate, and augmented reality
+face tracking while assessing the heart rate, and augmented reality
 to visualize the blood flow.
 
 \section{Objectives} \label{sec:intro:objectives}
@@ -85,7 +92,7 @@ implementation of the \evm{} method on smartphones by developing
 an \emph{Android} application for monitoring vital signs based on
 the \evm{} method.
 
-The proposed application should include the following features:
+This application should include the following features:
 
 \begin{itemize}
   \item heart rate detection and assessment based on the \evm{}
@@ -96,32 +103,29 @@ The proposed application should include the following features:
         smartphone movement.
 \end{itemize}
 
-The application performance will then be evaluated through tests
+The application performance should then be evaluated through tests
 with several individuals and the assessed heart rate compared to
-the one detected by the \emph{Philips} application~\cite{Philips2013},
-and to the measurement of an heart rate monitor or a pulse
-oximeter.
-
-In order to achieve the objectives proposed and solve any possible
-problem, a review of the state of the art in the domain of vital
-signs monitoring through image processing and analysis that can be
-applicable to smartphones will also be held during this research work.
+the ones detected by another application~\cite{Vitrox2013, Philips2013},
+and to the measurement of an electronic sphygmomanomete.
 
 \pagebreak
 
 \section{Outline} \label{sec:intro:outline}
 
-The rest of the document is organized as follows:
+% TODO rewrite outline
+
+The rest of the document is structured as follows:
 
 \begin{description}
   \item[Chapter~\ref{chap:sota}] introduces the concepts necessary to
         understand the presented problem. In addition, it presents
         the existing related work, and a description of the technologies
         to be used.
-  \item[Chapter~\ref{chap:approach}] presents the approach taken to
+  \item[Chapter~\ref{chap:problem}] ...
+  \item[Chapter~\ref{chap:solution}] presents the approach taken to
         solve the problem. Moreover, it introduces the testing and
         evaluation methodologies.
-  \item[Chapter~\ref{chap:workplan}] presents the work to be completed
-        during the master thesis, split in main tasks, including an
-        estimated schedule.
+  \item[Chapter~\ref{chap:impl}] ...
+  \item[Chapter~\ref{chap:results}] ...
+  \item[Chapter~\ref{chap:conclusions}] ...
 \end{description}
