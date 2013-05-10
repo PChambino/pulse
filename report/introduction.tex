@@ -11,9 +11,10 @@
 % posteriores.
 
 This chapter introduces this work, by first presenting its context,
-motivation, and project's objectives, on sections \ref{sec:intro:context},
-\ref{sec:intro:motivation}, and \ref{sec:intro:objectives}, respectively.
-Finally, section \ref{sec:intro:outline} describes the document outline.
+motivation, and project's objectives, on sections~\ref{sec:intro:context},
+\ref{sec:intro:motivation}, and~\ref{sec:intro:objectives}, respectively.
+
+Finally, section~\ref{sec:intro:outline} describes the document outline.
 
 \section{Context} \label{sec:intro:context}
 
@@ -77,10 +78,10 @@ potential for advancing fields, such as, \emph{telemedicine},
 Despite the existence of very similar products by
 \emph{Philips}~\cite{Philips2013} and
 \emph{ViTrox Technologies}~\cite{Vitrox2013}
-to the one proposed on this research work, the product to be developed
-during this research work will have additional features, such as,
-face tracking while assessing the heart rate, and augmented reality
-to visualize the blood flow.
+to the one proposed on this research work, none of these implements
+the \evm{} method. Moreover, the application to be developed
+during this research work will have additional features described on
+the next section~\ref{sec:intro:objectives}.
 
 \section{Objectives} \label{sec:intro:objectives}
 
@@ -102,6 +103,14 @@ This application should include the following features:
   \item deal with artifacts' motion, due to, person and/or
         smartphone movement.
 \end{itemize}
+
+It should be noted that a straightforward implementation of the \evm{}
+method is not possible, due to various reasons. First, the \evm{} method
+provides motion magnification along with color magnification which will
+introduce several problems with artifacts' motion. Second, the requirement
+of implementing a real-time smartphone application will create performance
+issues which will have to be addressed and trade-offs will have to be
+considered.
 
 The application performance should then be evaluated through tests
 with several individuals and the assessed heart rate compared to

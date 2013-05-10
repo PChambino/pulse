@@ -16,26 +16,56 @@
 % No final do capítulo deverá ser apresentado um resumo com as
 % principais conclusões que se podem tirar.
 
-In this chapter, the background needed to understand the problem of
-heart rate detection using the \evm{} method is presented on
-section~\ref{sec:evm}. Before that, a similar research, which uses the
-\ica{} model to assess the cardiac pulse, is described in more
-detail on section~\ref{sec:relatedwork}. In addition, a description of the
-technologies to be used will be described on section~\ref{sec:technologies}.
+This chapter presents several studies regarding the heart rate estimation
+from a person's face captured through a simple webcam.
 
-\section{Related Work} \label{sec:sota:relatedwork}
+Section~\ref{sec:sota:photo} describe the concept that explains how the
+cardiac pulse is detected from a person's face in a remote, contact-free way.
 
-Successful attempts have already been made on real-time, contact-free
-heart rate assessment using a webcamera. In these attempts, two methods
-have been used: \ica{}, and \evm{}.
+Post-processing methods, which may be applied to the retrieved signal,
+are detailed on section~\ref{sec:sota:post}.
 
-An \emph{iOS} application named \emph{Vital Signs Camera}, developed by
-\emph{Philips}, has also been able to detect a person's heart rate and
-breathing rate using the smartphone's camera~\cite{Philips2013}.
-However, as far as I know, there is no research work available to
-the public since its technology was developed internally by \emph{Philips}.
+In order to estimate the heart rate, a couple of techniques are also detailed
+on section~\ref{sec:sota:estimation}.
 
-\subsection{\ica} \label{sec:sota:ica}
+Finally, section~\ref{sec:sota:tech} reviews the main
+technologies and tools used throughout this work.
+
+\section{Photo-plethysmography} \label{sec:sota:photo}
+
+Photo-plethysmography~(PPG) is the concept of measuring volumetric changes
+of an organ optically. Its most established use is in pulse oximeters.
+
+PPG is based on the principle that blood absorbs more light than surrounding
+tissue thus variations on blood volume affect light
+reflectance~\cite{Verkruysse2008Remote}.
+
+The use of dedicated light sources and infra-red wavelengths, and contact probes
+has been the norm~\cite{Ulyanov1993Pulse, Greneker1997Radar, Garbey2007Contact}.
+However, recently, remote, non-contact PPG imaging has been explored. % TODO references
+
+The method used on the article~\cite{Verkruysse2008Remote} captures the pixel
+values (red, green, and blue channels) of the facial area of a previously
+recorded video where volunteers were asked to minimize movements. The pixel
+values within a region of interest (ROI) was then averaged for each frame.
+This spatial averaging was found to significantly increase signal-to-noise
+ratio. The heart rate estimation was then calculated by applying Fast Fourier
+transforms and the power spectrum as explained on
+section~\ref{sec:sota:estimation:power}.
+
+The authors of~\cite{Verkruysse2008Remote} demonstrate that the fact that
+the green channel features a stronger heart rate signal as compared to the
+red and blue channels, is a strong evidence that the signal is due to
+variations in blood volume because (oxy-) hemoglobin absorbs green light.
+
+\section{Signal post-processing} \label{sec:sota:post}
+
+After obtaining the raw pixel values (red, green, and blue channels), a
+conjunction of the following methods may be used to extract and improve the
+reflected plethysmography signal. However, each method introduces complexity
+and expensive computation.
+
+\subsection{\ica} \label{sec:sota:post:ica}
 
 \ica{} is a special case of \emph{blind source separation} and is a relatively
 new technique for uncovering independent signals from a set of observations
@@ -49,7 +79,7 @@ during the cardiac cycle, such that subsequent changes in amount of reflected
 light indicate the timing of cardiovascular events.
 
 By recording a video of
-the facial region, the red, green, and blue (RGB) color sensors pick up a
+the facial region, the red, green, and blue~(RGB) color sensors pick up a
 mixture of the reflected plethysmographic signal along with other sources of
 fluctuations in light due to artifacts. Each color sensor records a mixture
 of the original source signals with slightly different weights. These observed
@@ -82,7 +112,9 @@ each source. In practice, iterative methods are used to maximize or minimize
 a given cost function that measures non-Gaussianity~\cite{Poh2010Non,
 Poh2011Advancements}.
 
-\section{\evm} \label{sec:sota:evm}
+\subsection{\evm} \label{sec:sota:post:evm}
+
+\fig{evm}{Overview of the \evm{} method.}
 
 In contrast to the \ica{} model that focus on extracting a single number,
 the \evm{} uses localized spatial pooling and temporal filtering to extract
@@ -123,9 +155,26 @@ specified by the user, and may be attenuated automatically. Finally,
 the magnified signal is added to the original and the spatial pyramid
 collapsed to obtain the final output.
 
-\fig{evm}{Overview of the \evm{} method.}
+\subsubsection{Spatial filtering} \label{sec:sota:post:evm:spatial}
 
-\subsection{Emphasize color variations for human pulse} \label{sec:sota:evm:color}
+% TODO
+% full Laplacian pyramid
+% single layer of Gaussian pyramid
+
+\subsubsection{Temporal filtering} \label{sec:sota:post:evm:temporal}
+
+% TODO
+% ideal filter (FFT)
+% butterworth
+% second-order IIR (realtime)
+
+% The choice of filter is generally application dependent. For motion magnification, a filter with a broad passband is preferred; for color amplification of blood flow, a narrow passband produces a more noise-free result. Figure 9 shows the frequency responses of some of the temporal filters used in this paper. We use ideal bandpass filters for color am- plification, since they have passbands with sharp cutoff frequencies. Low-order IIR filters can be useful for both color amplification and motion magnification and are convenient for a real-time implemen- tation.
+
+\subsubsection{Emphasize color variations for human pulse} \label{sec:sota:evm:color}
+
+% TODO improve section
+
+\fig{evm-color}{Emphasis of the face color changes using the \evm{} method.}
 
 The extraction of a person's cardiac pulse using the \evm{} method
 was demonstrated in~\cite{Wu2012Eulerian}. It was also presented that
@@ -144,7 +193,7 @@ There are four steps to take then processing a video by \evm{}:
 
 For human pulse color variation, two temporal filters may be used, first
 selecting frequencies within 0.4-4Hz, corresponding to 24-240 beats per
-minute (bpm), then a narrow band of 0.83-1Hz (50-60 bpm) may be used,
+minute~(bpm), then a narrow band of 0.83-1Hz~(50-60 bpm) may be used,
 if the extraction of the pulse rate was successful.
 
 To emphasize the color change as much as possible, a large amplification
@@ -154,16 +203,34 @@ zero for spatial wavelengths below $\lambda_c$.
 
 The resulting output can be seen in figure~\ref{fig:evm-color}.
 
-\fig{evm-color}{Emphasis of the face color changes using the \evm{} method.}
+\subsection{Detrending} \label{sec:sota:post:detrend}
 
-\section{Technologies} \label{sec:sota:technologies}
+% TODO
+
+\section{Heart rate estimation} \label{sec:sota:estimation}
+
+% TODO
+
+\subsection{Power spectrum} \label{sec:sota:estimation:power}
+
+% TODO
+% FFT
+
+\subsection{Pulse onset detection} \label{sec:sota:estimation:pulse}
+
+% TODO
+% validations
+
+\section{Technologies} \label{sec:sota:tech}
+
+% TODO improve / extend section
 
 Below are short descriptions of the main technologies that will be
 used during this research work.
 
 \begin{description}
 
-\item[Android SDK] \hfill
+\item[Android SDK] \hfill \label{sec:sota:tech:android}
 
 \emph{Android SDK} is the development kit for the \emph{Android}
 platform. The \emph{Android} platform is an open source, Linux-based
@@ -180,9 +247,7 @@ for mobile devices and others.
 platform with a worldwide smartphone market share of 75\%
 during the third quarter of 2012~\cite{Idc2013Android}.
 
-\pagebreak
-
-\item[OpenCV -- Computer Vision Library] \hfill
+\item[OpenCV -- Computer Vision Library] \hfill \label{sec:sota:tech:opencv}
 
 \emph{OpenCV} is a library of programming functions mainly aimed at
 real-time image processing. To support these, it also includes a
@@ -199,3 +264,5 @@ license.
 \end{description}
 
 \section{Chapter summary}
+
+% TODO
