@@ -157,29 +157,62 @@ collapsed to obtain the final output.
 
 \subsubsection{Spatial filtering} \label{sec:sota:post:evm:spatial}
 
-% TODO
-% full Laplacian pyramid
-% single layer of Gaussian pyramid
+As mention before, the work of~\cite{Wu2012Eulerian} computes the full
+Laplacian pyramid~\cite{Burt1983Laplacian} as a general case for spatial
+filtering. Each layer of the pyramid may be magnified differently because
+it may exhibit different signal-to-noise ratios, or contain spatial frequencies
+for which the linear approximation used in motion magnification does not
+hold~\cite[section 3]{Wu2012Eulerian}.
+
+Spatial filtering may also be used to significantly increases signal-to-noise
+ratio, as previously mention on section~\ref{sec:sota:photo} and demonstrated
+on the work of~\cite{Verkruysse2008Remote} and~\cite{Wu2012Eulerian}. Subtle
+signals, such as, a person's heart rate from a video of its face, may be
+enhanced this way. For this purpose the work of~\cite{Wu2012Eulerian} computes
+a layer of the Gaussian pyramid which may be obtained by successively scaling
+down the image by calculating the Gaussian average for each pixel.
+
+However, for the signal of interest to be revealed, the spatial filter applied
+must be large enough. Section 5 of~\cite{Wu2012Eulerian} provides an equation
+to estimate the size for a spatial filter needed to reveal a signal at a
+certain noise power level:
+
+\begin{equation}
+  S(\lambda) = S(r) = \sigma'^2 = k \frac{\sigma^2}{r^2}
+\end{equation}
+
+where $S(\lambda)$ represents the signal over spatial frequencies, and since
+the wavelength, $\lambda$, cutoff of a spatial filter is proportional to its
+radius, $r$, the signal may be represented as $S(r)$. The noise power,
+$\sigma^2$, can be estimated using to the technique of~\cite{Liu2006Noise}.
+Finally, because the filtered noise power level, $\sigma'^2$, is inversely
+proportional to $r^2$, it is possible to solve the equation for $r$, where
+$k$ is a constant that depends on the shape of the low pass filter.
 
 \subsubsection{Temporal filtering} \label{sec:sota:post:evm:temporal}
 
-% TODO
-% ideal filter (FFT)
-% butterworth
-% second-order IIR (realtime)
+\fig{temporal-filters}{Examples of temporal filters.}
 
-% The choice of filter is generally application dependent. For motion magnification, a filter with a broad passband is preferred; for color amplification of blood flow, a narrow passband produces a more noise-free result. Figure 9 shows the frequency responses of some of the temporal filters used in this paper. We use ideal bandpass filters for color am- plification, since they have passbands with sharp cutoff frequencies. Low-order IIR filters can be useful for both color amplification and motion magnification and are convenient for a real-time implemen- tation.
+Temporal filtering is used to extract the motions or signals to be amplified.
+Thus, the filter choice is application dependent. For motion magnification,
+a broad bandpass filter, such as, the butterworth filter, is preferred. A
+narrow bandpass filter produces a more noise-free result for color
+amplification of blood flow. An ideal bandpass filter is used
+on~\cite{Wu2012Eulerian} due to its sharp cutoff frequencies. Alternatively,
+for a real-time implementation low-order IIR filters can be useful for both:
+color amplification and motion magnification. These filters are illustrated
+on~\ref{fig:temporal-filters}.
 
 \subsubsection{Emphasize color variations for human pulse} \label{sec:sota:evm:color}
 
 % TODO improve section
 
-\fig{evm-color}{Emphasis of the face color changes using the \evm{} method.}
+\fig{evm-color}{Emphasis of face color changes using the \evm{} method.}
 
 The extraction of a person's cardiac pulse using the \evm{} method
 was demonstrated in~\cite{Wu2012Eulerian}. It was also presented that
 using the right configuration can help extract the desired signal.
-There are four steps to take then processing a video by \evm{}:
+There are four steps to take when processing a video using the \evm{} method:
 
 \begin{enumerate}
   \item select a temporal bandpass filter;
@@ -205,7 +238,15 @@ The resulting output can be seen in figure~\ref{fig:evm-color}.
 
 \subsection{Detrending} \label{sec:sota:post:detrend}
 
-% TODO
+Detrending is a method of removing very large ultralow-frequency trends an
+input signal without any magnitude distortion, acting as an high-pass filter.
+
+The main advantage of the method presented on the work
+of~\cite{Tarvainen2002Advanced}, compared to methods presented
+in~\cite{Litvack1995Time} and~\cite{Porges1990Analysis}, is its simplicity.
+
+% TODO equation
+% TODO image
 
 \section{Heart rate estimation} \label{sec:sota:estimation}
 
