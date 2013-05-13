@@ -205,8 +205,6 @@ on~\ref{fig:temporal-filters}.
 
 \subsubsection{Emphasize color variations for human pulse} \label{sec:sota:evm:color}
 
-% TODO improve section
-
 \fig{evm-color}{Emphasis of face color changes using the \evm{} method.}
 
 The extraction of a person's cardiac pulse using the \evm{} method
@@ -245,19 +243,62 @@ The main advantage of the method presented on the work
 of~\cite{Tarvainen2002Advanced}, compared to methods presented
 in~\cite{Litvack1995Time} and~\cite{Porges1990Analysis}, is its simplicity.
 
-% TODO equation
-% TODO image
+The method consists of separating the input signal, $z$, into two components,
+as $z = z_{stat} + z_{trend}$, where $z_{stat}$ is the nearly stationary
+component, and $z_{trend}$ is the low frequency aperiodic trend component.
+
+An estimation of the nearly stationary component, $\hat{z}_{stat}$, can
+be obtained using the equation below. The detailed derivation of the equation
+can be found in~\cite{Tarvainen2002Advanced}.
+
+\begin{equation}
+  \hat{z}_{stat} = (I - (I + \lambda^2 D_2^T D_2)^{-1}) z
+\end{equation}
+
+where $I$ is the identity matrix, $D_2$ is the discrete approximation of the
+second order, and $\lambda$ is the regularization parameter.
+
+\fig{detrend}{Original and detrended RR series.}
+
+Figure~\ref{fig:detrend} presents an example of what this method is able to
+achieve. The example, taken from the work of~\cite{Tarvainen2002Advanced}, uses
+real RR series and the effect of the method on time and frequency domain
+analysis of heart rate variability is demonstrated not to lose any useful
+information.
 
 \section{Heart rate estimation} \label{sec:sota:estimation}
 
-% TODO
+In order to convert the extracted plethysmographic signal into the number
+of beats per minute~(bpm), further processing must be done. Below are
+highlighted two methods capable of achieving this goal.
 
 \subsection{Power spectrum} \label{sec:sota:estimation:power}
 
-% TODO
-% FFT
+\emph{Fourier transform} is a mathematical transform capable of converting
+a function of time, $f(t)$, into a new function representing the frequency
+domain of the original function.
+
+To calculate the power spectrum, the resulting function from the
+\emph{Fourier transform} is then multiplied by itself.
+
+Since the values are captured from a video, sequence of frames, the function
+of time is actually discrete, with a frequency rate equal to the video frame
+rate, $FPS$.
+
+The \emph{index}, $i$, corresponding to the maximum of the power spectrum can
+then be converted into a frequency value, $F$, using the equation:
+
+\begin{equation}
+  F = \frac{i * FPS}{2 N}
+\end{equation}
+
+where $N$ is the size of the signal extracted. $F$ can then be multiplied by
+$60$ to convert it to beats per minute, and have an estimation of the heart
+rate from the extracted signal.
 
 \subsection{Pulse onset detection} \label{sec:sota:estimation:pulse}
+
+
 
 % TODO
 % validations
