@@ -296,23 +296,73 @@ where $N$ is the size of the signal extracted. $F$ can then be multiplied by
 $60$ to convert it to beats per minute, and have an estimation of the heart
 rate from the extracted signal.
 
-\subsection{Pulse onset detection} \label{sec:sota:estimation:pulse}
+\subsection{Pulse wave detection} \label{sec:sota:estimation:pulse}
 
+In~\cite{Nenova2010Automated}, it is presented an automated algorithm
+for fast pulse wave detection. The algorithm is capable of obtaining an
+estimative of the heart rate from PPG signal, as an alternative to the power
+spectrum described above. Moreover, it also introduces validation to the
+waveform detection by verifying its shape and timing. Below is presented a
+simplified description of the algorithm. A more detailed description can be
+found in~\cite{Nenova2010Automated}.
 
+\begin{enumerate}
+  \item Identification of possible peaks and foots of individual pulses
+  \begin{enumerate}
+    \item Maximum ($MAX$)\\
+          The signal is divided into consecutive $200 ms$ time intervals and
+          for every segment the absolute maximum is determined. Some of these
+          maximums are rejected: if they fall below a predetermined amplitude
+          threshold; or if the distance between two maximums is less than or
+          equal to $200 ms$, then the lower maximum is rejected.
+    \item Minimum ($MIN$)\\
+          The absolute minimum is determined between every two adjacent
+          maximums. A minimum is rejected, it is above a predetermined
+          amplitude threshold. When a minimum is rejected, the lower-amplitude
+          maximum of the two maximum adjacent to the rejected minimum is
+          discarded too.
+  \end{enumerate}
 
-% TODO
-% validations
+  \item Examination and verification of the rising edges
+  \begin{enumerate}
+    \item Validation of a single rising edge\\
+          If a rising edge is rejected, its maximum and minimum are rejected.
+          A rising edge is rejected, if its amplitude ($AMPL = MAX - MIN$) is
+          lower than amplitude threshold; or its duration is lower than a
+          threshold that depends on the sampling rate; or its amplitude does
+          not increase smoothly.
+    \item Estimation of the similarity of a rising edge to preceding and
+          following rising edges accepted as valid\\
+          Two rising edges are considered similar, if the amplitude of the
+          lower-amplitude rising edge is greater than $50\%$ of the amplitude
+          of the higher-amplitude rising edge; and if the maximum of the
+          lower-amplitude rising edge is between $\pm60\%$ of the maximum of
+          the higher-amplitude rising edge; and if the minimum of the
+          lower-amplitude rising edge is between $\pm60\%$ of the minimum of
+          the higher-amplitude rising edge; and if the duration of the shorter
+          rising edge is greater then $33\%$ of the duration of the longer
+          rising edge. The valid rising edges are then categorized according
+          to its characteristics for the following step. The categorization
+          description is suppressed for brevity and can be found
+          at~\cite{Nenova2010Automated}.
+    \item Verification of the current rising edge\\
+          The rising edges categorized on the previous step are considered
+          valid edges of a pulse wave if they fulfill at least one of the
+          decision rules presented on~\cite{Nenova2010Automated} and suppressed
+          for brevity.
+  \end{enumerate}
+\end{enumerate}
+
+The validation process described here is important for discarding signals
+which are not representative of pulse waves. Providing a way of calculating
+the heart rate estimation only on valid pulse signals.
 
 \section{Technologies} \label{sec:sota:tech}
 
-% TODO improve / extend section
-
-Below are short descriptions of the main technologies that will be
+Below are short descriptions of two of the main technologies that will be
 used during this research work.
 
-\begin{description}
-
-\item[Android SDK] \hfill \label{sec:sota:tech:android}
+\subsection{Android SDK} \label{sec:sota:tech:android}
 
 \emph{Android SDK} is the development kit for the \emph{Android}
 platform. The \emph{Android} platform is an open source, Linux-based
@@ -329,7 +379,20 @@ for mobile devices and others.
 platform with a worldwide smartphone market share of 75\%
 during the third quarter of 2012~\cite{Idc2013Android}.
 
-\item[OpenCV -- Computer Vision Library] \hfill \label{sec:sota:tech:opencv}
+\emph{Android} consists of a kernel based on Linux kernel with middleware,
+libraries and APIs written in C. Applications, usually, run on an application
+framework which includes Java-compatible libraries based on
+\emph{Apache Harmony}, an open source, free Java implementation.
+\emph{Java bytecode} is then translated to run on the
+\emph{Dalvik virtual machine}.
+
+Porting existing Linux application or libraries to \emph{Android} is difficult
+due to the lack of a native \emph{X Window System} and lack of support for
+\emph{GNU} libraries. Support for simple C and SDL application is possible,
+though, by the usage of \emph{JNI}, a programming framework that allows Java
+code to call and be called by libraries written in C/C++.
+
+\subsection{OpenCV -- Computer Vision Library} \label{sec:sota:tech:opencv}
 
 \emph{OpenCV} is a library of programming functions mainly aimed at
 real-time image processing. To support these, it also includes a
@@ -343,8 +406,42 @@ license.
   in the commercial products.''~\cite{Opencv2013About}
 \end{quote}
 
-\end{description}
+\emph{OpenCV} is written in C/C++. There are binding for other languages,
+such as, Python, Java, and even Android. However, Java and Android
+implementation is recent and lacks features and stability.
 
 \section{Chapter summary}
 
-% TODO
+This chapter starts by describing the concept behind the extraction of
+cardiac pulse is possible from a person's face captured through a simple video
+or webcam.
+
+It then presents several possible post-processing methods for to improve
+the extraction of the actual pulse signal. These methods include:
+\begin{itemize}
+  \item \emph{\ica}, a method capable of uncovering independent signals from a set
+        of observations that are composed of linear mixtures of the
+        underlying sources;
+  \item \emph{\evm}, a method inspired by the \emph{Eulerian} perspective that
+        exaggerates color variations by analyzing how each pixel value
+        changes over time;
+  \item \emph{Detrend}, a method which removes small trends from an input signal
+        without distorting its amplitude.
+\end{itemize}
+
+Then algorithms for obtaining the actual beats per minutes of the heart rate
+from the signal are described:
+\begin{itemize}
+  \item \emph{Power spectrum}, a set of equations capable of finding the frequency of
+        a signal using the \emph{Fourier transform};
+  \item \emph{Pulse wave detection}, an algorithm for detecting and validating
+        rising edges from a pulse signal.
+\end{itemize}
+
+Finally, important technologies for the work are described and explored:
+\begin{itemize}
+  \item \emph{Android}, a Linux-based operating system, primarily designed for
+        touchscreen mobile devices;
+  \item \emph{OpenCV}, a \emph{Computer Vision} library of programming functions
+        mainly aimed at real-time image processing.
+\end{itemize}
