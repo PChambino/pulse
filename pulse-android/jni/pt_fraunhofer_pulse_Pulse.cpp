@@ -186,6 +186,36 @@ JNIEXPORT jlong JNICALL Java_pt_fraunhofer_pulse_Pulse__1face
 
 /*
  * Class:     pt_fraunhofer_pulse_Pulse
+ * Method:    _relativeMinFaceSize
+ * Signature: (J)D
+ */
+JNIEXPORT jdouble JNICALL Java_pt_fraunhofer_pulse_Pulse__1relativeMinFaceSize
+  (JNIEnv *jenv, jclass, jlong self)
+{
+    LOGD("Java_pt_fraunhofer_pulse_Pulse__1maxSignalSize enter");
+    jdouble result = 0;
+    try
+    {
+        if (self)
+            result = ((Pulse*)self)->relativeMinFaceSize;
+    }
+    catch(cv::Exception& e)
+    {
+        jclass je = jenv->FindClass("org/opencv/core/CvException");
+        if(!je) je = jenv->FindClass("java/lang/Exception");
+        jenv->ThrowNew(je, e.what());
+    }
+    catch (...)
+    {
+        jclass je = jenv->FindClass("java/lang/Exception");
+        jenv->ThrowNew(je, "Unknown exception in JNI code.");
+    }
+    LOGD("Java_pt_fraunhofer_pulse_Pulse__1maxSignalSize exit");
+    return result;
+  }
+
+/*
+ * Class:     pt_fraunhofer_pulse_Pulse
  * Method:    _maxSignalSize
  * Signature: (J)I
  */

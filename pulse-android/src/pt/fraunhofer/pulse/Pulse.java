@@ -32,6 +32,10 @@ public class Pulse {
         return faces;
     }
     
+    public double getRelativeMinFaceSize() {
+        return _relativeMinFaceSize(self);
+    }
+        
     public int getMaxSignalSize() {
         return _maxSignalSize(self);
     }
@@ -70,6 +74,7 @@ public class Pulse {
     private static native void _onFrame(long self, long frame);
     private static native int _facesCount(long self);
     private static native long _face(long self, int i);
+    private static native double _relativeMinFaceSize(long self);
     private static native int _maxSignalSize(long self);
     private static native boolean _magnification(long self);
     private static native void _magnification(long self, boolean m);

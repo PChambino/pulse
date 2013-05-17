@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -42,6 +43,7 @@ public class App extends Activity implements CvCameraViewListener {
     private Pulse pulse;
     
     private Paint faceBoxPaint;
+    private Paint faceBoxTextPaint;
     
     private ConfigDialog configDialog;
 
@@ -119,6 +121,7 @@ public class App extends Activity implements CvCameraViewListener {
         pulseView = (PulseView) findViewById(R.id.pulse);
         
         faceBoxPaint = initFaceBoxPaint();
+        faceBoxTextPaint = initFaceBoxTextPaint();
     }
     
     private static final String CAMERA_ID = "camera-id";
@@ -228,10 +231,22 @@ public class App extends Activity implements CvCameraViewListener {
         return camera;
     }
     
+    private Rect noFaceRect;
+    
+    private Rect initNoFaceRect(int width, int height) {
+        double r = pulse.getRelativeMinFaceSize();
+        int x = (int)(width * (1. - r) / 2.);
+        int y = (int)(height * (1. - r) / 2.);
+        int w = (int)(width * r);
+        int h = (int)(height * r);
+        return new Rect(x, y, w, h);
+    }
+    
     @Override
     public void onCameraViewStarted(int width, int height) {
         Log.d(TAG, "onCameraViewStarted("+width+", "+height+")");
         pulse.start(width, height);
+        noFaceRect = initNoFaceRect(width, height);
     }
 
     @Override
@@ -250,6 +265,13 @@ public class App extends Activity implements CvCameraViewListener {
         if (face != null) {
             onFace(canvas, face); 
         } else {
+            // draw no face box
+            canvas.drawPath(createFaceBoxPath(noFaceRect), faceBoxPaint);
+            canvas.drawText("Face here", 
+                    canvas.getWidth() / 2f, 
+                    canvas.getHeight() / 2f, 
+                    faceBoxTextPaint);
+
             // no faces
             runOnUiThread(new Runnable() {
                 @Override
@@ -293,8 +315,11 @@ public class App extends Activity implements CvCameraViewListener {
     }
         
     private void onFace(Canvas canvas, Face face) {
+        // grab face box
+        Rect box = face.getBox();
+        
         // draw face box
-        canvas.drawPath(createFaceBoxPath(face.getBox()), faceBoxPaint);
+        canvas.drawPath(createFaceBoxPath(box), faceBoxPaint);
         
         // update views
         if (face.existsPulse()) {
@@ -311,6 +336,20 @@ public class App extends Activity implements CvCameraViewListener {
                 recordedBpms.add(bpm);
             }
         } else {
+            // draw hint text
+            canvas.drawText("Hold still", 
+                    box.x + box.width / 2f, 
+                    box.y + box.height / 2f - 20, 
+                    faceBoxTextPaint);
+            canvas.drawText("in a", 
+                    box.x + box.width / 2f, 
+                    box.y + box.height / 2f, 
+                    faceBoxTextPaint);
+            canvas.drawText("bright place", 
+                    box.x + box.width / 2f, 
+                    box.y + box.height / 2f + 20, 
+                    faceBoxTextPaint);
+            
             // no pulse
             runOnUiThread(new Runnable() {
                 @Override
@@ -329,9 +368,20 @@ public class App extends Activity implements CvCameraViewListener {
         p.setStrokeWidth(4);
         p.setStrokeCap(Paint.Cap.ROUND);
         p.setStrokeJoin(Paint.Join.ROUND);
+        p.setShadowLayer(2, 0, 0, Color.BLACK);
         return p;
     }
     
+    private Paint initFaceBoxTextPaint() {
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        p.setColor(Color.WHITE);
+        p.setShadowLayer(2, 0, 0, Color.DKGRAY);
+        p.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/ds_digital/DS-DIGIB.TTF"));
+        p.setTextAlign(Paint.Align.CENTER);
+        p.setTextSize(20f);
+        return p;
+    }
+
     private Path createFaceBoxPath(Rect box) {
         float size = box.width * 0.25f;
         Path path = new Path();

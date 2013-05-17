@@ -57,6 +57,14 @@ JNIEXPORT jlong JNICALL Java_pt_fraunhofer_pulse_Pulse__1face
 
 /*
  * Class:     pt_fraunhofer_pulse_Pulse
+ * Method:    _relativeMinFaceSize
+ * Signature: (J)D
+ */
+JNIEXPORT jdouble JNICALL Java_pt_fraunhofer_pulse_Pulse__1relativeMinFaceSize
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     pt_fraunhofer_pulse_Pulse
  * Method:    _maxSignalSize
  * Signature: (J)I
  */

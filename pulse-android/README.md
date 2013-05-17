@@ -30,3 +30,9 @@ Local properties
 Create or edit your `local.properties` file and add the following properties:
   - `sdk.dir` with the path to the Android SDK
   - `ndk.dir` with the path to the Android NDK
+
+
+Attribution
+===========
+
+[Heart](http://thenounproject.com/noun/heart/#icon-No15259) designed by [Diego Naive](http://thenounproject.com/diegonaive) from The Noun Project
