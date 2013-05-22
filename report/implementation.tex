@@ -2,15 +2,60 @@
 
 \section*{}
 
+% Este capítulo pode ser dedicado à apresentação de detalhes de nível
+% mais baixo relacionados com o enquadramento e implementação das
+% soluções preconizadas no capítulo anterior.
+% Note-se no entanto que detalhes desnecessários à compreensão do
+% trabalho devem ser remetidos para anexos.
 
-% Dependendo do volume, a avaliação do trabalho pode ser incluída neste
-% capítulo ou pode constituir um capítulo separado.
+This chapter ...
+% TODO
 
-\section{\evm} \label{sec:impl:evm}
+\section{Overview} \label{sec:sol:overview}
 
-\section{Android} \label{sec:impl:android}
+\fig{algorithm-flow}{}
 
-\section{Performance} \label{sec:impl:perf}
+\section{\evm{} implementations} \label{sec:impl:evm}
+
+\fig{evm-flow}{}
+
+% TODO Java and C++ reasons
+
+\subsection{EvmGdownIdeal} \label{sec:impl:evm:gdownideal}
+
+\subsection{EvmGdownIIR} \label{sec:impl:evm:gdowniir}
+
+\subsection{EvmLpyrIIR} \label{sec:impl:evm:lpyriir}
+
+\subsection{Performance optimized EvmGdownIIR} \label{sec:impl:evm:final}
+
+\section{Face detection stabilization} \label{sec:impl:face}
+
+% TODO face detection stabilization
+
+\section{Signal validations} \label{sec:impl:validations}
+
+% TODO raw signal noise
+% TODO Pulse wave detection algorithm simplification
+
+\section{Heart rate estimation} \label{sec:impl:estimation}
+
+% TODO power spectrum gave better results because peak count was not very consistent
+
+\section{Performance optimizations} \label{sec:impl:performance}
+
+% TODO EVM optimizations
+% TODO EVM on face box only
+% TODO face detection every 1 second
+% TODO only deal with RGB channels instead of RGBA since alpha was constant
+
+\section{Android integration} \label{sec:impl:android}
+
+\fig{android-flow}{}
+
+% TODO usage of JNI and Android NDK
+% TODO reimplementation of OpenCV Android:
+%      RGB frame, zoom stretch, rotation, camera switch, fps switch
 
 \section{Chapter summary}
 
