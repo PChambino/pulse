@@ -12,8 +12,8 @@ using namespace cv;
 Window::Window(Pulse& pulse) :
     pulse(pulse),
     WINDOW_NAME("EVM"),
-    TRACKBAR_MAGNIFY_NAME("1. Magnify"),
-    TRACKBAR_ALPHA_NAME("2. Amplification")
+    TRACKBAR_MAGNIFY_NAME("Magnify      "),
+    TRACKBAR_ALPHA_NAME  ("Amplification")
 {
     trackbarMagnify = pulse.evm.magnify;
     trackbarAlpha = pulse.evm.alpha;
@@ -57,14 +57,19 @@ void Window::update(Mat& frame) {
 void Window::drawTrackbarValues(Mat& frame) {
     PROFILE_SCOPED();
     
+    const int namesX = 10;
+    const int valuesX = 150;
+    const int spaceY = 15;
+    
     stringstream ss;
 
-    ss << TRACKBAR_MAGNIFY_NAME << ": " << (trackbarMagnify == 1 ? "ON" : "OFF");
-    putText(frame, ss.str(), Point(10, 30), FONT_HERSHEY_PLAIN, 1, BLUE);
-    ss.str("");
+    putText(frame, TRACKBAR_MAGNIFY_NAME,                 Point( namesX, spaceY * 2), FONT_HERSHEY_PLAIN, 1, BLUE);
+    putText(frame, (trackbarMagnify == 1 ? "ON" : "OFF"), Point(valuesX, spaceY * 2), FONT_HERSHEY_PLAIN, 1, BLUE);
 
-    ss << TRACKBAR_ALPHA_NAME << ": " << trackbarAlpha;
-    putText(frame, ss.str(), Point(10, 45), FONT_HERSHEY_PLAIN, 1, BLUE);
+    ss.str("");
+    ss << trackbarAlpha;
+    putText(frame, TRACKBAR_ALPHA_NAME, Point( namesX, spaceY * 3), FONT_HERSHEY_PLAIN, 1, BLUE);
+    putText(frame, ss.str(),            Point(valuesX, spaceY * 3), FONT_HERSHEY_PLAIN, 1, BLUE);    
 }
 
 void Window::drawFps(Mat& frame) {

@@ -49,8 +49,7 @@ public:
 
         struct {
             EvmGdownIIR evm;
-            Mat mat;
-            Size size;
+            Mat out;
             Rect box;
         } evm;
         
@@ -90,7 +89,7 @@ private:
     int nextFaceId;
     int deleteFaceIn;
     int holdPulseFor;
-
+    double currentFps;
 
 };
 

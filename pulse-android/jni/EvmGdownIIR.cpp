@@ -11,8 +11,8 @@ using cv::resize;
 EvmGdownIIR::EvmGdownIIR() {
     first = true;
     blurredSize = Size(10, 10);
-    fLow = 50/60./10;
-    fHigh = 60/60./10;
+    fLow = 70/60./10;
+    fHigh = 80/60./10;
     alpha = 200;
 }
 

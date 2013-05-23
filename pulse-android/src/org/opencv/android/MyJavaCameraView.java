@@ -113,6 +113,8 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
                 List<android.hardware.Camera.Size> sizes = params.getSupportedPreviewSizes();
 
                 if (sizes != null) {
+                    for (android.hardware.Camera.Size s : sizes) Log.d(TAG, s.width+"x"+s.height);
+                    
                     /* Select the size that fits surface considering maximum size allowed */
                     Size frameSize = calculateCameraFrameSize(sizes, new MyJavaCameraView.JavaCameraSizeAccessor(), width, height);
 

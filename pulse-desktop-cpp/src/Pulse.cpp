@@ -15,7 +15,7 @@ Pulse::Pulse() {
     holdPulseFor = 30;
     fps = 0;
     evm.magnify = true;
-    evm.alpha = 200;
+    evm.alpha = 50;
 }
 
 Pulse::~Pulse() {
@@ -145,12 +145,12 @@ int Pulse::nearestFace(const Rect& box) {
 void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
     PROFILE_SCOPED();
 
+    // only show magnified face when there is pulse
+    Mat roi = !evm.magnify || evm.magnify && face.existsPulse ?
+        frame(face.evm.box) : face.evm.out;
+    
     // if magnification is on
     if (evm.magnify) {
-        PROFILE_START_DESC("resize face box");
-        resize(frame(face.evm.box), face.evm.mat, face.evm.size, 0, 0, CV_INTER_NN);
-        PROFILE_STOP();
-
         if (face.evm.evm.first || face.evm.evm.alpha != evm.alpha) {
             // reset after changing magnify or alpha value
             face.reset();
@@ -158,9 +158,9 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
 
         // update face Eulerian video magnification values
         face.evm.evm.alpha = evm.alpha;
-
+        
         // apply Eulerian video magnification on face box
-        face.evm.evm.onFrame(face.evm.mat, face.evm.mat);
+        face.evm.evm.onFrame(frame(face.evm.box), roi);
 
     } else if (!face.evm.evm.first) {
         // reset after changing magnify value
@@ -177,7 +177,7 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
         face.timestamps.pop_back();
     }
     PROFILE_START_DESC("push back raw and timestamp");
-    face.raw.push_back<double>(mean(evm.magnify ? face.evm.mat : frame(face.evm.box))(1)); // grab green channel
+    face.raw.push_back<double>(mean(roi)(1)); // grab green channel
     face.timestamps.push_back<double>(getTickCount());
     PROFILE_STOP();
 
@@ -188,8 +188,15 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
     PROFILE_STOP();
 
     if (stable) {
+        // calculate current FPS
+        currentFps = this->fps;
+        if (currentFps == 0) {
+            const double diff = (face.timestamps(face.timestamps.rows - 1) - face.timestamps(0)) * 1000. / getTickFrequency();
+            currentFps = face.timestamps.rows * 1000 / diff;
+        }        
+        
         // process raw signal
-        detrend<double>(face.raw, face.pulse);
+        detrend<double>(face.raw, face.pulse, currentFps / 2);
         normalization(face.pulse, face.pulse);
         meanFilter(face.pulse, face.pulse);
 
@@ -220,12 +227,6 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
         face.bpm = 0;
     }
     
-    // only show magnified face when there is pulse
-    if (evm.magnify && face.existsPulse) {
-        PROFILE_SCOPED_DESC("resize and draw face box back to frame");
-        resize(face.evm.mat, frame(face.evm.box), face.evm.box.size(), 0, 0, CV_INTER_NN);
-    }
-
 #ifndef __ANDROID__
     draw(frame, face, box);
 #endif
@@ -334,20 +335,13 @@ void Pulse::Face::Peaks::clear() {
 void Pulse::bpm(Face& face) {
     PROFILE_SCOPED();
 
-    const int total = face.raw.rows;
-
-    double fps = this->fps;
-    if (fps == 0) {
-        const double diff = (face.timestamps(total - 1) - face.timestamps(0)) * 1000. / getTickFrequency();
-        fps = total * 1000 / diff;
-    }
-    // TODO extract constants to class?
-    const int low = total * 40./60./fps + 1;
-    const int high = total * 240./60./fps + 1;
-
     dft(face.pulse, powerSpectrum);
 
+    const int total = face.raw.rows;
+
     // band limit
+    const int low = total * 40./60./currentFps + 1;
+    const int high = total * 240./60./currentFps + 1;
     powerSpectrum.rowRange(0, min((size_t)low, (size_t)total)) = ZERO;
     powerSpectrum.pop_back(min((size_t)(total - high), (size_t)total));
 
@@ -360,7 +354,7 @@ void Pulse::bpm(Face& face) {
         minMaxIdx(powerSpectrum, 0, 0, 0, &idx[0]);
 
         // calculate BPM
-        face.bpms.push_back<double>(idx[0] * fps * 30. / total); // constant 30 = 60 BPM / 2
+        face.bpms.push_back<double>(idx[0] * currentFps * 30. / total); // constant 30 = 60 BPM / 2
     }
 
     // update BPM when none available or after one second
@@ -420,7 +414,6 @@ Pulse::Face::Face(int id, const Rect& box, int deleteIn) {
     this->box = box;
     this->deleteIn = deleteIn;
     this->updateBox(this->box);
-    this->evm.size = this->evm.box.size();
     this->existsPulse = false;
     this->noPulseIn = 0;
 }

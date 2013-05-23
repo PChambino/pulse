@@ -112,7 +112,7 @@ public class App extends Activity implements CvCameraViewListener {
         camera = (MyCameraBridgeViewBase) findViewById(R.id.camera);
         camera.setCvCameraViewListener(this);
         camera.SetCaptureFormat(Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB);
-        camera.setMaxFrameSize(650, 650);
+        camera.setMaxFrameSize(600, 600);
         
         bpmView = (BpmView) findViewById(R.id.bpm);
         bpmView.setBackgroundColor(Color.DKGRAY);
