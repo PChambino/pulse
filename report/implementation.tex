@@ -13,13 +13,40 @@ This chapter ...
 
 \section{Overview} \label{sec:sol:overview}
 
-\fig{algorithm-flow}{}
+\fig{algorithm-flow}{Implemented library modules overview.}
+
+In order to create an Android application capable of estimating a person's
+heart rate, a desktop application was developed due to its increase in
+implementation speed and easier testing. Later, the main part of this
+application was integrated into an Android application.
+
+The application was divided into several modules, illustrated in
+figure~\ref{fig:algorithm-flow}, which could be extracted into an independent
+library. The language used to implement the desktop application and library
+were C/C++. In addition, for the image processing operations, the
+computer vision library, OpenCV, was used.
+
+% TODO explain the purpose of some of the modules
 
 \section{\evm{} implementations} \label{sec:impl:evm}
 
-\fig{evm-flow}{}
+\fig{evm-flow}{\evm{} method steps.}
 
-% TODO Java and C++ reasons
+This section presents the details of several different implementations of the
+\evm{} method.
+
+The first implementations, described on sections~\ref{sec:impl:evm:gdownideal},
+\ref{sec:impl:evm:gdowniir} and~\ref{sec:impl:evm:lpyriir},
+were developed in Java to facilitate the integration into the Android
+application. However, the OpenCV Java binding was still in its early stages
+which end up creating difficulties for the development. Thus, the final
+implementation, on section~\ref{sec:impl:evm:final}, was implemented in C/C++,
+which also reduces the number of JNI calls from the Android JVM and
+increases the application performance.
+
+The purpose of implementing multiple variants of the method was to study
+how the method worked and select which spatial and temporal filter would
+lead to better results.
 
 \subsection{EvmGdownIdeal} \label{sec:impl:evm:gdownideal}
 
@@ -51,7 +78,7 @@ This chapter ...
 
 \section{Android integration} \label{sec:impl:android}
 
-\fig{android-flow}{}
+\fig{android-flow}{Integration workflow between Android native and Java parts.}
 
 % TODO usage of JNI and Android NDK
 % TODO reimplementation of OpenCV Android:
