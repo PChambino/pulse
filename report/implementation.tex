@@ -16,13 +16,14 @@ This chapter ...
 \fig{algorithm-flow}{Implemented library modules overview.}
 
 In order to create an Android application capable of estimating a person's
-heart rate, a desktop application was developed due to its increase in
-implementation speed and easier testing. Later, the main part of this
+heart rate, a desktop application was developed because of a faster
+implementation speed, and simpler and easier testing. Later, the main part of this
 application was integrated into an Android application.
 
 The application was divided into several modules, illustrated in
-figure~\ref{fig:algorithm-flow}, which could be extracted into an independent
-library. The language used to implement the desktop application and library
+figure~\ref{fig:algorithm-flow}, which, later, were extracted into an
+independent library to be integrated into an Android application.
+The language used to implement the desktop application and library
 were C/C++. In addition, for the image processing operations, the
 computer vision library, OpenCV, was used.
 
@@ -45,32 +46,109 @@ which also reduces the number of JNI calls from the Android JVM and
 increases the application performance.
 
 The purpose of implementing multiple variants of the method was to study
-how the method worked and select which spatial and temporal filter would
-lead to better results.
+how the method worked and select which spatial and temporal filters would
+better fit the application goal: amplify color variation in real-time.
+
+Figure~\ref{fig:evm-flow} shows generic steps of the method which will be
+detailed on each of the following sections. The final step,
+\emph{add to original frame}, however, remains the same in all
+implementations. Which is when the magnified values are added back to the
+original frame in order to obtain the processed frame.
 
 \subsection{EvmGdownIdeal} \label{sec:impl:evm:gdownideal}
 
+This was the first implementation, thus, its goal was to understand how the
+method worked, and match the implementation provided, in MATLAB,
+by~\cite{Wu2012Eulerian}. However, this implementation would have real-time
+support by using a sliding window of $30$ frames.
+
+\begin{description}
+  \item[Resize down]\hfill\\
+        This step applies a spacial filter by calculating a level of the
+        Gaussian pyramid. This is achieved by looping to the desired
+        level where the input to the next loop is the result from the previous
+        loop, starting with the original frame. A Gaussian pyramid level is
+        calculated by, first, convolving the input frame with the kernel:
+
+        \begin{equation}
+          \frac{1}{256}
+          \begin{bmatrix}
+             1 &  4 &  6 &  4 &  1 \\
+             4 & 16 & 24 & 16 &  4 \\
+             6 & 24 & 36 & 24 &  6 \\
+             4 & 16 & 24 & 16 &  4 \\
+             1 &  4 &  6 &  4 &  1 \\
+          \end{bmatrix}
+        \end{equation}
+
+        and then, downsampling the frame by rejecting even rows and columns.
+
+  \item[Temporal filter]\hfill\\
+        It was used an ideal bandpass filter to remove any amplification of
+        undesired frequency from the color variation of each pixel.
+        To construct this ideal filter, the Fourier transform was calculated
+        for each pixel over the sliding window of $30$ frames. Then,
+        frequencies below $45$ and above $240$ where set to zero, and the frame
+        was rebuilt using the inverse Fourier transform.
+
+  \item[Amplification]\hfill\\
+        In this step, the result of the temporal filter is multiplied by an
+        $\alpha$ value. Which results in the magnification of the color
+        variation selected by the temporal filter.
+
+  \item[Resize up]\hfill\\
+        This step performs the inverse operation of the \emph{resize down} step,
+        where it upsamples the frame by inserting even rows and columns with
+        zeros, and then, convolves the input frame with the same kernel
+        multiplied by $4$. However, when the original frame is not multiple of
+        two, an additional resize operation as to be done in order for the
+        upsampled frame to match the original frame's size.
+\end{description}
+
 \subsection{EvmGdownIIR} \label{sec:impl:evm:gdowniir}
+
+This implementation is very similar to the one above, but uses a different
+temporal filter which does not require a sliding window of frames to support
+real-time results. The filter used was an IIR bandpass filter, which was
+constructed from the subtraction of two first-order lowpass IIR filters. Each
+lowpass filter is computed as follows:
+
+\begin{equation}
+  L_n = L_{n-1} * (1 - \omega) + \omega * M
+\end{equation}
+
+where $M$ is the current frame, $L$ is the lowpass filter accumulator for
+each frame, and $\omega$ is the cutoff frequency percentage.
 
 \subsection{EvmLpyrIIR} \label{sec:impl:evm:lpyriir}
 
+...
+% TODO explain Laplacian pyramid using a diagram
+
 \subsection{Performance optimized EvmGdownIIR} \label{sec:impl:evm:final}
+
+...
 
 \section{Face detection stabilization} \label{sec:impl:face}
 
+...
 % TODO face detection stabilization
 
 \section{Signal validations} \label{sec:impl:validations}
 
+...
 % TODO raw signal noise
 % TODO Pulse wave detection algorithm simplification
 
 \section{Heart rate estimation} \label{sec:impl:estimation}
 
+...
 % TODO power spectrum gave better results because peak count was not very consistent
+% TODO explain average technique to reduce errors
 
 \section{Performance optimizations} \label{sec:impl:performance}
 
+...
 % TODO EVM optimizations
 % TODO EVM on face box only
 % TODO face detection every 1 second
@@ -80,10 +158,12 @@ lead to better results.
 
 \fig{android-flow}{Integration workflow between Android native and Java parts.}
 
+...
 % TODO usage of JNI and Android NDK
 % TODO reimplementation of OpenCV Android:
 %      RGB frame, zoom stretch, rotation, camera switch, fps switch
 
 \section{Chapter summary}
 
+...
 % TODO
