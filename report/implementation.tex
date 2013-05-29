@@ -17,8 +17,8 @@ This chapter ...
 
 In order to create an Android application capable of estimating a person's
 heart rate, a desktop application was developed because of a faster
-implementation speed, and simpler and easier testing. Later, the main part of this
-application was integrated into an Android application.
+implementation speed, and simpler and easier testing. Later, the main part
+of this application was integrated into an Android application.
 
 The application was divided into several modules, illustrated in
 figure~\ref{fig:algorithm-flow}, which, later, were extracted into an
@@ -64,7 +64,7 @@ support by using a sliding window of $30$ frames.
 
 \begin{description}
   \item[Resize down]\hfill\\
-        This step applies a spacial filter by calculating a level of the
+        This step applies a spatial filter by calculating a level of the
         Gaussian pyramid. This is achieved by looping to the desired
         level where the input to the next loop is the result from the previous
         loop, starting with the original frame. A Gaussian pyramid level is
@@ -120,19 +120,94 @@ lowpass filter is computed as follows:
 where $M$ is the current frame, $L$ is the lowpass filter accumulator for
 each frame, and $\omega$ is the cutoff frequency percentage.
 
+The IIR temporal bandpass filter demonstrated similar results to the ideal
+temporal filter used on the first implementation, without the need for
+persisting a sliding window of frames, which simplifies solution and reduces
+the computational power required by the device.
+
 \subsection{EvmLpyrIIR} \label{sec:impl:evm:lpyriir}
 
-...
-% TODO explain Laplacian pyramid using a diagram
+\fig{Lpyr}{Overview of image deconstruction and reconstruction for building a
+Laplacian pyramid.}
+
+Using the same IIR temporal filter as above, this implementation uses
+a different spatial filter, which, instead of, computing a level of the
+Gaussian pyramid, it constructs the full Laplacian pyramid and then applies
+the temporal filter to each of its bands and each band is amplified differently.
+
+\begin{description}
+  \item[Resize down]\hfill\\
+        Figure~\ref{fig:Lpyr} shows the steps to decompose and reconstruct
+        an image for the purpose of building a Laplacian pyramid. The
+        \emph{original image} must be decomposed into two images,
+        \emph{blurred} and \emph{fine}, by applying any type of spatial lowpass
+        filter and scaling the image down or up by 2. In this case, a
+        Gaussian filter was applied as described on steps \emph{Resize down}
+        and \emph{Resize up} of the first implementation. Further levels of the
+        pyramid can be computed by decomposing the \emph{blurred image} in the
+        same manner.
+
+  \item[Temporal filter]\hfill\\
+        The temporal filter used is the IIR bandpass filter, as described above
+        for the previous implementation, only this time it is applied to each
+        level of the pyramid.
+
+  \item[Amplification]\hfill\\
+        The amplification method in this implementation is more complex than
+        the one previously used. It is based on the implementation provided
+        by~\cite{Wu2012Eulerian}. It uses a different $\alpha$ value for each
+        band of spatial frequencies, which corresponds to the Laplacian pyramid
+        levels. The magnification value, $\alpha$, follows the equation:
+
+        \begin{equation}
+          (1 + \alpha) \delta(t) < \frac{\lambda}{8}
+        \end{equation}
+
+        where $\delta(t)$ represents the displacement function and $\lambda$
+        the spatial wavelength. Further details about this equation may be
+        found on~\cite[Section 3.2]{Wu2012Eulerian}.
+
+  \item[Resize up]\hfill\\
+        This step reconstructs the \emph{original image} by iteratively
+        reconstructing each \emph{blurred image} until the now processed
+        \emph{original image} is reached.
+\end{description}
+
+This implementation demonstrated that by constructing a Laplacian pyramid for
+the spatial filter finer motion detail would be revealed, whereas the color
+variation, the property to be analyzed, was less evident.
 
 \subsection{Performance optimized EvmGdownIIR} \label{sec:impl:evm:final}
 
-...
+Because the OpenCV Java binding was not complete at the time, the Java desktop
+implementations were not executing fast enough for real-time processing. Thus,
+a C/C++ implementation of the method that demonstrated better color variation
+was developed. In addition, after studying the performance of the application,
+detailed on section~\ref{sec:results:perf}, the resize operations proved to be
+computationally expensive. Therefore, the \emph{Resize down} and
+\emph{Resize up} steps were modified to faster resize operations that did not
+alter the resulting image.
 
-\section{Face detection stabilization} \label{sec:impl:face}
+\begin{description}
+  \item[Resize down]\hfill\\
+        This step was changed to a single resize operation using the
+        OpenCV interpolation method named \emph{area}, which produces a similar
+        result to the one provided by using a Gaussian filter and downsampling
+        the image.
+        However, instead of, iteratively downsampling the frame multiple times,
+        the resize in this step is done in only once to a predefined size.
+
+  \item[Resize up]\hfill\\
+        This step was also modified to a single resize operation using the
+        linear interpolation method, which produces a good result in short
+        amount of time.
+\end{description}
+
+\section{Face detection} \label{sec:impl:face}
 
 ...
 % TODO face detection stabilization
+% TODO multiple faces
 
 \section{Signal validations} \label{sec:impl:validations}
 
