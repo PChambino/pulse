@@ -16,10 +16,8 @@ This chapter ...
 \fig{algorithm-flow}{Implemented library modules overview.}
 
 In order to create an Android application capable of estimating a person's
-heart rate, a desktop application was developed because of a faster
-implementation speed, and simpler and easier testing. Later, the main part
-of this application was integrated into an Android application.
-
+heart rate, a desktop application was developed because of its faster
+implementation speed, and easier testing.
 The application was divided into several modules, illustrated in
 figure~\ref{fig:algorithm-flow}, which, later, were extracted into an
 independent library to be integrated into an Android application.
@@ -27,7 +25,35 @@ The language used to implement the desktop application and library
 were C/C++. In addition, for the image processing operations, the
 computer vision library, OpenCV, was used.
 
-% TODO explain the purpose of some of the modules
+A short description of the modules on figure~\ref{fig:algorithm-flow} and
+application workflow is as follows:
+
+\begin{enumerate}
+  \item \emph{Original frame}, read frame from device's webcam;
+  \item \emph{Face detector}, detect faces in current frame and match with
+        previously detected faces in order to track multiple faces.
+        Each face information is then fed into the following modules:
+  \begin{enumerate}
+    \item \emph{\evm}, magnify detected face's rectangle;
+    \item \emph{Signal noise}, verify if the signal extracted from the
+          current face is too noisy. If so, that face's signal is reset
+          and marked as not valid;
+    \item \emph{Detrending \& Normalization}, if the current face's signal is
+          not too noisy, then detrend and normalize the signal in order to
+          facilitate further operations with the signal;
+    \item \emph{Validate signal}, the face's signal is then validated by
+          verifying its shape and timing, in a similar but simpler manner as
+          found in~\cite{Nenova2010Automated}. If the signal is given as
+          invalid, it is kept as valid for a couple of time, because the
+          validation algorithm may miss some peaks;
+    \item \emph{Calculate beats per minute}, if the current face's signal is
+          valid, it is then used to estimate the person's heart rate;
+  \end{enumerate}
+  \item \emph{Processed frame}, the resulting frame with each magnified face
+        rectangle added back to the original frame.
+\end{enumerate}
+
+Below, there are more detailed information and descriptions of the modules.
 
 \section{\evm{} implementations} \label{sec:impl:evm}
 
@@ -205,9 +231,48 @@ alter the resulting image.
 
 \section{Face detection} \label{sec:impl:face}
 
-...
-% TODO face detection stabilization
-% TODO multiple faces
+The \emph{Face detector} module uses the OpenCV object detector initially
+proposed on~\cite{Viola2001Rapid} and improved on~\cite{Lienhart2002Extended}.
+Which has been previously trained to detect faces.
+
+Because object detectors are computationally expensive, therefore, in order to
+improve performance, a minimum size for the face detector was set to $40\%$
+of the frame width and height. In addition, since it was expected for the
+person to remain still during the reading, the face detector was set to execute
+only once a second.
+
+Face tracking is simply done by matching the previous and newly detected faces
+to the closest one.
+\begin{itemize}
+  \item If there are less newly detected faces than the previously detected
+        ones, then match each new face to the nearest older face. Any older
+        face that is not matched with a newly detected face is marked for
+        deletion. However, it is only deleted if it fails to find a match
+        on the next time the face detector executes. This measure allows the
+        face detector to miss a detection of a face one time.
+  \item Otherwise, if the number of newly detected faces is equal or more than
+        the older faces, then match each older face to the nearest newly
+        detected face. Any newly detected face that is not matched with an
+        older face is then marked as a new face.
+\end{itemize}
+
+Another performance boost was achieved by only magnifying the each face
+rectangle instead of the whole frame. Because of this, the face rectangle must
+remain as still as possible, in order to introduce as few artifacts and noise
+to the \evm{} method. To achieve this, the position and size of the face's
+rectangle that is fed into the \evm{} method is interpolated between the
+previous and newly detected faces, if the distance between the two, $d$,
+is less than one third of the previous face's rectangle width, $w$:
+
+\begin{equation}
+  d < \frac{w}{3}
+\end{equation}
+
+And, the interpolation percentage, $r$, used is the ratio between these values:
+
+\begin{equation}
+  r = \frac{3d}{w}
+\end{equation}
 
 \section{Signal validations} \label{sec:impl:validations}
 
