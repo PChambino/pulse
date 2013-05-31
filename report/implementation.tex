@@ -94,10 +94,10 @@ support by using a sliding window of $30$ frames.
         Gaussian pyramid. This is achieved by looping to the desired
         level where the input to the next loop is the result from the previous
         loop, starting with the original frame. A Gaussian pyramid level is
-        calculated by, first, convolving the input frame with the kernel:
+        calculated by, first, convolving the input frame with the kernel, $K$:
 
         \begin{equation}
-          \frac{1}{256}
+          K = \frac{1}{256}
           \begin{bmatrix}
              1 &  4 &  6 &  4 &  1 \\
              4 & 16 & 24 & 16 &  4 \\
@@ -168,8 +168,8 @@ the temporal filter to each of its bands and each band is amplified differently.
         \emph{original image} must be decomposed into two images,
         \emph{blurred} and \emph{fine}, by applying any type of spatial lowpass
         filter and scaling the image down or up by 2. In this case, a
-        Gaussian filter was applied as described on steps \emph{Resize down}
-        and \emph{Resize up} of the first implementation. Further levels of the
+        Gaussian filter was applied as described on steps \emph{resize down}
+        and \emph{resize up} of the first implementation. Further levels of the
         pyramid can be computed by decomposing the \emph{blurred image} in the
         same manner.
 
@@ -231,7 +231,7 @@ alter the resulting image.
 
 \section{Face detection} \label{sec:impl:face}
 
-The \emph{Face detector} module uses the OpenCV object detector initially
+The \emph{face detector} module uses the OpenCV object detector initially
 proposed on~\cite{Viola2001Rapid} and improved on~\cite{Lienhart2002Extended}.
 Which has been previously trained to detect faces.
 
@@ -276,9 +276,59 @@ And, the interpolation percentage, $r$, used is the ratio between these values:
 
 \section{Signal validations} \label{sec:impl:validations}
 
-...
-% TODO raw signal noise
-% TODO Pulse wave detection algorithm simplification
+The signal validation is done in two phases. First, the \emph{raw} signal
+obtained from the mean of a face's rectangle is checked for noise,
+on step \emph{signal noise} in figure~\ref{fig:algorithm-flow}.
+Then, on step \emph{validate signal}, the shape and timing of the detrended
+and normalized signal is verified.
+
+The raw signal noise is simply verified if the signal standard deviation
+is higher than $50\%$ of the $\alpha$, amplification factor.
+
+Then, each of the following operations is applied to the raw signal:
+\begin{enumerate}
+  \item \emph{detrend}, as in~\cite{Tarvainen2002Advanced}, also shortly
+        described on section~\ref{sec:sota:post:detrend};
+  \item \emph{normalization}, the normalized signal, $S'$, is obtained from
+        the detrended signal, $S$, by subtracting the mean of the signal,
+        $\bar{S}$, and divide it by the signal standard deviation, $\sigma$:
+        \begin{equation}
+          S' = \frac{S - \bar{S}}{\sigma}
+        \end{equation}
+  \item \emph{mean filter}, is done by convolving the signal $3$ times with
+        the kernel, $K$:
+        \begin{equation}
+          K = \frac{1}{5 * 5}
+          \begin{bmatrix}
+             1 & 1 & 1 & 1 & 1 \\
+             1 & 1 & 1 & 1 & 1 \\
+             1 & 1 & 1 & 1 & 1 \\
+             1 & 1 & 1 & 1 & 1 \\
+             1 & 1 & 1 & 1 & 1 \\
+          \end{bmatrix}
+        \end{equation}
+\end{enumerate}
+
+Finally, the shape and timing of signal is validated by a simplification of
+the fast pulse wave detection algorithm\cite{Nenova2010Automated}.
+It identifies possible signal peaks by dividing the signal into consecutive
+$200 ms$ time intervals and finding the absolute maximum. Some of these maximums
+are rejected: if they are a boundary value of that segment; or if they fall
+below a threshold, which is $60\%$ of the mean of the amplitude of the possible
+identified peaks so far; or if the distance between two maximums is less than
+or equal to $200 ms$, then the lower maximum is rejected.
+
+The signal is said to be valid if:
+\begin{itemize}
+  \item it includes at least two peaks;
+  \item the peak count is between the valid human range, between 40 and 240 bpm;
+  \item the peaks' amplitude standard deviation is less than $0.5$;
+  \item the standard deviation of the time interval between peaks is less
+        than $0.5$;
+\end{itemize}
+
+To prevent invalidating the signal if a peak is missed, the signal is kept
+as valid for the next 30 frames.
 
 \section{Heart rate estimation} \label{sec:impl:estimation}
 
