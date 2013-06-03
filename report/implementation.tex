@@ -13,20 +13,22 @@ This chapter ...
 
 \section{Overview} \label{sec:sol:overview}
 
-\fig{algorithm-flow}{Implemented library modules overview.}
+\fig{algorithm-flow}{Overview of the implemented algorithm to obtain the heart 
+rate of a person from a webcam or video using the \evm{} method.}
 
 In order to create an Android application capable of estimating a person's
-heart rate, a desktop application was developed because of its faster
-implementation speed, and easier testing.
-The application was divided into several modules, illustrated in
-figure~\ref{fig:algorithm-flow}, which, later, were extracted into an
-independent library to be integrated into an Android application.
+heart rate, a desktop application was developed because of 
+its faster implementation speed, and easier testing.
+The overall algorithm was divided into several steps, illustrated in
+figure~\ref{fig:algorithm-flow}, which, later, was extracted into a
+library, named Pulse, to be integrated into an Android application, 
+also named Pulse.
 The language used to implement the desktop application and library
-were C/C++. In addition, for the image processing operations, the
+was C/C++. In addition, for the image processing operations, the
 computer vision library, OpenCV, was used.
 
-A short description of the modules on figure~\ref{fig:algorithm-flow} and
-application workflow is as follows:
+A short description of the overall algorithm's steps on 
+figure~\ref{fig:algorithm-flow} and application workflow is as follows:
 
 \begin{enumerate}
   \item \emph{Original frame}, read frame from device's webcam;
@@ -53,11 +55,12 @@ application workflow is as follows:
         rectangle added back to the original frame.
 \end{enumerate}
 
-Below, there are more detailed information and descriptions of the modules.
+Below, there are more detailed information and descriptions of the 
+algorithm's steps.
 
 \section{\evm{} implementations} \label{sec:impl:evm}
 
-\fig{evm-flow}{\evm{} method steps.}
+\fig{evm-flow}{Overview of the \evm{} method steps.}
 
 This section presents the details of several different implementations of the
 \evm{} method.
@@ -85,8 +88,8 @@ original frame in order to obtain the processed frame.
 
 This was the first implementation, thus, its goal was to understand how the
 method worked, and match the implementation provided, in MATLAB,
-by~\cite{Wu2012Eulerian}. However, this implementation would have real-time
-support by using a sliding window of $30$ frames.
+by~\cite{Wu2012Eulerian}. In addition, real-time support was implemented
+by using a sliding window of $30$ frames.
 
 \begin{description}
   \item[Resize down]\hfill\\
@@ -276,7 +279,7 @@ And, the interpolation percentage, $r$, used is the ratio between these values:
 
 \section{Signal validations} \label{sec:impl:validations}
 
-The signal validation is done in two phases. First, the \emph{raw} signal
+The signal validation has two phases. First, the \emph{raw} signal
 obtained from the mean of a face's rectangle is checked for noise,
 on step \emph{signal noise} in figure~\ref{fig:algorithm-flow}.
 Then, on step \emph{validate signal}, the shape and timing of the detrended
@@ -327,31 +330,46 @@ The signal is said to be valid if:
         than $0.5$;
 \end{itemize}
 
-To prevent invalidating the signal if a peak is missed, the signal is kept
-as valid for the next 30 frames.
+To prevent invalidating the signal if a peak is missed or miscounted, 
+the signal is kept as valid for the next 30 frames.
 
 \section{Heart rate estimation} \label{sec:impl:estimation}
 
-...
-% TODO power spectrum gave better results because peak count was not very consistent
-% TODO explain average technique to reduce errors
+Even though the simplification of the fast pulse wave detection algorithm
+presented on the previous section was capable of counting pulse wave peaks,
+it would frequently miscount at least by one peak. Thus, since the period
+analyzed was short, only 5 seconds at 20 frames per second, a miscounted peak
+would introduce a large error to the final value.
 
-\section{Performance optimizations} \label{sec:impl:performance}
-
-...
-% TODO EVM optimizations
-% TODO EVM on face box only
-% TODO face detection every 1 second
-% TODO only deal with RGB channels instead of RGBA since alpha was constant
+In order to obtain the value of \emph{beats per minute} from the pulse signal, 
+the method presented on section~\ref{sec:sota:estimation:power} was used
+every time the signal was marked as valid.
+To prevent big fluctuations, the value was averaged over the values obtained 
+from the power spectrum method every 1 second.
 
 \section{Android integration} \label{sec:impl:android}
 
-\fig{android-flow}{Integration workflow between Android native and Java parts.}
+\fig{android-flow}{Overview of the interaction between the implemented 
+Android application and library.}
 
-...
-% TODO usage of JNI and Android NDK
-% TODO reimplementation of OpenCV Android:
-%      RGB frame, zoom stretch, rotation, camera switch, fps switch
+Due to performance, speed implementation, and easier testing, the algorithm's
+library was implemented in C/C++. To integrate with the Android SDK, the 
+framework \emph{Java Native Interface} was used. Because each JNI call from the 
+Android SDK to the Android NDK introduces performance overhead, 
+the fewer interactions the better.
+
+The Android application workflow and interaction with the Pulse library is 
+illustrated on figure~\ref{fig:android-flow}. The arrows that cross the 
+modules' borders represent JNI methods' calls.
+
+The OpenCV library is supported in the Android platform by installing 
+a separate Android application which deals with selecting the appropriate 
+OpenCV library for that device's architecture.
+
+Because OpenCV for Android SDK was still in its early stage, it did not support
+a couple of features which had to be implemented. Such as, switching cameras at
+runtime, portrait mode, stretching frame to display container, removing
+the alpha channel from the frame without introducing more overhead / operations.
 
 \section{Chapter summary}
 
