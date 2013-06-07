@@ -5,10 +5,85 @@
 % Dependendo do volume, a avaliação do trabalho pode ser incluída no
 % capítulo anterior ou pode constituir um capítulo separado.
 
+This chapter... % TODO
+
 \section{Performance} \label{sec:results:perf}
 
-% TODO machine
-% TODO library used
+In order to improve the algorithm and application performance, metrics were
+obtained using the \emph{High performance C++ Profiler}~\cite{Andrew2013High}.
+This profiler was chosen because of its performance claim and easy integration
+in the project.
+
+The machine specifications on which all metrics were obtained are:
+
+\begin{description}
+  \item[Machine] MacBook Pro, 15-inch, Late 2008
+  \item[Processor] 2.53 GHz Inter Core 2 Duo
+  \item[Memory] 4 GB 1067 MHz DDR3
+  \item[Operating System] OS X Mountain Lion
+\end{description}
+
+Below are the dates of the various performance milestones accomplished.
+For each date there are two tables with the respective metrics that can be found
+on appendix~\ref{appx:perf}. The metrics are represented in \emph{CPU cycles}
+obtained by using the instruction \texttt{rdtsc}~\cite{Andrew2013High}.
+
+\begin{description}
+  \item \textbf{Mar 20}, tables on page~\pageref{pdf:profile:1}\hfill\\
+        These metrics match the initial implementation of the C/C++ version
+        of the desktop application when performance profiling was integrated.
+        The important functions found on the first table are:
+
+        \begin{itemize}
+          \item \texttt{Pulse::onFrame}, which is the function that detects a
+                person face and estimates the heart rate for each face detected.
+                Currently taking approximately 52 million cycles;
+          \item \texttt{EvmGdownIIR::onFrame}, which is the function that
+                implements the \evm{} method. Currently taking approximately
+                28 million cycles.
+        \end{itemize}
+
+        The operations taking more CPU cycles were easily identified by the
+        second table on~\ref{pdf:profile:1}, also represented on
+        table~\ref{tab:profile:1}:
+
+        \begin{table}[h]
+          \centering
+          \begin{tabular}{|l|r|r|r|}
+            \hline
+            Operation & Calls & Self MCycles & Self Avg \\
+            \hline
+            wait key                                & 301 & 9892.1852 (32\%) & 32.8644 \\
+            pyrUp                                   & 300 & 3472.5267 (11\%) & 11.5751 \\
+            detect faces                            & 301 & 2941.3343 (10\%) & 9.7719  \\
+            imshow                                  & 301 & 2555.0751 ( 8\%) & 8.4886  \\
+            capture                                 & 302 & 2268.6110 ( 7\%) & 7.5120  \\
+            pyrDown                                 & 301 & 1988.4146 ( 7\%) & 6.6060  \\
+            convert to 8 bit                        & 300 & 1603.1581 ( 5\%) & 5.3439  \\
+            void cv::detrend(...)                   & 301 & 1538.8180 ( 5\%) & 5.1124  \\
+            resize face box                         & 301 & 1270.4278 ( 4\%) & 4.2207  \\
+            resize and draw face box back to frame  & 301 & 1214.4998 ( 4\%) & 4.0349  \\
+            add back to original frame              & 300 & 811.3654  ( 3\%) & 2.7046  \\
+            convert to float                        & 301 & 604.0527  ( 2\%) & 2.0068  \\
+            \hline
+          \end{tabular}
+          \caption{
+            Operations taking more CPU cycles on the initial implementation of
+            the C/C++ version of the desktop application when performance
+            profiling was added.
+          }
+          \label{tab:profile:1}
+        \end{table}
+
+  \item \textbf{Mar 26} tables on page~\pageref{pdf:profile:2}\hfill\\
+        ...
+
+  \item \textbf{Apr 3} tables on page~\pageref{pdf:profile:3}\hfill\\
+        ...
+
+  \item \textbf{May 23} tables on page~\pageref{pdf:profile:4}\hfill\\
+        ...
+\end{description}
 
 % TODO EVM optimizations
 % TODO EVM on face box only

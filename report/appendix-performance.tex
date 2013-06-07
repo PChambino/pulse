@@ -1,0 +1,34 @@
+\chapter{Performance metrics} \label{appx:perf}
+
+This appendix presents performance metrics for the desktop application
+implemented using the \emph{High performance C++ Profiler}. For further
+details refer to section~\ref{sec:results:perf}.
+
+Each performance metric contains two tables. The first is ordered by
+function structure and total cycles the CPU spent on that function. The second
+table is ordered by self cycles, which represents the total cycles the CPU spent
+on that function minus the total cycles the CPU spent on the children functions.
+
+\includepdf[
+  pages=-,
+  pagecommand={\thispagestyle{plain}},
+  addtolist={1, table, Performance metrics on Mar 20, pdf:profile:1}
+]{profile/1}
+
+\includepdf[
+  pages=-,
+  pagecommand={\thispagestyle{plain}},
+  addtolist={1, table, Performance metrics on Mar 26, pdf:profile:2}
+]{profile/2}
+
+\includepdf[
+  pages=-,
+  pagecommand={\thispagestyle{plain}},
+  addtolist={1, table, Performance metrics on Apr 3, pdf:profile:3}
+]{profile/3}
+
+\includepdf[
+  pages=-,
+  pagecommand={\thispagestyle{plain}},
+  addtolist={1, table, Performance metrics on May 23, pdf:profile:4}
+]{profile/4}
