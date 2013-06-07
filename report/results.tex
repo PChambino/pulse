@@ -9,6 +9,12 @@ This chapter... % TODO
 
 \section{Performance} \label{sec:results:perf}
 
+Smartphone devices have a low computational power and this was one of the
+main difficulties. The first implementations of the application were not
+fast enough and the implemented Android application running on a
+\emph{HUAWEI MediaPad} tablet with the Android version 4.0.3 was only capturing
+around 2 frames per second.
+
 In order to improve the algorithm and application performance, metrics were
 obtained using the \emph{High performance C++ Profiler}~\cite{Andrew2013High}.
 This profiler was chosen because of its performance claim and easy integration
@@ -23,72 +29,172 @@ The machine specifications on which all metrics were obtained are:
   \item[Operating System] OS X Mountain Lion
 \end{description}
 
-Below are the dates of the various performance milestones accomplished.
-For each date there are two tables with the respective metrics that can be found
-on appendix~\ref{appx:perf}. The metrics are represented in \emph{CPU cycles}
-obtained by using the instruction \texttt{rdtsc}~\cite{Andrew2013High}.
+The input video used was the video \emph{face} found at~\cite{Wu2013Eulerian}.
 
-\begin{description}
-  \item \textbf{Mar 20}, tables on page~\pageref{pdf:profile:1}\hfill\\
-        These metrics match the initial implementation of the C/C++ version
-        of the desktop application when performance profiling was integrated.
-        The important functions found on the first table are:
+On appendix~\ref{appx:perf} various tables can be found representing
+several performance boosts accomplished. The unit used by the
+\emph{High performance C++ Profiler} is the number of CPU cycles spent by
+that operation, obtained by using the instruction
+\texttt{rdtsc}~\cite{Andrew2013High}.
 
-        \begin{itemize}
-          \item \texttt{Pulse::onFrame}, which is the function that detects a
-                person face and estimates the heart rate for each face detected.
-                Currently taking approximately 52 million cycles;
-          \item \texttt{EvmGdownIIR::onFrame}, which is the function that
-                implements the \evm{} method. Currently taking approximately
-                28 million cycles.
-        \end{itemize}
+The main functions that needed to be optimized and analyzed are:
 
-        The operations taking more CPU cycles were easily identified by the
-        second table on~\ref{pdf:profile:1}, also represented on
-        table~\ref{tab:profile:1}:
+\begin{itemize}
+  \item \texttt{Pulse::onFrame}, which is the function that detects a
+        person face and estimates the heart rate for each face detected;
+  \item \texttt{EvmGdownIIR::onFrame}, which is the function that
+        implements the \evm{} method.
+\end{itemize}
 
-        \begin{table}[h]
-          \centering
-          \begin{tabular}{|l|r|r|r|}
-            \hline
-            Operation & Calls & Self MCycles & Self Avg \\
-            \hline
-            wait key                                & 301 & 9892.1852 (32\%) & 32.8644 \\
-            pyrUp                                   & 300 & 3472.5267 (11\%) & 11.5751 \\
-            detect faces                            & 301 & 2941.3343 (10\%) & 9.7719  \\
-            imshow                                  & 301 & 2555.0751 ( 8\%) & 8.4886  \\
-            capture                                 & 302 & 2268.6110 ( 7\%) & 7.5120  \\
-            pyrDown                                 & 301 & 1988.4146 ( 7\%) & 6.6060  \\
-            convert to 8 bit                        & 300 & 1603.1581 ( 5\%) & 5.3439  \\
-            void cv::detrend(...)                   & 301 & 1538.8180 ( 5\%) & 5.1124  \\
-            resize face box                         & 301 & 1270.4278 ( 4\%) & 4.2207  \\
-            resize and draw face box back to frame  & 301 & 1214.4998 ( 4\%) & 4.0349  \\
-            add back to original frame              & 300 & 811.3654  ( 3\%) & 2.7046  \\
-            convert to float                        & 301 & 604.0527  ( 2\%) & 2.0068  \\
-            \hline
-          \end{tabular}
-          \caption{
-            Operations taking more CPU cycles on the initial implementation of
-            the C/C++ version of the desktop application when performance
-            profiling was added.
-          }
-          \label{tab:profile:1}
-        \end{table}
+Table~\ref{tab:profile:initial} shows that these functions were spending
+a big percentage of the CPU cycles, with the \texttt{Pulse} function
+taking 51\% and the \evm{} method occupying 28\%.
 
-  \item \textbf{Mar 26} tables on page~\pageref{pdf:profile:2}\hfill\\
-        ...
+\begin{table}[p]
+  \centering
+  \begin{tabular}{|l|r|r|r|}
+    \hline
+    Operation & Calls & MCycles & Avg \\
+    \hline
+    Pulse::onFrame        & 301 & 15630.5432 ( 51\%) & 51.9287 \\
+    EvmGdownIIR::onFrame  & 301 &  8507.6548 ( 28\%) & 28.2646 \\
+    \hline
+  \end{tabular}
+  \caption{
+    Performance metrics obtained form the initial implementation of the C/C++
+    version of the desktop application. Excerpt from~\ref{pdf:profile:1}.
+  }
+  \label{tab:profile:initial}
+\end{table}
 
-  \item \textbf{Apr 3} tables on page~\pageref{pdf:profile:3}\hfill\\
-        ...
+The operations taking more CPU cycles were easily identified by the
+second table on~\ref{pdf:profile:1}, also represented on
+table~\ref{tab:profile:top}. These operations are:
 
-  \item \textbf{May 23} tables on page~\pageref{pdf:profile:4}\hfill\\
-        ...
-\end{description}
+\begin{itemize}
+  \item OpenCV HighGUI module functions: \emph{wait key}, \emph{imshow},
+        \emph{capture};
+  \item resize operations: \emph{pyrUp}, \emph{pyrDown}, \emph{resize face box},
+        and \emph{resize and draw face box back to frame};
+  \item conversion operations: \emph{convert to 8 bit}, \emph{convert to float};
+  \item matrix operations: \emph{add back to original frame};
+  \item \emph{detect faces}, is the OpenCV object detector, details on
+        section~\ref{sec:impl:face};
+  \item \emph{detrend}, is the detrending method explained on
+        section~\ref{sec:sota:post:detrend};
+\end{itemize}
 
-% TODO EVM optimizations
-% TODO EVM on face box only
-% TODO face detection every 1 second
-% TODO only deal with RGB channels instead of RGBA since alpha was constant
+\begin{table}
+  \centering
+  \begin{tabular}{|l|r|r|r|}
+    \hline
+    Operation & Calls & Self MCycles & Self Avg \\
+    \hline
+    wait key                                & 301 & 9892.1852 (32\%) & 32.8644 \\
+    pyrUp                                   & 300 & 3472.5267 (11\%) & 11.5751 \\
+    detect faces                            & 301 & 2941.3343 (10\%) & 9.7719  \\
+    imshow                                  & 301 & 2555.0751 ( 8\%) & 8.4886  \\
+    capture                                 & 302 & 2268.6110 ( 7\%) & 7.5120  \\
+    pyrDown                                 & 301 & 1988.4146 ( 7\%) & 6.6060  \\
+    convert to 8 bit                        & 300 & 1603.1581 ( 5\%) & 5.3439  \\
+    detrend                                 & 301 & 1538.8180 ( 5\%) & 5.1124  \\
+    resize face box                         & 301 & 1270.4278 ( 4\%) & 4.2207  \\
+    resize and draw face box back to frame  & 301 & 1214.4998 ( 4\%) & 4.0349  \\
+    add back to original frame              & 300 & 811.3654  ( 3\%) & 2.7046  \\
+    convert to float                        & 301 & 604.0527  ( 2\%) & 2.0068  \\
+    \hline
+  \end{tabular}
+  \caption{
+    Operations taking more CPU cycles on the initial implementation of
+    the C/C++ version of the desktop application when performance
+    profiling was added. Excerpt from~\ref{pdf:profile:1}.
+  }
+  \label{tab:profile:top}
+\end{table}
+
+The first performance boost was achieved by replacing the resize operations
+by faster resize methods. All together the resize operations were spending
+26\% of the CPU cycles as shown by table~\ref{tab:profile:top}.
+The optimizations for the operations \emph{pyrUp} and
+\emph{pyrDown} are detailed on section~\ref{sec:impl:evm:final}.
+The rest of the resize operations were changed to use the OpenCV
+nearest neighbor interpolation method since the difference of size was small.
+These optimizations reduced the total percentage of the CPU cycles
+to 7\% as shown on table~\ref{tab:profile:resize}.
+
+\begin{table}
+  \centering
+  \begin{tabular}{|l|r|r|r|}
+    \hline
+    Operation & Calls & Self MCycles & Self Avg \\
+    \hline
+    pyrUp                                   & 300 & 583.2825 (2\%) & 1.9443 \\
+    pyrDown                                 & 301 & 510.0373 (2\%) & 1.6945 \\
+    resize and draw face box back to frame  & 301 & 430.7046 (2\%) & 1.4309 \\
+    resize face box                         & 301 & 307.4483 (1\%) & 1.0214 \\
+    \hline
+  \end{tabular}
+  \caption{
+    Performance improvement on resize operations by using faster interpolations
+    methods. Excerpt from~\ref{pdf:profile:2}.
+  }
+  \label{tab:profile:resize}
+\end{table}
+
+The second performance boost was accomplished by reducing the number of
+executions of the OpenCV object detector. This operation was occupying
+around 10\% of the CPU cycles as shown by table~\ref{tab:profile:top}.
+By executing the face detection operation only every 10 frames its number
+of CPU cycles was greatly reduced to 1\% as shown on
+table~\ref{tab:profile:face}.
+
+\begin{table}
+  \centering
+  \begin{tabular}{|l|r|r|r|}
+    \hline
+    Operation & Calls & Self MCycles & Self Avg \\
+    \hline
+    detect faces &  30 & 288.2041 (1\%) & 9.6068 \\
+    \hline
+  \end{tabular}
+  \caption{
+    Performance improvement on face detection by reducing the number of times
+    the OpenCV object detector was executed. Excerpt from~\ref{pdf:profile:3}.
+  }
+  \label{tab:profile:face}
+\end{table}
+
+A last performance boost applied to the implemented algorithm was the removal of
+the resize operations \emph{resize face box} and
+\emph{resize and draw face box back to frame} by modifying the \evm{} method
+implemented and removing the requirement of the input image to be always of the
+same size.
+
+The result of these performance improvements are shown on
+table~\ref{tab:profile:final}. With the \texttt{Pulse} function spending
+only 14\% of the CPU cycles and a performance improvement of 37\%,
+and the \evm{} method occupying 6\% of the CPU cycles and a performance
+improvement of 22\%.
+
+\begin{table}
+  \centering
+  \begin{tabular}{|l|r|r|r|}
+    \hline
+    Operation & Calls & MCycles & Avg \\
+    \hline
+    Pulse::onFrame       & 300 & 4215.0788 ( 14\%) & 14.0503 \\
+    EvmGdownIIR::onFrame & 287 & 1818.3953 (  6\%) &  6.3359 \\
+    \hline
+  \end{tabular}
+  \caption{
+    Final performance metrics of the main functions.
+    Excerpt from~\ref{pdf:profile:4}.
+  }
+  \label{tab:profile:final}
+\end{table}
+
+This allowed for the implemented Android application to run at approximately
+15 frames per second on the same Android device previously mentioned.
 
 \section{Heart rate comparison} \label{sec:results:heart}
 
