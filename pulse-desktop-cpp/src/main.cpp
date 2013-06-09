@@ -25,6 +25,7 @@ int main(int argc, const char** argv) {
 //    VideoCapture capture("../../vidmagSIGGRAPH2012/face2_source.mp4");
 //    VideoCapture capture("../../vidmagSIGGRAPH2012/face_source.wmv");
 //    VideoCapture capture("../../videos/eva.mov");
+//    VideoCapture capture("../../videos/me-high-pulse.mov");
     VideoCapture capture(0);
 
     const int WIDTH  = capture.get(CV_CAP_PROP_FRAME_WIDTH);
