@@ -78,9 +78,9 @@ table~\ref{tab:profile:top}. These operations are:
         and \emph{resize and draw face box back to frame};
   \item conversion operations: \emph{convert to 8 bit}, \emph{convert to float};
   \item matrix operations: \emph{add back to original frame};
-  \item \emph{detect faces}, is the OpenCV object detector, details on
+  \item \emph{detect faces} operation, is the OpenCV object detector, details on
         section~\ref{sec:impl:face};
-  \item \emph{detrend}, is the detrending method explained on
+  \item \emph{detrend} operation, is the detrending method explained on
         section~\ref{sec:sota:post:detrend};
 \end{itemize}
 
@@ -144,7 +144,7 @@ to 7\% as shown on table~\ref{tab:profile:resize}.
 The second performance boost was accomplished by reducing the number of
 executions of the OpenCV object detector. This operation was occupying
 around 10\% of the CPU cycles as shown by table~\ref{tab:profile:top}.
-By executing the face detection operation only every 10 frames its number
+By executing the face detection operation once every 10 frames its number
 of CPU cycles was greatly reduced to 1\% as shown on
 table~\ref{tab:profile:face}.
 
@@ -167,7 +167,7 @@ table~\ref{tab:profile:face}.
 A last performance boost applied to the implemented algorithm was the removal of
 the resize operations \emph{resize face box} and
 \emph{resize and draw face box back to frame} by modifying the \evm{} method
-implemented and removing the requirement of the input image to be always of the
+implemented which removed the requirement of the input image to be always of the
 same size.
 
 The result of these performance improvements are shown on
@@ -200,67 +200,172 @@ This allowed for the implemented Android application to run at approximately
 
 \section{Heart rate comparison} \label{sec:results:heart}
 
-% TODO procedure
+To validate the heart rate values obtained by the implemented Android
+application a test was run and readings obtained to a total of 9 participants.
+The procedure for the test was as follows:
 
-blah blah
+\begin{enumerate}
+  \item use the implemented Android application, named Pulse, to obtain an
+        estimation of the person's heart rate, while at the same time
+        obtain a reading from a sphygmomanometer, which also produces an
+        average of the heart rate at the end;
+  \item then, in order to compare the results to another application,
+        step one was repeated using the ViTrox application:
+        \emph{What's My Heart Rate}~\cite{Vitrox2013};
+  \item finally, each person was asked to do some physical exercise so
+        their heart rate would increase, then step one was repeated.
+\end{enumerate}
 
-\begin{table}
-  \centering
-  \begin{tabular}{c*{9}{r}}
-    \hline
-      \multirow{2}{*}{Subject} &
-      \multicolumn{3}{c}{Normal} &
-      \multicolumn{3}{c}{Normal} &
-      \multicolumn{3}{c}{After exercise} \\
-    \cline{2-10}
-      & Pulse & Sphy & Error
-      & ViTrox & Sphy & Error
-      & Pulse & Sphy & Error \\
-    \hline
-      A & 55 & 57 & 0.04 & 66 & 61 & 0.08 & 54 &  87 & 0.38 \\
-      B & 60 & 60 & 0.00 & 61 & 57 & 0.07 & 66 &  65 & 0.02 \\
-      C & 57 & 76 & 0.25 & 72 & 72 & 0.00 & 57 &  98 & 0.42 \\
-      D & 54 & 66 & 0.18 & 65 & 63 & 0.03 & 48 &  71 & 0.32 \\
-      E & 47 & 75 & 0.37 & 81 & 77 & 0.05 & 64 &  84 & 0.24 \\
-      F & 54 & 57 & 0.05 & 55 & 56 & 0.02 & 51 &  63 & 0.19 \\
-      G & 55 & 84 & 0.35 & 87 & 87 & 0.00 & 69 & 102 & 0.32 \\
-      H & 62 & 83 & 0.25 & 79 & 82 & 0.04 & 66 & 105 & 0.37 \\
-      I & 56 & 59 & 0.05 & 55 & 54 & 0.02 & 47 &  80 & 0.41 \\
-      J & 55 & 58 & 0.05 &    &    &      &    &     &      \\
-    \hline
-      Average & 55.50 & 67.50 & 0.16 & 69.00 & 67.67 & 0.03 & 58.00 & 83.89 & 0.30 \\
-      Median  & 55.00 & 63.00 & 0.12 & 66.00 & 63.00 & 0.03 & 57.00 & 84.00 & 0.32 \\
-      StdDev  &  3.98 & 10.97 & 0.14 & 11.50 & 12.19 & 0.03 &  8.46 & 15.64 & 0.13 \\
-    \hline
-  \end{tabular}
-  \caption{}
-  \label{}
+Table~\ref{tab:heart} shows the measurements obtained by the above procedure.
+In order to interpret the measurements, Bland-Altman
+plots~\cite{Martin1986Statistical} were used.
+% TODO
+
+\begin{table}[p]
+  \begin{subtable}{0.5\textwidth}
+    \centering
+    \begin{tabular}{crr}
+      \hline
+        Participant & \multilinecell{Pulse\\(bpm)} & \multilinecell{Sphy.\\(bpm)} \\
+      \hline
+        A & 55 & 57 \\
+        B & 60 & 60 \\
+        C & 57 & 76 \\
+        D & 54 & 66 \\
+        E & 47 & 75 \\
+        F & 54 & 57 \\
+        G & 55 & 84 \\
+        H & 62 & 83 \\
+        I & 56 & 59 \\
+        I & 55 & 58 \\
+      \hline
+        Mean & 55.50 & 67.50 \\
+        SD   &  3.98 & 10.97 \\
+      \hline
+    \end{tabular}
+    \caption{}
+    \label{tab:heart:pulse:normal}
+  \end{subtable}
+  ~
+  \begin{subtable}{0.5\textwidth}
+    \centering
+    \begin{tabular}{crr}
+      \hline
+        Participant & \multilinecell{ViTrox\\(bpm)} & \multilinecell{Sphy.\\(bpm)} \\
+      \hline
+        A & 66 & 61 \\
+        B & 61 & 57 \\
+        C & 72 & 72 \\
+        D & 65 & 63 \\
+        E & 81 & 77 \\
+        F & 55 & 56 \\
+        G & 87 & 87 \\
+        H & 79 & 82 \\
+        I & 55 & 54 \\
+      \hline
+        Mean & 69.00 & 67.67 \\
+        SD   & 11.50 & 12.19 \\
+      \hline
+    \end{tabular}
+    \caption{}
+    \label{tab:heart:vitrox:normal}
+  \end{subtable}
+
+  \begin{subtable}{0.5\textwidth}
+    \centering
+    \begin{tabular}{crr}
+      \hline
+        Participant & \multilinecell{Pulse\\(bpm)} & \multilinecell{Sphy.\\(bpm)} \\
+      \hline
+        A & 54 &  87 \\
+        B & 66 &  65 \\
+        C & 57 &  98 \\
+        D & 48 &  71 \\
+        E & 64 &  84 \\
+        F & 51 &  63 \\
+        G & 69 & 102 \\
+        H & 66 & 105 \\
+        I & 47 &  80 \\
+      \hline
+        Mean & 58.00 & 83.89\\
+        SD   &  8.46 & 15.64 \\
+      \hline
+    \end{tabular}
+    \caption{After physical exercise.}
+    \label{tab:heart:pulse:exercise}
+  \end{subtable}
+  ~
+  \begin{subtable}{0.5\textwidth}
+    \centering
+    \begin{tabular}{crr}
+      \hline
+        Participant & \multilinecell{Pulse\\(bpm)} & \multilinecell{Sphy.\\(bpm)} \\
+      \hline
+        A & 55 & 57 \\
+        B & 60 & 60 \\
+        B & 66 & 65 \\
+        D & 54 & 66 \\
+        F & 54 & 57 \\
+        F & 51 & 63 \\
+        I & 56 & 59 \\
+        I & 55 & 58 \\
+      \hline
+        Mean & 56.38 & 60.63 \\
+        SD   &  4.63 &  3.58 \\
+      \hline
+    \end{tabular}
+    \caption{
+      Only measurements with an heart rate of 70 bpm or lower according to the
+      sphygmomanometer.
+    }
+    \label{tab:heart:pulse:low}
+  \end{subtable}
+
+  \caption{
+    Heart rate measurements obtained following the procedure described
+    from a sphygmomanometer and an Android application:
+    either Pulse, (a), (c), (d), which is the developed application,
+    or the ViTrox application, (b).
+  }
+  \label{tab:heart}
 \end{table}
 
-\begin{table}
-  \centering
-  \begin{tabular}{crrr}
-    \hline
-      \multirow{2}{*}{Subject} &
-      \multicolumn{3}{c}{Normal} \\
-    \cline{2-4}
-      & Pulse & Sphy & Error \\
-    \hline
-      A & 55 & 57 & 0.04 \\
-      B & 60 & 60 & 0.00 \\
-      D & 54 & 66 & 0.18 \\
-      F & 54 & 57 & 0.05 \\
-      I & 56 & 59 & 0.05 \\
-      J & 55 & 58 & 0.05 \\
-    \hline
-      Average & 55.67 & 59.50 & 0.06 \\
-      Median  & 55.00 & 58.50 & 0.05 \\
-      StdDev  &  2.25 &  3.39 & 0.06 \\
-    \hline
-  \end{tabular}
-  \caption{only bpm lower than 70}
-  \label{}
-\end{table}
+\begin{figure}
+  \begin{subfigure}{0.5\textwidth}
+    \includegraphics[width=\textwidth]{plots/pulse-normal}
+    \caption{Pulse and sphygmomanometer.}
+    \label{fig:plots:heart:pulse:normal}
+  \end{subfigure}
+  ~
+  \begin{subfigure}{0.5\textwidth}
+    \includegraphics[width=\textwidth]{plots/vitrox-normal}
+    \caption{ViTrox and sphygmomanometer.}
+    \label{fig:plots:heart:vitrox:normal}
+  \end{subfigure}
+
+  \begin{subfigure}{0.5\textwidth}
+    \includegraphics[width=\textwidth]{plots/pulse-after-exercise}
+    \caption{Pulse and sphygmomanometer, after physical exercise.}
+    \label{fig:plots:heart:pulse:exercise}
+  \end{subfigure}
+  ~
+  \begin{subfigure}{0.5\textwidth}
+    \includegraphics[width=\textwidth]{plots/pulse-lower-than-70-bpm}
+    \caption{
+      Pulse and sphygmomanometer, only measurements an heart rate lower
+      than 70 bpm according to the sphygmomanometer.
+    }
+    \label{fig:plots:heart:pulse:lowerthan70}
+  \end{subfigure}
+
+  \caption{
+    Bland-Altman plots demonstrating the agreement between the heart rate
+    measurements obtained from a sphygmomanometer and an Android application:
+    either Pulse, (a), (c), (d), which is the developed application,
+    or the ViTrox application, (b).
+  }
+  \label{fig:plots:heart}
+\end{figure}
 
 \section{Chapter summary}
 
