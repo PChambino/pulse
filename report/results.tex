@@ -5,7 +5,17 @@
 % Dependendo do volume, a avaliação do trabalho pode ser incluída no
 % capítulo anterior ou pode constituir um capítulo separado.
 
-This chapter... % TODO
+This chapter provides the results obtained during this dissertation
+and the analysis of these.
+
+Section~\ref{sec:results:perf} reports several performance improvements
+to the implemented \evm{} method and the developed algorithm to estimate
+a person's heart rate.
+
+Section~\ref{sec:results:heart} compares the measurements from the implemented
+Android application, Pulse, to a sphygmomanometer, and also, to another
+Android application by ViTrox that estimates a person's heart rate using
+a different method.
 
 \section{Performance} \label{sec:results:perf}
 
@@ -50,7 +60,7 @@ Table~\ref{tab:profile:initial} shows that these functions were spending
 a big percentage of the CPU cycles, with the \texttt{Pulse} function
 taking 51\% and the \evm{} method occupying 28\%.
 
-\begin{table}[p]
+\begin{table}[t]
   \centering
   \begin{tabular}{lrrr}
     \hline
@@ -196,8 +206,6 @@ improvement of 22\%.
 This allowed for the implemented Android application to run at approximately
 15 frames per second on the same Android device previously mentioned.
 
-\pagebreak
-
 \section{Heart rate comparison} \label{sec:results:heart}
 
 To validate the heart rate values obtained by the implemented Android
@@ -208,7 +216,8 @@ The procedure for the test was as follows:
   \item use the implemented Android application, named Pulse, to obtain an
         estimation of the person's heart rate, while at the same time
         obtain a reading from a sphygmomanometer, which also produces an
-        average of the heart rate at the end;
+        average of the heart rate at the end, which would take
+        approximately 30 seconds;
   \item then, in order to compare the results to another application,
         step one was repeated using the ViTrox application:
         \emph{What's My Heart Rate}~\cite{Vitrox2013};
@@ -216,10 +225,54 @@ The procedure for the test was as follows:
         their heart rate would increase, then step one was repeated.
 \end{enumerate}
 
-Table~\ref{tab:heart} shows the measurements obtained by the above procedure.
+Tables~\ref{tab:heart} shows the measurements obtained by the above procedure.
 In order to interpret the measurements, Bland-Altman
 plots~\cite{Martin1986Statistical} were used.
-% TODO
+The mean and standard deviation~(SD) of the differences, mean of the absolute
+differences and 95\% limits of agreement ($\pm$ 1.96 SD) were calculated.
+
+Comparing the Bland-Altman plots in figure~\ref{fig:plots:heart}, the ViTrox
+application shows the best agreement against the sphygmomanometer,
+figure~\ref{fig:plots:heart:vitrox:normal}; the mean bias was $1.33$ bpm
+with 95\% limits of agreement $-3.56$ to $6.22$ bpm. In comparison,
+the implemented application, Pulse, had a mean bias of $-12.00$ with
+95\% limits of agreement $-33.13$ to $9.13$ bpm,
+figure~\ref{fig:plots:heart:pulse:normal}, and after the physical exercise,
+figure~\ref{fig:plots:heart:pulse:exercise}, the mean bias was $-25.89$
+with 95\% limits of agreement $-51.28$ to $-0.49$ bpm.
+
+The implemented algorithm has worse estimations with higher heart rates.
+However, by picking only heart rates lower than 70 bpm according to the
+sphygmomanometer, table~\ref{tab:heart:pulse:low} and
+figure~\ref{fig:plots:heart:pulse:low}, the agreement between the
+implemented application, Pulse, and the sphygmomanometer increases to
+a mean bias of $-4.25$ with 95\% limits of agreement $-13.43$ to $4.93$ bpm.
+
+It should be noted that the main goal of this dissertation was testing the
+feasibility of implementing an \evm{}-based method on a mobile device with
+the Android platform. The creation of an Android application to monitor
+a person's heart rate was a simple example of the application of the
+performance optimized \evm{} method developed.
+Hence, the effort taken on the algorithm performance was higher than
+the validation of the heart rate estimation algorithm.
+
+% Bland-Altman values
+%% pulse-normal
+% mean             = -12.00
+% mean + 1.96 * SD =   9.13
+% mean - 1.96 * SD = -33.13
+%% vitrox-normal
+% mean             =   1.33
+% mean + 1.96 * SD =   6.22
+% mean - 1.96 * SD =  -3.56
+%% pulse-after-exercise
+% mean             = -25.89
+% mean + 1.96 * SD =  -0.49
+% mean - 1.96 * SD = -51.28
+%% pulse-lower-than-70-bpm
+% mean             =  -4.25
+% mean + 1.96 * SD =   4.93
+% mean - 1.96 * SD = -13.43
 
 \begin{table}[p]
   \begin{subtable}{0.5\textwidth}
@@ -243,7 +296,10 @@ plots~\cite{Martin1986Statistical} were used.
         SD   &  3.98 & 10.97 \\
       \hline
     \end{tabular}
-    \caption{}
+    \caption{
+      Heart rate measurements obtained at the same time from the implemented
+      Android application, Pulse, and the sphygmomanometer.
+    }
     \label{tab:heart:pulse:normal}
   \end{subtable}
   ~
@@ -267,7 +323,10 @@ plots~\cite{Martin1986Statistical} were used.
         SD   & 11.50 & 12.19 \\
       \hline
     \end{tabular}
-    \caption{}
+    \caption{
+      Heart rate measurements obtained at the same time from the ViTrox
+      Android application and the sphygmomanometer.
+    }
     \label{tab:heart:vitrox:normal}
   \end{subtable}
 
@@ -291,7 +350,11 @@ plots~\cite{Martin1986Statistical} were used.
         SD   &  8.46 & 15.64 \\
       \hline
     \end{tabular}
-    \caption{After physical exercise.}
+    \caption{
+      Heart rate measurements obtained at the same time from the implemented
+      Android application, Pulse, and the sphygmomanometer, after physical
+      exercise.
+    }
     \label{tab:heart:pulse:exercise}
   \end{subtable}
   ~
@@ -315,8 +378,8 @@ plots~\cite{Martin1986Statistical} were used.
       \hline
     \end{tabular}
     \caption{
-      Only measurements with an heart rate of 70 bpm or lower according to the
-      sphygmomanometer.
+      Selection of heart rate measurements obtained from the Pulse application
+      with an heart rate of 70 bpm or lower according to the sphygmomanometer.
     }
     \label{tab:heart:pulse:low}
   \end{subtable}
@@ -330,7 +393,7 @@ plots~\cite{Martin1986Statistical} were used.
   \label{tab:heart}
 \end{table}
 
-\begin{figure}
+\begin{figure}[p]
   \begin{subfigure}{0.5\textwidth}
     \includegraphics[width=\textwidth]{plots/pulse-normal}
     \caption{Pulse and sphygmomanometer.}
@@ -352,10 +415,10 @@ plots~\cite{Martin1986Statistical} were used.
   \begin{subfigure}{0.5\textwidth}
     \includegraphics[width=\textwidth]{plots/pulse-lower-than-70-bpm}
     \caption{
-      Pulse and sphygmomanometer, only measurements an heart rate lower
+      Pulse and sphygmomanometer, only measurements with an heart rate lower
       than 70 bpm according to the sphygmomanometer.
     }
-    \label{fig:plots:heart:pulse:lowerthan70}
+    \label{fig:plots:heart:pulse:low}
   \end{subfigure}
 
   \caption{
