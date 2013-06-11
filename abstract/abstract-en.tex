@@ -1,0 +1,123 @@
+%-----------------------------------------------
+% Template para criação de resumos de projectos/dissertação
+% jlopes AT fe.up.pt,   Fri Jul  3 11:08:59 2009
+%-----------------------------------------------
+
+\documentclass[9pt,a4paper]{extarticle}
+
+%% English version: comment first, uncomment second
+\usepackage[english]{babel}     % English
+\usepackage{graphicx}           % images .png or .pdf w/ pdflatex OR .eps w/ latex
+\usepackage{times}              % use Times type-1 fonts
+\usepackage[utf8]{inputenc}     % 8 bits using UTF-8
+\usepackage{url}                % URLs
+\usepackage{multicol}           % twocolumn, etc
+\usepackage{float}              % improve figures & tables floating
+\usepackage[tableposition=top]{caption} % captions
+%\usepackage{parskip}
+
+%% page layout
+\usepackage[a4paper,margin=30mm,noheadfoot]{geometry}
+
+%% space between columns
+\columnsep 12mm
+
+%% headers & footers
+\pagestyle{empty}
+
+%% figure & table caption
+\captionsetup{figurename=Fig.,tablename=Tab.,labelsep=endash,font=bf,skip=.5\baselineskip}
+
+%% heading
+\makeatletter
+\renewcommand*{\@seccntformat}[1]{%
+  \csname the#1\endcsname.\quad
+}
+\makeatother
+
+%% avoid widows and orphans
+\clubpenalty=300
+\widowpenalty=300
+
+\begin{document}
+
+\title{\vspace*{-8mm}\textbf{\textsc{Android-based implementation of Eulerian Video Magnification\\for vital signs monitoring}}}
+\author{\emph{Pedro Boloto Chambino}\\[2mm]
+\small{Dissertation supervised by \emph{Prof.\ Luís Teixeira} and \emph{Luís Rosado}}\\
+\small{at \emph{Fraunhofer Portugal AICOS}}}
+\date{}
+\maketitle
+%no page number
+\thispagestyle{empty}
+
+\vspace*{-4mm}\noindent\rule{\textwidth}{0.4pt}\vspace*{4mm}
+
+%% macros
+\newcommand{\evm}{Eulerian Video Magnification}
+
+\begin{multicols}{2}
+
+\section{Motivation}\label{sec:motivation}
+
+\evm{} is a method, recently presented at
+\emph{SIGGRAPH}\footnote{\url{http://www.siggraph.org/}} 2012, capable of
+revealing temporal variations in videos that are impossible to see
+with the naked eye. Using this method, it is possible to visualize
+the flow of blood as it fills the face~\cite{Wu2012Eulerian}.
+Which provides enough information to assess the heart rate in a
+contact-free way using a camera~\cite{Wu2012Eulerian,
+Poh2010Non, Poh2011Advancements}.
+
+Due to being recently proposed, the \evm{} method implementation
+has not been tested in smartphones yet. Thus, Fraunhofer Portugal is
+interested in testing the feasibility of implementing an
+\evm{}-based method on a mobile device with the Android platform.
+
+There has been some successful effort on the assessment of vital
+signs, such as, heart rate, and breathing rate, in a contact-free
+way using a webcamera~\cite{Wu2012Eulerian, Poh2010Non, Poh2011Advancements},
+and even a smartphone~\cite{Vitrox2013, Philips2013}.
+
+Other similar products, which require specialist hardware and are
+thus expensive, include \emph{laser Doppler}~\cite{Ulyanov1993Pulse},
+\emph{microwave Doppler radar}~\cite{Greneker1997Radar}, and
+\emph{thermal imaging}~\cite{Garbey2007Contact}.
+
+Since it is a cheaper method of assessing vital signs in a
+contact-free way than the above products, this research work has
+potential for advancing fields, such as, \emph{telemedicine},
+\emph{personal health-care}, and \emph{ambient assisting living}.
+
+Despite the existence of very similar products by
+\emph{Philips}~\cite{Philips2013} and
+\emph{ViTrox Technologies}~\cite{Vitrox2013}
+to the one proposed on this research work, none of these implement
+the \evm{} method.
+
+\section{Objectives}\label{sec:objectives}
+
+The main goal is to develop a lightweight, real-time \evm{}-based
+method capable of executing on a mobile device. Which will require
+performance optimizations and trade-offs will have to taken into account.
+
+In the process, the creation of an Android application which
+estimates a person's heart rate in real-time using the device's camera
+will be developed.
+
+\section{Work description}\label{sec:work}
+
+% TODO estruturação
+% TODO tecnologias utilizadas
+
+\subsection{Eulerian Video Magnification}\label{sec:work:evm}
+
+\subsection{Heart rate estimation}\label{sec:work:heart}
+
+\section{Conclusions}\label{sec:conclusions}
+
+\bibliographystyle{unsrt}  % numeric, unsorted refs
+\bibliography{../report/myrefs}
+
+\end{multicols}
+
+\end{document}
