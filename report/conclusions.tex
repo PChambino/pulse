@@ -11,14 +11,73 @@
 % Introdução, a maioria dos leitores passará à leitura deste capítulo de
 % conclusões e recomendações para trabalho futuro.
 
+This final chapter presents a review of the relevant information obtained
+from this work and an exposition of further work and research.
+
+Section~\ref{sec:conclusions:objectives} gives an overall description of
+the work done, from the performance improvements to the \evm{} method,
+to the creation of the Android application capable of estimating a
+person's heart rate using the device's camera.
+
+Finally, section~\ref{sec:conclusions:future} exposes future work in this
+area... % TODO
+
 \section{Objective satisfaction} \label{sec:conclusions:objectives}
 
-% TODO EVM is pleasurably to watch, but ruins the signal if it is too strong
-% TODO some part of the algorithm was overfitting
-% TODO too much time was spent on the performance issue, because without it the Android application would be impossible
-% TODO the heart rate estimation was a simple use case example which can then be improved to achieve better results and was not the main objective of this work
+The main goal of this work was providing an \evm{}-based method capable of
+running on an Android device. To achieve that, various real-time
+implementations of the \evm{} method were developed with the aid of the
+image processing library OpenCV. However, these were
+not efficient enough to execute on a smartphone in real-time. Hence,
+a performance profiler was integrated into a desktop application, in order to
+increase the performance of the application and the \evm{} method,
+which was occupying 28\% of the total CPU cycles used by the application.
+
+This \evm{} method implementation was using a temporal bandpass filter composed
+by subtracting two first-order IIR lowpass filters, which is more convenient
+for a real-time implementation than an ideal temporal filter implemented by
+applying the Fourier transform to each pixel for a video segment.
+
+The main performance boost was accomplished by replacing the multiple
+operations of Gaussian blurring and downsampling, suggested
+by~\cite{Wu2012Eulerian}, by a single resize operation using the OpenCV
+interpolation method \emph{AREA}, which produces a similar result of the
+Gaussian filter. Moreover, the inverse operations of multiple
+upsampling and Gaussian blurring followed by an image resize
+for cases when the downsampled image size had to be rounded was also
+replaced by a single resize operation using the linear interpolation method.
+
+At the end, the \evm{} method implemented was occupying only 6\% of the total
+CPU cycles used by the application, which corresponds to a performance
+improvement of 22\% in comparison to the initial implementation.
+
+As an example of application of the developed \evm{} method, an Android
+application, named Pulse, was implemented which was capable of estimating a
+person's heart rate by capturing and analyzing that person's PPG signal.
+
+Since the implemented algorithm was developed in the programming language
+C/C++ for performance reasons, the integration into the Android platform
+was done through the use of JNI and the Android NDK.
+
+The application workflow started by grabbing an image from the device's
+camera. A person's face was detected using the OpenCV object detect module
+which was previously trained to detect human faces. A region of interest (ROI)
+of the person's face would then be fed into the implemented \evm{} method to
+amplify color variations. The average of the ROI green channel was computed,
+in order to increase the signal-to-noise ratio, and stored. Along the time,
+these stored values represent a PPG signal of the underlying blood flow
+variations. The signal is further processed using the detrend method
+to remove trends from the signal without magnitude distortion. It is then
+validated as a cardiac pulse signal by detecting its peaks in order to
+verify its shape and timing. Finally, it is an heart rate estimation is
+computed by identifying the frequency with the higher power spectrum.
+
+In order to validate the estimations obtained...
+% TODO
 
 \section{Future work} \label{sec:conclusions:future}
 
 % TODO improve heart rate estimation
 % TODO support other kinds of vital signs monitoring, such as, breathing rate
+% TODO contribute back to the OpenCV for Android
+% Nevertheless, because the OpenCV library was in its early stage on the Android platform, some features dealing with the Android UI were still unavailable and had to be implemented.
