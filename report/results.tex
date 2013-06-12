@@ -432,4 +432,18 @@ the validation of the heart rate estimation algorithm.
 
 \section{Chapter summary}
 
-% TODO
+In this chapter, the performance optimizations of the algorithm and application
+along with its metrics are presented. From a basic, real-time
+implementation of the \evm{} method to an optimized version capable of
+executing on an Android device at a reasonable rate of 15 frames per second
+and a performance improvement of 22\%.
+
+In addition, the heart rate estimations obtained using the
+implemented Android application, Pulse, were compared to readings
+from a sphygmomanometer and another Android application from
+\emph{ViTrox Technologies}. Using Bland-Altman plots the best agreement
+was between the Vitrox application and the sphygmomanometer, where the mean
+bias was $1.33$ bpm with 95\% limits of agreement $-3.56$ to $6.22$ bpm.
+Followed by the Pulse application and the sphygmomanometer, when the
+beats per minute was lower than 70 according to the sphygmomanometer, with a
+mean bias of $-4.25$ with 95\% limits of agreement $-13.43$ to $4.93$ bpm.
