@@ -15,12 +15,13 @@ This final chapter presents a review of the relevant information obtained
 from this work and an exposition of further work and research.
 
 Section~\ref{sec:conclusions:objectives} gives an overall description of
-the work done, from the performance improvements to the \evm{} method,
+the work done, from the performance improvements of the \evm{} method,
 to the creation of the Android application capable of estimating a
 person's heart rate using the device's camera.
 
-Finally, section~\ref{sec:conclusions:future} exposes future work in this
-area... % TODO
+Finally, section~\ref{sec:conclusions:future} exposes future work that
+could follow the development of an Android-based implementation
+of the \evm{}.
 
 \section{Objective satisfaction} \label{sec:conclusions:objectives}
 
@@ -72,12 +73,31 @@ validated as a cardiac pulse signal by detecting its peaks in order to
 verify its shape and timing. Finally, it is an heart rate estimation is
 computed by identifying the frequency with the higher power spectrum.
 
-In order to validate the estimations obtained...
-% TODO
+In order to validate the heart rate estimations obtained by the implemented
+Android application, Pulse, measurements from 9 participants were compared
+to the readings of a sphygmomanometer. The agreement between the two
+according to the Bland-Altman plots analysis had a mean bias of $-12.00$ with
+95\% limits of agreement $-33.13$ to $9.13$ bpm.
+
+Because too much effort went into increasing the algorithm performance,
+fewer test were done to the algorithm estimations. Therefore, heart rate
+measurements above 70 bpm according to the sphygmomanometer were not being
+correctly estimated by the Pulse application. Removing those increased the
+agreement between the Pulse application estimations and sphygmomanometer
+measurements to a mean bias of $-4.25$ with 95\% limits of agreement $-13.43$
+to $4.93$ bpm.
 
 \section{Future work} \label{sec:conclusions:future}
 
-% TODO improve heart rate estimation
-% TODO support other kinds of vital signs monitoring, such as, breathing rate
-% TODO contribute back to the OpenCV for Android
-% Nevertheless, because the OpenCV library was in its early stage on the Android platform, some features dealing with the Android UI were still unavailable and had to be implemented.
+Having developed a lightweight, real-time \evm{}-based method for the
+Android platform which goal is to amplify color variations, the performance
+of different variants of the \evm{} method could be improved.
+
+The implemented Pulse application needs to improve its heart rate estimations
+accuracy, and different monitored vital signs could be added, such as,
+breathing rate.
+
+To support some features of the implemented Android application, Pulse,
+part of the \emph{OpenCV for Android SDK} library had to be modified. These
+change can be contributed back to the community, since the OpenCV support
+for the Android platform is still in its early stage.
