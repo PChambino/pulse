@@ -40,6 +40,10 @@
 \clubpenalty=300
 \widowpenalty=300
 
+%% macros
+\newcommand{\evm}{\emph{Eulerian Video Magnification}}
+
+
 \begin{document}
 
 \title{\vspace*{-8mm}\textbf{\textsc{Android-based implementation of Eulerian Video Magnification\\for vital signs monitoring}}}
@@ -55,37 +59,167 @@
 
 \begin{multicols}{2}
 
-\section{Motivação}\label{sec:motiva}
+\section{Motivação}\label{sec:motivation}
 
-Neste documento apresentam-se alguns conselhos e instruções para a preparação dos resumos de projecto/dissertação.
-Pede-se aos autores o favor de, dentro do possível, cumprirem com as instruções que são dadas, assim como com a estrutura apresentada, de forma a manter-se o mesmo aspecto em todos os resumos.
-Nas sub-secções~\ref{sec:lingua} a ~\ref{sec:number} podem encontrar-se alguns detalhes sobre a formatação do documento.
+\evm{} é um método, recentemente apresentado no
+\emph{SIGGRAPH}\footnote{\url{http://www.siggraph.org/}} 2012, capaz de revelar
+variações temporais em vídeos que são impossíveis de ver ao olho nu. Usando
+este método é possível visualizar o fluxo sanguíneo da
+face~\cite{Wu2012Eulerian}. Disponibilizando informação suficiente
+para obter o batimento cardíaco através de uma câmara sem contacto existir
+contacto~\cite{Wu2012Eulerian, Poh2010Non, Poh2011Advancements}.
 
-Na secção ``Motivação'' deve ser apresentado o enquadramento do trabalho, dando ideia das necessidades que o mesmo cobre.
+Por ter sido recentemente proposto, uma implementação do método \evm{} ainda
+não foi testada em \emph{smartphones}. Por isso, a Fraunhofer Portugal
+está interessada em testar a viabilidade de uma implementação baseada
+no método \evm{} para dispositivos móveis \emph{Android}.
 
-\section{Objectivos}\label{sec:goals}
+Já houve esforços com sucesso na deteção de sinais vitais, como
+batimento cardíaco, e taxa respiratória, através de câmaras
+\emph{web}~\cite{Wu2012Eulerian, Poh2010Non, Poh2011Advancements}, e até
+em \emph{smartphones}~\cite{Vitrox2013, Philips2013}.
 
-A secção ``Objectivos'' deve enunciar claramente os objectivos a atingir com o trabalho de projecto/dissertação, enquadrando-os na respectiva área de actividade a que o trabalho se destina.
-Por exemplo, este documento tem como objectivos:
-\begin{itemize}
-\item Servir de modelo/exemplo do ponto de vista da dos resumos;
-\item Apresentar o aspecto gráfico que se pretende para os resumos;
-\item Disponibilizar \emph{templates} a quem pretenda utilizar \LaTeX.
-\end{itemize}
+Como é um método barato de obter sinais vitais sem necessidade de contacto,
+este trabalho tem potencial para avançar campos, como \emph{telemedicine},
+\emph{personal health-care}, e \emph{ambient assisting living}.
+
+Apesar da existência de produtos semelhantes pela
+\emph{Philips}~\cite{Philips2013} e \emph{ViTrox Technologies}~\cite{Vitrox2013}
+ao proposto neste trabalho, nenhum destes implementa o método \evm{}.
+
+\section{Objetivos}\label{sec:objectives}
+
+O objetivo principal é desenvolver um método baseado no \evm{} que seja
+leve e execute em tempo-real no dispositivo móvel. O que vai requerer
+otimizações de performance e \emph{trade-offs} terão de ser considerados.
+
+No processo, uma aplicação \emph{Android} capaz de estimar o batimento
+cardíaco de uma pessoa em tempo-real usando a câmara do dispositivo
+será criada.
 
 \section{Descrição do Trabalho}\label{sec:work}
 
-Na secção ``Descrição do Trabalho'' (com este ou com outro nome que se julgue mais adequado) devem ser apresentadas as principais partes do trabalho, começando pela sua estruturação. Devem ser mencionadas as tecnologias utilizadas, com referências à sua interdependência e interligação dando especial ênfase aos componentes desenvolvidos pelo estudante no âmbito do trabalho em causa.
+Para aumentar a velocidade de implementação e facilitar \emph{testing},
+uma aplicação para \emph{desktop} foi desenvolvida primeiro, que foi
+depois integrada numa aplicação \emph{Android}.
 
-No presente documento, seguem-se 9 subsecções com instruções acerca da extensão da comunicação, margens, estilos e outras recomendações gerais acerca da elaboração da versão final dos resumos.
+A aplicação foi escrita em \emph{C/C++} com a ajuda da biblioteca \emph{OpenCV},
+uma biblioteca \emph{open-source} para processamento de imagem.
+Consequentemente, a integração com a aplicação \emph{Android} foi realizada
+através do \emph{Android Native Development Kit} e da \emph{framework}
+\emph{Java Native Interface}.
 
-\section{Conclusões}\label{sec:conclui}
+O \emph{workflow} da aplicação começa por obter uma imagem da câmara do
+dispositivo. A face de uma pessoa é detetada usando o módulo de deteção
+de objetos do \emph{OpenCV} que foi previamente treinada para detetar faces
+humanas. A região de interesse (ROI) da face da pessoa é alimentada ao método
+\evm{} implementado para amplificar as variações de cor. A média do canal
+verde do ROI é computado, para aumentar o rácio do sinal-para-baralho,
+e persistido. Ao longo do tempo, os valores persistidos representam um sinal
+\emph{photo-plethysmographic}~\cite{Verkruysse2008Remote} da variação do fluxo
+sanguíneo oculto. O sinal é processado usando o método
+\emph{detrend}~\cite{Tarvainen2002Advanced} para remover as tendências do
+sinal sem distorcer a magnitude. O sinal é depois validado
+como sendo um sinal do batimento cardíaco detetando os picos do sinal
+de forma a verificar a sua forma e tempo. Finalmente, a estimativa do
+batimento cardíaco é computado pela identificação da frequência com maior
+\emph{power spectrum}.
 
-Espera-se que este documento possa contribuir para uma melhor qualidade dos resumos dos projectos/dissertações do MIEIC/FEUP.
+\subsection{\evm}\label{sec:work:evm}
 
-Documentos que não respeitem este aspecto gráfico serão liminarmente recusados, ficando os respectivos autores em falta em relação à sua entrega.
+As implementações iniciais deste trabalho do método \evm{} foram escritas
+em \emph{Java}. No entanto, porque o suporte para \emph{Java} da biblioteca
+\emph{OpenCV} é ainda recente e devido a razões de performance a versão
+final foi implementada em \emph{C/C++}.
 
-Para as dissertações existem regras definidas noutro lado~\cite{kn:Mat93}.
+A abordagem do método \evm{} combina processamento espacial e temporal para
+realçar variações temporais subtis num vídeo. Primeiro, a sequência do vídeo
+é decomposta em diferentes bandas de frequência espaciais. Como estas podem
+exibir diferentes rácios sinal-para-baralho, estes podem ser magnificados
+de forma diferente. Em geral, a pirâmide Laplaciana
+completa~\cite{Burt1983Laplacian} pode ser computada. Depois, processamento
+temporal é realizado em cada banda espacial de uma forma uniforme para todos
+os pixeis de cada banda. Após isso, o sinal extraído é magnificado por um
+fator de $\alpha$, que pode ser especificado pelo utilizador, e pode ser
+atenuado automaticamente. Finalmente, o sinal magnificado é adicionado à
+imagem original e a pirâmide espacial colapsada para obter o resultado final.
+
+Neste trabalho, a amplificação da variação da cor é mais importante do que
+magnificação de movimento. Por isso, o filtro espacial usado foi a computação
+de um nível da pirâmide Gaussiana, que consiste em aplicar um filtro
+Gaussiano e fazer \emph{downsample} da imagem várias vezes. Contudo, como
+a performance é uma prioridade e a computação de um nível da pirâmide Gaussiana
+é computacionalmente cara, este passo foi alterado para apenas uma operação
+de redimensionamento usando o método de interpolação \emph{AREA} da biblioteca
+\emph{OpenCV}, que produz um resultado semelhante.
+
+O filtro temporal usado para extrair os movimentos ou sinais para serem
+amplificados. Assim, a escolha do filtro é dependente da aplicação. Para
+magnificação de movimento, um filtro de banda larga, como o \emph{butterworth},
+é preferido. Um filtro de banda estreita produz um resultado mais livre de
+barulho para amplificação da cor do fluxo sanguíneo. Em~\cite{Wu2012Eulerian},
+um filtro de banda ideal foi usado devido às suas frequências \emph{cutoff}
+retas. Alternativamente, para uma implementação em tempo-real, filtros IIR
+de baixa ordem são úteis tanto para magnificação de movimento e amplificação
+de cor. Por isso, a subtração de dois filtros IIR de baixa ordem foi usada
+para a implementação do \evm{} método implementado.
+
+\subsection{Estimativa do batimento cardíaco}\label{sec:work:heart}
+
+A estimativa do batimento cardíaco é computado usando a transformada de
+\emph{Fourier}, que é uma transformação matemática capaz de converter uma
+função de tempo, $f(t)$, numa nova função representando o domínio da frequência
+da função original.
+
+Para calcular o \emph{power spectrum}, o resultado da função transformada
+de \emph{Fourier} é multiplicado por si próprio.
+
+Como os valores são capturados de um vídeo, sequência de imagens, a função
+de tempo é discreta, com uma taxa de frequência igual à taxa frequência do
+vídeo, $FPS$.
+
+O índice, $i$ correspondente ao máximo do \emph{power spectrum} pode ser
+convertido para um valor correspondente à frequência, $F$, do sinal, usando
+a equação:
+
+\begin{equation}
+  F = \frac{i * FPS}{2 N}
+\end{equation}
+
+onde $N$ é o número de valores do sinal extraído. $F$ pode ser multiplicado
+por 60 para obter uma estimativa do batimento cardíaco.
+
+\section{Conclusões}\label{sec:conclusions}
+
+Uma aplicação \emph{Android}, com o nome \emph{Pulse}, capaz de estimar o
+batimento cardíaco de uma pessoa usando o método \evm{} foi desenvolvida.
+
+Muito esforço foi para melhorar a performance da aplicação, para que seja capaz
+de executar num dispositivo \emph{Android}. Tendo um aumento na performance
+de 22\% desde a implementação inicial, como sugerida por~\cite{Wu2012Eulerian},
+até uma versão otimizada.
+
+Por causa disso, a precisão das estimativas do batimento cardíaco da aplicação
+foi baixa. Medições da aplicação \emph{Pulse} de 9 participantes foram
+comparadas com leituras de um aparelho de tensão. A concordância entre os dois,
+de acordo a análise de gráficos Bland-Altman, obteve uma média \emph{bias}
+de $-12.00$ com limites de concordância de 95\% $-33.13$ e $9.13$ bpm.
+
+\subsection{Trabalho futuro}\label{sec:future}
+
+Tendo desenvolvido um método baseado no \evm{} que é leve e executa em
+tempo-real num dispositivo \emph{Android} para amplificar variações de cor,
+a performance de outras variações do método podem ser melhoradas. Levando
+à utilização do método noutros tipos de dispositivos.
+
+A aplicação implementada, \emph{Pulse}, precisa de melhorar as suas estimativas
+do batimento cardíaco, e outros sinais vitais podem ser monitorizar, como
+a taxa respiratória.
+
+Para suportar algumas características da aplicação \emph{Android} implementada,
+parte da biblioteca \emph{OpenCV para Android SDK}, que ainda é recente,
+teve de ser modificada. Estas modificações que podem ser contribuídas de volta
+para a comunidade.
 
 \bibliographystyle{unsrt-pt}  % numeric, unsorted refs
 \bibliography{../myrefs}

@@ -78,8 +78,8 @@ signs, such as, heart rate, and breathing rate, in a contact-free
 way using a webcamera~\cite{Wu2012Eulerian, Poh2010Non, Poh2011Advancements},
 and even a smartphone~\cite{Vitrox2013, Philips2013}.
 
-Since it is a cheaper method of assessing vital signs in a
-contact-free way than the above products, this research work has
+Since it is a cheap method of assessing vital signs in a
+contact-free way, this research work has
 potential for advancing fields, such as, \emph{telemedicine},
 \emph{personal health-care}, and \emph{ambient assisting living}.
 
@@ -128,8 +128,8 @@ the signal.
 
 \subsection{Eulerian Video Magnification}\label{sec:work:evm}
 
-The initial implementations of of the \evm{} method were written in Java.
-However, because OpenCV Java support was still recent and due to performance
+This work initial implementations of the \evm{} method were written in Java.
+However, because OpenCV for Java support was still recent and due to performance
 reasons the final implementation was written in C/C++.
 
 The \evm{} method approach combines
@@ -143,7 +143,7 @@ spatial band. The temporal processing is uniform for all spatial
 bands, and for all pixels within each band. After that, the extracted
 bandpass signal is magnified by a factor of $\alpha$, which can be
 specified by the user, and may be attenuated automatically. Finally,
-the magnified signal is added to the original and the spatial pyramid
+the magnified signal is added to the original image and the spatial pyramid
 collapsed to obtain the final output.
 
 In this work, amplification of color variation was more important than
