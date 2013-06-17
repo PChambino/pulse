@@ -34,6 +34,8 @@ a performance profiler was integrated into a desktop application, in order to
 increase the performance of the application and the \evm{} method,
 which was occupying 28\% of the total CPU cycles used by the application.
 
+\pagebreak
+
 This \evm{} method implementation was using a temporal bandpass filter composed
 by subtracting two first-order IIR lowpass filters, which is more convenient
 for a real-time implementation than an ideal temporal filter implemented by
@@ -70,8 +72,9 @@ these stored values represent a PPG signal of the underlying blood flow
 variations. The signal is further processed using the detrend method
 to remove trends from the signal without magnitude distortion. It is then
 validated as a cardiac pulse signal by detecting its peaks in order to
-verify its shape and timing. Finally, it is an heart rate estimation is
-computed by identifying the frequency with the higher power spectrum.
+verify its shape and timing. Finally, the heart rate estimation is
+computed by identifying the frequency with the higher power spectrum of
+the signal.
 
 In order to validate the heart rate estimations obtained by the implemented
 Android application, Pulse, measurements from 9 participants were compared
@@ -87,11 +90,14 @@ agreement between the Pulse application estimations and sphygmomanometer
 measurements to a mean bias of $-4.25$ with 95\% limits of agreement $-13.43$
 to $4.93$ bpm.
 
+\pagebreak
+
 \section{Future work} \label{sec:conclusions:future}
 
 Having developed a lightweight, real-time \evm{}-based method for the
 Android platform which goal is to amplify color variations, the performance
-of different variants of the \evm{} method could be improved.
+of different variants of the \evm{} method could be improved. Leading
+to increase the usage of this method in all kinds of devices.
 
 The implemented Pulse application needs to improve its heart rate estimations
 accuracy, and different monitored vital signs could be added, such as,
