@@ -39,6 +39,9 @@
 \clubpenalty=300
 \widowpenalty=300
 
+%% macros
+\newcommand{\evm}{Eulerian Video Magnification}
+
 \begin{document}
 
 \title{\vspace*{-8mm}\textbf{\textsc{Android-based implementation of Eulerian Video Magnification\\for vital signs monitoring}}}
@@ -51,9 +54,6 @@
 \thispagestyle{empty}
 
 \vspace*{-4mm}\noindent\rule{\textwidth}{0.4pt}\vspace*{4mm}
-
-%% macros
-\newcommand{\evm}{Eulerian Video Magnification}
 
 \begin{multicols}{2}
 
@@ -78,11 +78,6 @@ signs, such as, heart rate, and breathing rate, in a contact-free
 way using a webcamera~\cite{Wu2012Eulerian, Poh2010Non, Poh2011Advancements},
 and even a smartphone~\cite{Vitrox2013, Philips2013}.
 
-Other similar products, which require specialist hardware and are
-thus expensive, include \emph{laser Doppler}~\cite{Ulyanov1993Pulse},
-\emph{microwave Doppler radar}~\cite{Greneker1997Radar}, and
-\emph{thermal imaging}~\cite{Garbey2007Contact}.
-
 Since it is a cheaper method of assessing vital signs in a
 contact-free way than the above products, this research work has
 potential for advancing fields, such as, \emph{telemedicine},
@@ -106,14 +101,126 @@ will be developed.
 
 \section{Work description}\label{sec:work}
 
-% TODO estruturação
-% TODO tecnologias utilizadas
+In order to increase implementation speed and facilitate testing, a
+desktop application was first developed, which then was integrated into
+the Android application implemented.
+
+The application was written in C/C++ with the aid of OpenCV library, an
+open-source image processing library. Hence, the integration with the Android
+platform was done through the Android Native Development Kit and the
+Java Native Interface framework.
+
+The application workflow started by grabbing an image from the device's
+camera. A person's face was detected using the OpenCV object detect module
+which was previously trained to detect human faces. A region of interest (ROI)
+of the person's face would then be fed into the implemented \evm{} method to
+amplify color variations. The average of the ROI green channel was computed,
+in order to increase the signal-to-noise ratio, and stored. Along the time,
+these stored values represent a
+photo-plethysmographic~\cite{Verkruysse2008Remote} signal of the underlying
+blood flow variations. The signal is further processed using the detrend
+method~\cite{Tarvainen2002Advanced}
+to remove trends from the signal without magnitude distortion. It is then
+validated as a cardiac pulse signal by detecting its peaks in order to
+verify its shape and timing. Finally, the heart rate estimation is
+computed by identifying the frequency with the higher power spectrum of
+the signal.
 
 \subsection{Eulerian Video Magnification}\label{sec:work:evm}
 
+The initial implementations of of the \evm{} method were written in Java.
+However, because OpenCV Java support was still recent and due to performance
+reasons the final implementation was written in C/C++.
+
+The \evm{} method approach combines
+spatial and temporal processing to emphasize subtle temporal changes
+in a video. First, the video sequence is decomposed into different
+spatial frequency bands. Because they may exhibit different
+signal-to-noise ratios, they may be magnified differently.
+In the general case, the full Laplacian pyramid~\cite{Burt1983Laplacian}
+may be computed. Then, temporal processing is performed on each
+spatial band. The temporal processing is uniform for all spatial
+bands, and for all pixels within each band. After that, the extracted
+bandpass signal is magnified by a factor of $\alpha$, which can be
+specified by the user, and may be attenuated automatically. Finally,
+the magnified signal is added to the original and the spatial pyramid
+collapsed to obtain the final output.
+
+In this work, amplification of color variation was more important than
+motion magnification. Thus, the spatial filter used was the computation
+of a Gaussian pyramid level, which consists of applying a Gaussian blur filter
+and downsampling the image multiple times. However, because performance
+was a priority and computing a Gaussian pyramid level was computationally
+expensive, this step was changed to a single resize operation using the
+interpolation method \emph{AREA} of the OpenCV library, which produces a
+similar result to the computation of a Gaussian pyramid level.
+
+Temporal filtering is used to extract the motions or signals to be amplified.
+Thus, the filter choice is application dependent. For motion magnification,
+a broad bandpass filter, such as, the butterworth filter, is preferred. A
+narrow bandpass filter produces a more noise-free result for color
+amplification of blood flow. An ideal bandpass filter is used
+on~\cite{Wu2012Eulerian} due to its sharp cutoff frequencies. Alternatively,
+for a real-time implementation low-order IIR filters can be useful for both:
+color amplification and motion magnification. Therefore, the subtraction
+of two low-order IIR filters were used in the \evm{} method implemented.
+
 \subsection{Heart rate estimation}\label{sec:work:heart}
 
+The heart rate estimation is computed using the \emph{Fourier transform}, which
+is a mathematical transform capable of converting
+a function of time, $f(t)$, into a new function representing the frequency
+domain of the original function.
+
+To calculate the power spectrum, the resulting function from the
+\emph{Fourier transform} is then multiplied by itself.
+
+Since the values are captured from a video, sequence of frames, the function
+of time is actually discrete, with a frequency rate equal to the video frame
+rate, $FPS$.
+
+The \emph{index}, $i$, corresponding to the maximum of the power spectrum can
+then be converted into a frequency value, $F$, using the equation:
+
+\begin{equation}
+  F = \frac{i * FPS}{2 N}
+\end{equation}
+
+where $N$ is the size of the signal extracted. $F$ can then be multiplied by
+$60$ to convert it to beats per minute, and have an estimation of the heart
+rate from the extracted signal.
+
 \section{Conclusions}\label{sec:conclusions}
+
+An Android application, named Pulse, which was capable
+of estimating a person's heart rate using the \evm{} method was developed.
+
+A lot of effort went into improving the application performance,
+so it was able to execute on an Android device. Having a performance
+increase of 22\% from the initial implementation, as suggested
+by~\cite{Wu2012Eulerian}, to a performance optimized version.
+
+Because of this the application heart rate estimations accuracy was low.
+The Pulse application measurements from 9 participants were compared
+to the readings of a sphygmomanometer. The agreement between the two
+according to the Bland-Altman plots analysis had a mean bias of $-12.00$ with
+95\% limits of agreement $-33.13$ to $9.13$ bpm.
+
+\subsection{Future work}\label{sec:future}
+
+Having developed a lightweight, real-time \evm{}-based method for the
+Android platform which goal is to amplify color variations, the performance
+of different variants of the \evm{} method could be improved. Leading
+to increase the usage of this method in all kinds of devices.
+
+The implemented Pulse application needs to improve its heart rate estimations
+accuracy, and different monitored vital signs could be added, such as,
+breathing rate.
+
+To support some features of the implemented Android application, Pulse,
+part of the \emph{OpenCV for Android SDK} library had to be modified. These
+change can be contributed back to the community, since the OpenCV support
+for the Android platform is still in its early stage.
 
 \bibliographystyle{unsrt}  % numeric, unsorted refs
 \bibliography{../myrefs}
