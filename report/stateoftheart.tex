@@ -16,16 +16,16 @@
 % No final do capítulo deverá ser apresentado um resumo com as
 % principais conclusões que se podem tirar.
 
-This chapter presents several studies regarding the heart rate estimation
+This chapter focus on the heart rate estimation
 from a person's face captured through a simple webcam.
 
-Section~\ref{sec:sota:photo} describe the concept that explains how the
+Section~\ref{sec:sota:photo} describes the concept that explains how the
 cardiac pulse is detected from a person's face in a remote, contact-free way.
 
 Post-processing methods, which may be applied to the retrieved signal,
 are detailed on section~\ref{sec:sota:post}.
 
-In order to estimate the heart rate, a couple of techniques are also detailed
+In order to estimate the heart rate, some techniques are also detailed
 on section~\ref{sec:sota:estimation}.
 
 Finally, section~\ref{sec:sota:tech} reviews the main
@@ -48,28 +48,29 @@ explored~\cite{Wieringa2005Contactless, Hu2008Feasibility}.
 The method used on the article~\cite{Verkruysse2008Remote} captures the pixel
 values (red, green, and blue channels) of the facial area of a previously
 recorded video where volunteers were asked to minimize movements. The pixel
-values within a region of interest (ROI) was then averaged for each frame.
+values within a region of interest (ROI) were then averaged for each frame.
 This spatial averaging was found to significantly increase signal-to-noise
-ratio. The heart rate estimation was then calculated by applying Fast Fourier
-transforms and the power spectrum as explained on
+ratio. The heart rate estimation was then calculated by applying the
+\emph{Fast Fourier transform} and the power spectrum as explained on
 section~\ref{sec:sota:estimation:power}.
 
-The authors of~\cite{Verkruysse2008Remote} demonstrate that the fact that
-the green channel features a stronger heart rate signal as compared to the
-red and blue channels, is a strong evidence that the signal is due to
-variations in blood volume because (oxy-) hemoglobin absorbs green light.
+The authors of~\cite{Verkruysse2008Remote} demonstrate that
+the green channel features a stronger cardiac signal as compared to the
+red and blue channels. This is a strong evidence that the signal is due to
+variations in the blood volume, because hemoglobin absorbs green light
+better than red and blue light.
 
 \section{Signal post-processing} \label{sec:sota:post}
 
 After obtaining the raw pixel values (red, green, and blue channels), a
-conjunction of the following methods may be used to extract and improve the
+combination of the following methods may be used to extract and improve the
 reflected plethysmography signal. However, each method introduces complexity
 and expensive computation.
 
 \subsection{\ica} \label{sec:sota:post:ica}
 
-\ica{} is a special case of \emph{blind source separation} and is a relatively
-new technique for uncovering independent signals from a set of observations
+\ica{} is a special case of \emph{blind source separation} and is
+technique for uncovering independent signals from a set of observations
 that are composed of linear mixtures of the underlying
 sources~\cite{Comon1994Independent}.
 
@@ -117,7 +118,7 @@ Poh2011Advancements}.
 
 \fig{evm}{Overview of the \evm{} method.}
 
-In contrast to the \ica{} model that focus on extracting a single number,
+In contrast to the \ica{} model that focuses on extracting a single number,
 the \evm{} uses localized spatial pooling and temporal filtering to extract
 and reveal visually the signal corresponding to the cardiac pulse. This
 allows for amplification and visualization of the heart rate signal at each
@@ -139,7 +140,7 @@ On the contrary, the \evm{} method is inspired by the \emph{Eulerian}
 perspective, where properties of a voxel of fluid, such as pressure
 and velocity, evolve over time. The approach of this method to motion
 magnification is the exaggeration of motion by amplifying temporal
-color changes at fixed positions, instead of, explicitly estimation
+color changes at fixed positions, instead of, explicit estimation
 of motion.
 
 This method approach, illustrated in figure~\ref{fig:evm}, combines
@@ -165,7 +166,7 @@ it may exhibit different signal-to-noise ratios, or contain spatial frequencies
 for which the linear approximation used in motion magnification does not
 hold~\cite[Section 3]{Wu2012Eulerian}.
 
-Spatial filtering may also be used to significantly increases signal-to-noise
+Spatial filtering may also be used to significantly increase signal-to-noise
 ratio, as previously mention on section~\ref{sec:sota:photo} and demonstrated
 on the work of~\cite{Verkruysse2008Remote} and~\cite{Wu2012Eulerian}. Subtle
 signals, such as, a person's heart rate from a video of its face, may be
@@ -259,7 +260,9 @@ can be found in~\cite{Tarvainen2002Advanced}.
 where $I$ is the identity matrix, $D_2$ is the discrete approximation of the
 second order, and $\lambda$ is the regularization parameter.
 
-\fig{detrend}{Original and detrended RR series.}
+\fig{detrend}{
+  Original RR series and fitted trends (above) and detrended series (below).
+}
 
 Figure~\ref{fig:detrend} presents an example of what this method is able to
 achieve. The example, taken from the work of~\cite{Tarvainen2002Advanced}, uses
@@ -270,8 +273,8 @@ information.
 \section{Heart rate estimation} \label{sec:sota:estimation}
 
 In order to convert the extracted plethysmographic signal into the number
-of beats per minute~(bpm), further processing must be done. Below are
-highlighted two methods capable of achieving this goal.
+of beats per minute~(bpm), further processing must be done. Below two methods
+capable of achieving this goal are highlighted.
 
 \subsection{Power spectrum} \label{sec:sota:estimation:power}
 
@@ -299,12 +302,12 @@ rate from the extracted signal.
 
 \subsection{Pulse wave detection} \label{sec:sota:estimation:pulse}
 
-In~\cite{Nenova2010Automated}, it is presented an automated algorithm
-for fast pulse wave detection. The algorithm is capable of obtaining an
+In~\cite{Nenova2010Automated}, an automated algorithm for fast pulse wave
+detection is presented. The algorithm is capable of obtaining an
 estimative of the heart rate from PPG signal, as an alternative to the power
 spectrum described above. Moreover, it also introduces validation to the
-waveform detection by verifying its shape and timing. Below is presented a
-simplified description of the algorithm. A more detailed description can be
+waveform detection by verifying its shape and timing. Below a simplified
+description of the algorithm is presented. A more detailed description can be
 found in~\cite{Nenova2010Automated}.
 
 \begin{enumerate}
@@ -318,7 +321,7 @@ found in~\cite{Nenova2010Automated}.
           equal to $200 ms$, then the lower maximum is rejected.
     \item Minimum ($MIN$)\\
           The absolute minimum is determined between every two adjacent
-          maximums. A minimum is rejected, it is above a predetermined
+          maximums. A minimum is rejected, if it is above a predetermined
           amplitude threshold. When a minimum is rejected, the lower-amplitude
           maximum of the two maximum adjacent to the rejected minimum is
           discarded too.
@@ -360,8 +363,8 @@ the heart rate estimation only on valid pulse signals.
 
 \section{Technologies} \label{sec:sota:tech}
 
-Below are short descriptions of two of the main technologies that will be
-used during this research work.
+Below two of the main technologies that will be used during this research
+work are shortly described.
 
 \subsection{Android SDK} \label{sec:sota:tech:android}
 
@@ -371,9 +374,9 @@ operating system, primarily designed for touchscreen mobile devices,
 such as, smartphones.
 
 Because of its open source code and permissive licensing, it allows
-the software to be freely modified and distributed. This have allowed
+the software to be freely modified and distributed. This has allowed
 \emph{Android} to be the software of choice for technology companies
-who require a low-cost, customizable, and lightweight operating system
+that require a low-cost, customizable, and lightweight operating system
 for mobile devices and others.
 
 \emph{Android} has also become the world's most widely used smartphone
@@ -411,13 +414,13 @@ license.
 such as, Python, Java, and even Android. However, Java and Android
 implementation is recent and lacks features and stability.
 
-\section{Chapter summary}
+\section{Summary}
 
 This chapter starts by describing the concept behind the extraction of
-cardiac pulse is possible from a person's face captured through a simple video
+cardiac pulse from a person's face captured through a simple video
 or webcam.
 
-It then presents several possible post-processing methods for to improve
+It then presents several possible post-processing methods for improving
 the extraction of the actual pulse signal. These methods include:
 \begin{itemize}
   \item \emph{\ica}, a method capable of uncovering independent signals from
@@ -430,7 +433,7 @@ the extraction of the actual pulse signal. These methods include:
         signal without distorting its amplitude.
 \end{itemize}
 
-Then algorithms for obtaining the actual beats per minutes of the heart rate
+Then algorithms for obtaining the actual beats per minute of the heart rate
 from the signal are described:
 \begin{itemize}
   \item \emph{Power spectrum}, a set of equations capable of finding the
@@ -439,7 +442,7 @@ from the signal are described:
         rising edges from a pulse signal.
 \end{itemize}
 
-Finally, important technologies for the work are described and explored:
+Finally, important technologies for the work are described:
 \begin{itemize}
   \item \emph{Android}, a Linux-based operating system, primarily designed for
         touchscreen mobile devices;

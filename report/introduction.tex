@@ -27,7 +27,7 @@ Finally, section~\ref{sec:intro:outline} describes the document outline.
 revealing temporal variations in videos that are impossible to see
 with the naked eye. Using this method, it is possible to visualize
 the flow of blood as it fills the face~\cite{Wu2012Eulerian}.
-Which provides enough information to assess the heart rate in a
+Providing enough information to assess the heart rate in a
 contact-free way using a camera~\cite{Wu2012Eulerian,
 Poh2010Non, Poh2011Advancements}.
 
@@ -41,7 +41,7 @@ development for mobile devices}, \emph{digital signal processing}.
 
 This research work is an internal project of \emph{Fraunhofer
 Portugal}\footnote{\url{http://www.fraunhofer.pt/}} supervised by
-Luís Rosado. Fraunhofer Portugal a is non-profit private association
+Luís Rosado. Fraunhofer Portugal is a non-profit private association
 founded by Fraunhofer-Gesellschaft\footnote{\url{http://www.fraunhofer.de/en/about-fraunhofer/}}~\cite{Fraunhofer2013} and
 
 \begin{quote}
@@ -56,9 +56,6 @@ founded by Fraunhofer-Gesellschaft\footnote{\url{http://www.fraunhofer.de/en/abo
 
 % Apresenta a motivação e enumera os objetivos do trabalho terminando
 % com um resumo das metodologias para a prossecução dos objetivos.
-
-Due to being recently proposed, the \evm{} method implementation
-has not been tested in smartphones yet.
 
 There has been some successful effort on the assessment of vital
 signs, such as, heart rate, and breathing rate, in a contact-free
@@ -81,17 +78,17 @@ Despite the existence of very similar products by
 to the one proposed on this research work, none of these implement
 the \evm{} method.
 
+Due to being recently proposed, the \evm{} method implementation
+has not been tested in smartphones yet.
+
 \section{Objectives} \label{sec:intro:objectives}
 
 % Enumera os objetivos do trabalho terminando
 % com um resumo das metodologias para a prossecução dos objetivos.
 
-This research work goal is to test the feasibility of the
-implementation of the \evm{} method on smartphones by developing
-an \emph{Android} application for monitoring vital signs based on
-the \evm{} method.
-
-This application should include the following features:
+In this work, an Android application for monitoring vital signs based on
+the \evm{} method will be developed, which should include the following
+features:
 
 \begin{itemize}
   \item heart rate detection and assessment based on the \evm{}
@@ -101,6 +98,9 @@ This application should include the following features:
   \item deal with artifacts' motion, due to, person and/or
         smartphone movement.
 \end{itemize}
+
+In order to accomplish that, the feasibility of the \evm{} method on smartphones
+has to be tested.
 
 It should be noted that a straightforward implementation of the \evm{}
 method is not possible, due to various reasons. First, the \evm{} method
@@ -126,12 +126,11 @@ The rest of the document is structured as follows:
         understand the presented problem. In addition, it presents
         the existing related work, and a description of the main
         technologies used.
-  \item[Chapter~\ref{chap:problem}] provides a detailed description of the
-        problem addressed, defining its scope and dividing it into
-        smaller problems.
-  \item[Chapter~\ref{chap:impl}] describes the implementation details of the
-        work developed in order to create an Android application for estimating
-        a person's te based on the \evm{} method.
+  \item[Chapter~\ref{chap:impl}] provides a detailed description of the
+        problem addressed, defining its scope. And describes the implementation
+        details of the
+        work developed in order to create an Android application, named Pulse,
+        for estimating a person's te based on the \evm{} method.
   \item[Chapter~\ref{chap:results}] reports and analyses the results from
         the application performance and heart rate comparison.
   \item[Chapter~\ref{chap:conclusions}] finalizes this document by presenting

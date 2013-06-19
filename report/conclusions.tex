@@ -34,8 +34,6 @@ a performance profiler was integrated into a desktop application, in order to
 increase the performance of the application and the \evm{} method,
 which was occupying 28\% of the total CPU cycles used by the application.
 
-\pagebreak
-
 This \evm{} method implementation was using a temporal bandpass filter composed
 by subtracting two first-order IIR lowpass filters, which is more convenient
 for a real-time implementation than an ideal temporal filter implemented by
@@ -80,17 +78,12 @@ In order to validate the heart rate estimations obtained by the implemented
 Android application, Pulse, measurements from 9 participants were compared
 to the readings of a sphygmomanometer. The agreement between the two
 according to the Bland-Altman plots analysis had a mean bias of $-12.00$ with
-95\% limits of agreement $-33.13$ to $9.13$ bpm.
-
-Because too much effort went into increasing the algorithm performance,
-fewer test were done to the algorithm estimations. Therefore, heart rate
+95\% limits of agreement $-33.13$ to $9.13$ bpm. Heart rate
 measurements above 70 bpm according to the sphygmomanometer were not being
 correctly estimated by the Pulse application. Removing those increased the
 agreement between the Pulse application estimations and sphygmomanometer
 measurements to a mean bias of $-4.25$ with 95\% limits of agreement $-13.43$
 to $4.93$ bpm.
-
-\pagebreak
 
 \section{Future work} \label{sec:conclusions:future}
 
@@ -105,5 +98,5 @@ breathing rate.
 
 To support some features of the implemented Android application, Pulse,
 part of the \emph{OpenCV for Android SDK} library had to be modified. These
-change can be contributed back to the community, since the OpenCV support
+changes can be contributed back to the community, since the OpenCV support
 for the Android platform is still in its early stage.

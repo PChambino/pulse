@@ -1,6 +1,9 @@
-\chapter{Implementation details} \label{chap:impl}
+\chapter{Pulse: vital signs monitoring application} \label{chap:impl}
 
 \section*{}
+
+% Este capítulo deve começar por fazer uma apresentação detalhada do
+% problema a resolver.
 
 % Este capítulo pode ser dedicado à apresentação de detalhes de nível
 % mais baixo relacionados com o enquadramento e implementação das
@@ -8,9 +11,64 @@
 % Note-se no entanto que detalhes desnecessários à compreensão do
 % trabalho devem ser remetidos para anexos.
 
-This chapter provides the implementation details of the work developed
-in order to create an Android application for estimating a person's
-heart rate based on the \evm{} method.
+This chapter provides a detailed description of the problem addressed, defining
+its scope, in section~\ref{sec:impl:problem}.
+
+Moreover, section~\ref{sec:impl:details} details the implementation of the
+work developed,
+in order to create an Android application, named Pulse, for estimating a
+person's heart rate based on the \evm{} method.
+
+At the end, section~\ref{sec:impl:app} gives a description of resulting
+Android application, Pulse.
+
+\section{Problem description} \label{sec:impl:problem}
+
+Section~\ref{sec:problem:evm} describes the main objective of the work which
+consists of an implementation a video magnification method based on the
+Eulerian perspective capable of running on a mobile device.
+
+Then, section~\ref{sec:problem:heart} provides a description of a simple
+application of the \evm{} method.
+
+\subsection{Android-based implementation of \evm} \label{sec:problem:evm}
+
+As stated on the previous chapters,
+the \evm{} method is capable of magnifying small
+motion and amplifying color variation which may be invisible to the naked eye.
+Examples of the method application include:
+estimation of a person's heart rate from the variation of its face's color;
+respiratory rate from a person's chest movements;
+and even, detect asymmetry in facial blood flow, which may be a symptom of
+arterial problems.
+
+The benefits of the Eulerian perspective is its low requirements for
+computational resources and algorithm complexity, in comparison to other
+attempts which rely on accurate motion estimation~\cite{Liu2005Motion}.
+However, the existing limits of computational power on mobile devices
+may not allow the \evm{} method to execute in real-time.
+
+The main project's goal is to develop a lightweight, real-time \evm{}-based
+method capable of executing on a mobile device. Which will require
+performance optimizations and trade-offs will have to taken into account.
+
+\subsection{Vital signs monitoring} \label{sec:problem:heart}
+
+As an objective to demonstrate that the \evm{}-based method developed is
+working as expected, the creation of an Android application which
+estimates a person's heart rate in real-time using the device's camera was
+pursued.
+
+This goal requires comprehension of the photo-plethysmography concept,
+extraction of a frequency from a signal, and recognition / validation of a
+signal as a cardiac pulse.
+
+The application will then need to be tested in order to verify its estimations.
+The test will be achieved by comparing results from a sphygmomanometer and
+other existing application~\cite{Vitrox2013} which use a different
+method to estimate a person's heart rate.
+
+\section{Implementation details} \label{sec:impl:details}
 
 Section~\ref{sec:impl:overview} provides an overview of the overall algorithm
 implemented.
@@ -25,13 +83,13 @@ and~\ref{sec:impl:estimation}, respectively.
 Finally, section~\ref{sec:impl:android} details the interactions between
 the Android platform and the implemented library.
 
-\section{Overview} \label{sec:impl:overview}
+\subsection{Overview} \label{sec:impl:overview}
 
 \fig{algorithm-flow}{Overview of the implemented algorithm to obtain the heart
 rate of a person from a webcam or video using the \evm{} method.}
 
 In order to create an Android application capable of estimating a person's
-heart rate, a desktop application was developed because of
+heart rate, a desktop test application was first developed because of
 its faster implementation speed, and easier testing.
 The overall algorithm was divided into several steps, illustrated in
 figure~\ref{fig:algorithm-flow}, which, later, was extracted into a
@@ -72,7 +130,7 @@ figure~\ref{fig:algorithm-flow} and application workflow is as follows:
 On the next sections, there are more detailed information and descriptions
 of the algorithm's steps.
 
-\section{\evm{} implementations} \label{sec:impl:evm}
+\subsection{\evm{} implementations} \label{sec:impl:evm}
 
 \fig{evm-flow}{Overview of the \evm{} method steps.}
 
@@ -83,7 +141,7 @@ The first implementations, described on sections~\ref{sec:impl:evm:gdownideal},
 \ref{sec:impl:evm:gdowniir} and~\ref{sec:impl:evm:lpyriir},
 were developed in Java to facilitate the integration into the Android
 application. However, the OpenCV Java binding was still in its early stages
-which end up creating difficulties for the development. Thus, the final
+which ended up creating difficulties for the development. Thus, the final
 implementation, on section~\ref{sec:impl:evm:final}, was implemented in C/C++,
 which also reduces the number of JNI calls from the Android JVM and
 increases the application performance.
@@ -98,7 +156,7 @@ detailed on each of the following sections. The final step,
 implementations. Which is when the magnified values are added back to the
 original frame in order to obtain the processed frame.
 
-\subsection{EvmGdownIdeal} \label{sec:impl:evm:gdownideal}
+\subsubsection{EvmGdownIdeal} \label{sec:impl:evm:gdownideal}
 
 This was the first implementation, thus, its goal was to understand how the
 method worked, and match the implementation provided, in MATLAB,
@@ -127,7 +185,7 @@ by using a sliding window of $30$ frames.
         and then, downsampling the frame by rejecting even rows and columns.
 
   \item[Temporal filter]\hfill\\
-        It was used an ideal bandpass filter to remove any amplification of
+        An ideal bandpass filter was used to remove any amplification of
         undesired frequency from the color variation of each pixel.
         To construct this ideal filter, the Fourier transform was calculated
         for each pixel over the sliding window of $30$ frames. Then,
@@ -136,7 +194,7 @@ by using a sliding window of $30$ frames.
 
   \item[Amplification]\hfill\\
         In this step, the result of the temporal filter is multiplied by an
-        $\alpha$ value. Which results in the magnification of the color
+        $\alpha$ value, which results in the magnification of the color
         variation selected by the temporal filter.
 
   \item[Resize up]\hfill\\
@@ -148,7 +206,7 @@ by using a sliding window of $30$ frames.
         upsampled frame to match the original frame's size.
 \end{description}
 
-\subsection{EvmGdownIIR} \label{sec:impl:evm:gdowniir}
+\subsubsection{EvmGdownIIR} \label{sec:impl:evm:gdowniir}
 
 This implementation is very similar to the one above, but uses a different
 temporal filter which does not require a sliding window of frames to support
@@ -165,10 +223,10 @@ each frame, and $\omega$ is the cutoff frequency percentage.
 
 The IIR temporal bandpass filter demonstrated similar results to the ideal
 temporal filter used on the first implementation, without the need for
-persisting a sliding window of frames, which simplifies solution and reduces
+persisting a sliding window of frames, which simplifies the solution and reduces
 the computational power required by the device.
 
-\subsection{EvmLpyrIIR} \label{sec:impl:evm:lpyriir}
+\subsubsection{EvmLpyrIIR} \label{sec:impl:evm:lpyriir}
 
 \fig{Lpyr}{Overview of image deconstruction and reconstruction for building a
 Laplacian pyramid.}
@@ -220,7 +278,7 @@ This implementation demonstrated that by constructing a Laplacian pyramid for
 the spatial filter finer motion detail would be revealed, whereas the color
 variation, the property to be analyzed, was less evident.
 
-\subsection{Performance optimized EvmGdownIIR} \label{sec:impl:evm:final}
+\subsubsection{Performance optimized EvmGdownIIR} \label{sec:impl:evm:final}
 
 Because the OpenCV Java binding was not complete at the time, the Java desktop
 implementations were not executing fast enough for real-time processing. Thus,
@@ -246,7 +304,7 @@ alter the resulting image.
         a Gaussian filter.
 \end{description}
 
-\section{Face detection} \label{sec:impl:face}
+\subsection{Face detection} \label{sec:impl:face}
 
 The \emph{face detection} step uses the OpenCV object detector initially
 proposed on~\cite{Viola2001Rapid} and improved on~\cite{Lienhart2002Extended}.
@@ -273,7 +331,7 @@ to the closest one.
         older face is then marked as a new face.
 \end{itemize}
 
-Another performance boost was achieved by only magnifying the each face
+Another performance boost was achieved by only magnifying each face
 rectangle instead of the whole frame. Because of this, the face rectangle must
 remain as still as possible, in order to introduce as few artifacts and noise
 to the \evm{} method. To achieve this, the position and size of the face's
@@ -291,7 +349,7 @@ And, the interpolation percentage, $r$, used is the ratio between these values:
   r = \frac{3d}{w}
 \end{equation}
 
-\section{Signal validations} \label{sec:impl:validations}
+\subsection{Signal validation} \label{sec:impl:validations}
 
 The signal validation has two phases. First, the \emph{raw} signal,
 obtained by averaging the mean value of the green channel of
@@ -309,7 +367,7 @@ Then, each of the following operations are applied to the raw signal:
         described on section~\ref{sec:sota:post:detrend};
   \item \emph{normalization}, the normalized signal, $S'$, is obtained from
         the detrended signal, $S$, by subtracting the mean of the signal,
-        $\bar{S}$, and divide it by the signal standard deviation, $\sigma$:
+        $\bar{S}$, and dividing it by the signal standard deviation, $\sigma$:
         \begin{equation}
           S' = \frac{S - \bar{S}}{\sigma}
         \end{equation}
@@ -336,6 +394,8 @@ below a threshold, which is $60\%$ of the mean of the amplitude of the possible
 identified peaks so far; or if the distance between two maximums is less than
 or equal to $200 ms$, then the lower maximum is rejected.
 
+\pagebreak
+
 The signal is said to be valid if:
 \begin{itemize}
   \item it includes at least two peaks;
@@ -348,7 +408,7 @@ The signal is said to be valid if:
 To prevent invalidating the signal if a peak is missed or miscounted,
 the signal is kept as valid for the next 30 frames.
 
-\section{Heart rate estimation} \label{sec:impl:estimation}
+\subsection{Heart rate estimation} \label{sec:impl:estimation}
 
 Even though the simplification of the fast pulse wave detection algorithm
 presented on the previous section was capable of counting pulse wave peaks,
@@ -362,10 +422,12 @@ every time the signal was marked as valid.
 To prevent big fluctuations, the value was averaged over the values obtained
 from the power spectrum method every 1 second.
 
-\section{Android integration} \label{sec:impl:android}
+\subsection{Android integration} \label{sec:impl:android}
 
-\fig{android-flow}{Overview of the interaction between the implemented
-Android application and library.}
+\fig{android-flow}{
+  Overview of the interaction between the implemented Android application
+  and library.
+}
 
 Due to performance, speed implementation, and easier testing, the algorithm's
 library was implemented in C/C++. To integrate with the Android SDK, the
@@ -376,25 +438,33 @@ the fewer calls made to the library, the faster the application executes.
 The Android application workflow and interaction with the Pulse library is
 illustrated on figure~\ref{fig:android-flow}. The arrows that cross the
 modules' borders represent JNI methods' calls. As it is indicated, the whole
-algorithm is execute in one JNI call each frame in order to improve
+algorithm is executed in one JNI call each frame in order to improve
 application performance. Three extra calls are made to obtain and display
 data to the user.
 
-\subsection{OpenCV for Android SDK} \label{sec:impl:android:opencv}
+\subsubsection{OpenCV for Android SDK} \label{sec:impl:android:opencv}
 
 The OpenCV library is supported in the Android platform by installing
 a separate Android application which deals with selecting the appropriate
 OpenCV library for that device's architecture.
 
 Because OpenCV for Android SDK was still in its early stage, it did not support
-a couple of features which had to be implemented. Such as, switching cameras at
+a couple of features which had to be implemented, such as, switching cameras at
 runtime, portrait mode, stretching frame to container, removing the alpha
 channel from the frame without introducing more operations.
 
-\section{Chapter summary}
+\section{Pulse: Android application} \label{sec:impl:app}
 
-This chapter starts by describing an overview of the implemented algorithm's
-steps. The algorithm begins by detecting a person's face and magnifying it
+TODO
+
+\section{Summary}
+
+This chapter starts by describing the main goal and motivation for developing a
+lightweight, real-time \evm{}-based method for the Android platform.
+
+Then, an overview of the implemented algorithm's
+steps is described.
+The algorithm begins by detecting a person's face and magnifying it
 using the \evm{} method. Then, it extracts a possible pulse signal by averaging
 the green channel of a rectangle's face, which is validated, processed by
 detrending and normalization, and validated again, by verifying its shape
@@ -429,6 +499,8 @@ signal standard deviation is checked against a threshold. Then, the raw signal
 is detrended and normalized, and the processed signal shape and timing is
 verified by detecting its peaks.
 
-Finally, the algorithm is integrated into an Android application by using
+The algorithm is integrated into an Android application by using
 the JNI framework, so the Android SDK is capable of interacting with
 the native code.
+
+Finally, the resulting Android application is shown and described.

@@ -6,11 +6,11 @@
 
 % figure shorthand
 %
-\newcommand{\fig}[3][1]{% size, filename, caption
-\begin{figure}[t]
+\newcommand{\fig}[3][]{% position, filename, caption
+\begin{figure}[#1]
   \begin{center}
     \leavevmode
-    \includegraphics[width=#1\textwidth]{#2}
+    \includegraphics[width=\textwidth]{#2}
     \caption{#3}
     \label{fig:#2}
   \end{center}
