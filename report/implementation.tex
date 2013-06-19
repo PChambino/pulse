@@ -424,7 +424,7 @@ from the power spectrum method every 1 second.
 
 \subsection{Android integration} \label{sec:impl:android}
 
-\fig{android-flow}{
+\fig[p]{android-flow}{
   Overview of the interaction between the implemented Android application
   and library.
 }
@@ -455,7 +455,31 @@ channel from the frame without introducing more operations.
 
 \section{Pulse: Android application} \label{sec:impl:app}
 
-TODO
+\fig{pulse}{User interface of the implemented Android application, Pulse.}
+
+The user interface of the implemented Android application, Pulse, is shown on
+figure~\ref{pulse}.
+
+When the application is opened, the camera starts processing images and
+requests the user to place its face in front of the camera. If a face is
+detected the user is instructed to remain still in a bright place. Finally,
+if a cardiac pulse is detected, the heart rate estimated and the signal
+are shown on the top of the screen, while, the person's face magnification
+is also shown.
+
+Three buttons exists on the top-right corner. From left to right, the first
+one, represented with a play icon, starts the record mode. The record mode
+averages all the heart rate values estimated in that time period. Pressing the
+button again finishes the record mode and displays the average of the
+beats per minute. This mode was used for the procedure described on
+section~\ref{sec:results:heart}.
+
+The second button, represented with a camera icon, allows the application
+to switch between the front and back camera. The third and last button,
+represented with a wrench icon, opens a settings dialog, where the
+\evm{} may be enabled and disabled and its amplification value, $\alpha$,
+can be changed. Also, an option to turn on and off the number of
+frames per second that the application is running at is available.
 
 \section{Summary}
 
@@ -503,4 +527,4 @@ The algorithm is integrated into an Android application by using
 the JNI framework, so the Android SDK is capable of interacting with
 the native code.
 
-Finally, the resulting Android application is shown and described.
+Finally, the resulting Android application, Pulse, user interface is described.
