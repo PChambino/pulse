@@ -231,6 +231,8 @@ plots~\cite{Martin1986Statistical} were used.
 The mean and standard deviation~(SD) of the differences, mean of the absolute
 differences and 95\% limits of agreement ($\pm$ 1.96 SD) were calculated.
 
+\pagebreak
+
 Comparing the Bland-Altman plots in figure~\ref{fig:plots:heart}, the ViTrox
 application shows the best agreement against the sphygmomanometer,
 figure~\ref{fig:plots:heart:vitrox:normal}; the mean bias was $1.33$ bpm
@@ -247,6 +249,33 @@ sphygmomanometer, table~\ref{tab:heart:pulse:low} and
 figure~\ref{fig:plots:heart:pulse:low}, the agreement between the
 implemented application, Pulse, and the sphygmomanometer increases to
 a mean bias of $-4.25$ with 95\% limits of agreement $-13.43$ to $4.93$ bpm.
+
+The limit of 70 bpm was an arbitrary value for which all measurements
+between the Pulse application and the sphygmomanometer had an absolute
+difference equals or higher than 12 bpm.
+
+The reasons for the different results between the ViTrox and Pulse application
+may be due to several factors. These may include:
+
+\begin{itemize}
+  \item the ViTrox application does not display the blood flow in real-time
+        which is a computationally expensive operation and may affect the
+        implemented application performance;
+  \item in order to increase the implemented application frames per second,
+        face detection was set to execute only once a second and its minimum
+        size was large, introducing some instability which led to a person's
+        face not to be detected from time to time, thus affecting the
+        implemented application performance.
+\end{itemize}
+
+Some of the participants, such as, C, E and G, had large differences between
+the measurements of the Pulse application and sphygmomanometer. These may be
+due to the reasons stated above or also because any small movement or lighting
+change, due to people passing nearby or participants moving slightly,
+would be amplified and greatly affect the final result.
+
+Improvements to the algorithm in order to identify and reject the values
+resulting from the situation stated above could be made in a future work.
 
 It should be noted that the main goal of this dissertation was testing the
 feasibility of implementing an \evm{}-based method on a mobile device with
@@ -429,6 +458,8 @@ the validation of the heart rate estimation algorithm.
   }
   \label{fig:plots:heart}
 \end{figure}
+
+\pagebreak
 
 \section{Summary}
 
