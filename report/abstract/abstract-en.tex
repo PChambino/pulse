@@ -64,14 +64,8 @@
 revealing temporal variations in videos that are impossible to see
 with the naked eye. Using this method, it is possible to visualize
 the flow of blood as it fills the face~\cite{Wu2012Eulerian}.
-Which provides enough information to assess the heart rate in a
-contact-free way using a camera~\cite{Wu2012Eulerian,
-Poh2010Non, Poh2011Advancements}.
-
-Due to being recently proposed, the \evm{} method implementation
-has not been tested in smartphones yet. Thus, Fraunhofer Portugal is
-interested in testing the feasibility of implementing an
-\evm{}-based method on a mobile device with the Android platform.
+And to assess the heart rate in a contact-free way using a
+camera~\cite{Wu2012Eulerian, Poh2010Non, Poh2011Advancements}.
 
 There has been some successful effort on the assessment of vital
 signs, such as, heart rate, and breathing rate, in a contact-free
@@ -89,6 +83,9 @@ Despite the existence of very similar products by
 to the one proposed on this research work, none of these implement
 the \evm{} method.
 
+Due to being recently proposed, the \evm{} method implementation
+has not been tested in smartphones yet.
+
 \section{Objectives}\label{sec:objectives}
 
 The main goal is to develop a lightweight, real-time \evm{}-based
@@ -101,9 +98,9 @@ will be developed.
 
 \section{Work description}\label{sec:work}
 
-In order to increase implementation speed and facilitate testing, a
-desktop application was first developed, which then was integrated into
-the Android application implemented.
+In order to create an Android application capable of estimating a person's
+heart rate, a desktop test application was first developed because of
+its faster implementation speed, and easier testing.
 
 The application was written in C/C++ with the aid of OpenCV library, an
 open-source image processing library. Hence, the integration with the Android
@@ -137,7 +134,7 @@ spatial and temporal processing to emphasize subtle temporal changes
 in a video. First, the video sequence is decomposed into different
 spatial frequency bands. Because they may exhibit different
 signal-to-noise ratios, they may be magnified differently.
-In the general case, the full Laplacian pyramid~\cite{Burt1983Laplacian}
+In the general case, the full Laplacian pyramid
 may be computed. Then, temporal processing is performed on each
 spatial band. The temporal processing is uniform for all spatial
 bands, and for all pixels within each band. After that, the extracted
@@ -210,17 +207,20 @@ according to the Bland-Altman plots analysis had a mean bias of $-12.00$ with
 
 Having developed a lightweight, real-time \evm{}-based method for the
 Android platform which goal is to amplify color variations, the performance
-of different variants of the \evm{} method could be improved. Leading
-to increase the usage of this method in all kinds of devices.
+of different variants of the \evm{} method could be improved. This would
+increase the usage of this method in other kinds of devices and in other
+kinds of applications.
 
-The implemented Pulse application needs to improve its heart rate estimations
-accuracy, and different monitored vital signs could be added, such as,
+Other uses for the \evm{} method could be studied, such as, using it as a
+security camera to detect small motion by magnifying such motion, or to identify
+suspicious people by detecting its heart rate in a contact-free way. Another
+idea would be to use the \evm{} method with the objective of identifying
+if a person is drunk or not, based on the work of~\cite{Koukiou2012Drunk}.
+
+Nevertheless, the implemented Pulse application needs to improve its heart rate
+estimations accuracy, and its face detection module in order to not lose track
+of a person's face. In addition, other vital signs could be monitored, such as,
 breathing rate.
-
-To support some features of the implemented Android application, Pulse,
-part of the \emph{OpenCV for Android SDK} library had to be modified. These
-change can be contributed back to the community, since the OpenCV support
-for the Android platform is still in its early stage.
 
 \bibliographystyle{unsrt}  % numeric, unsorted refs
 \bibliography{../myrefs}
