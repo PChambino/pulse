@@ -14,7 +14,7 @@
 \usepackage{multicol}           % twocolumn, etc
 \usepackage{float}              % improve figures & tables floating
 \usepackage[tableposition=top]{caption} % captions
-\usepackage{indentfirst}        % portuguese standard for paragraphs
+%\usepackage{indentfirst}        % portuguese standard for paragraphs
 %\usepackage{parskip}
 
 %% page layout
@@ -65,14 +65,8 @@
 \emph{SIGGRAPH}\footnote{\url{http://www.siggraph.org/}} 2012, capaz de revelar
 variações temporais em vídeos que são impossíveis de ver ao olho nu. Usando
 este método é possível visualizar o fluxo sanguíneo da
-face~\cite{Wu2012Eulerian}. Disponibilizando informação suficiente
-para obter o batimento cardíaco através de uma câmara sem contacto existir
-contacto~\cite{Wu2012Eulerian, Poh2010Non, Poh2011Advancements}.
-
-Por ter sido recentemente proposto, uma implementação do método \evm{} ainda
-não foi testada em \emph{smartphones}. Por isso, a Fraunhofer Portugal
-está interessada em testar a viabilidade de uma implementação baseada
-no método \evm{} para dispositivos móveis \emph{Android}.
+face~\cite{Wu2012Eulerian}. E obter o batimento cardíaco através de uma câmara
+sem existir contacto~\cite{Wu2012Eulerian, Poh2010Non, Poh2011Advancements}.
 
 Já houve esforços com sucesso na deteção de sinais vitais, como
 batimento cardíaco, e taxa respiratória, através de câmaras
@@ -87,6 +81,9 @@ Apesar da existência de produtos semelhantes pela
 \emph{Philips}~\cite{Philips2013} e \emph{ViTrox Technologies}~\cite{Vitrox2013}
 ao proposto neste trabalho, nenhum destes implementa o método \evm{}.
 
+Por ter sido recentemente proposto, uma implementação do método \evm{} ainda
+não foi testada em \emph{smartphones}.
+
 \section{Objetivos}\label{sec:objectives}
 
 O objetivo principal é desenvolver um método baseado no \evm{} que seja
@@ -99,9 +96,10 @@ será criada.
 
 \section{Descrição do Trabalho}\label{sec:work}
 
-Para aumentar a velocidade de implementação e facilitar \emph{testing},
-uma aplicação para \emph{desktop} foi desenvolvida primeiro, que foi
-depois integrada numa aplicação \emph{Android}.
+No sentido de criar uma aplicação \emph{Android} capaz de estimar o batimento
+cardíaco de uma pessoa, uma aplicação de teste para \emph{desktop} foi
+desenvolvida primeiro devido a uma maior velocidade de implementação e
+facilidade de testar.
 
 A aplicação foi escrita em \emph{C/C++} com a ajuda da biblioteca \emph{OpenCV},
 uma biblioteca \emph{open-source} para processamento de imagem.
@@ -137,7 +135,7 @@ realçar variações temporais subtis num vídeo. Primeiro, a sequência do víd
 é decomposta em diferentes bandas de frequência espaciais. Como estas podem
 exibir diferentes rácios sinal-para-baralho, estes podem ser magnificados
 de forma diferente. Em geral, a pirâmide Laplaciana
-completa~\cite{Burt1983Laplacian} pode ser computada. Depois, processamento
+completa pode ser computada. Depois, processamento
 temporal é realizado em cada banda espacial de uma forma uniforme para todos
 os pixeis de cada banda. Após isso, o sinal extraído é magnificado por um
 fator de $\alpha$, que pode ser especificado pelo utilizador, e pode ser
@@ -209,17 +207,18 @@ de $-12.00$ com limites de concordância de 95\% $-33.13$ e $9.13$ bpm.
 
 Tendo desenvolvido um método baseado no \evm{} que é leve e executa em
 tempo-real num dispositivo \emph{Android} para amplificar variações de cor,
-a performance de outras variações do método podem ser melhoradas. Levando
-à utilização do método noutros tipos de dispositivos.
+a performance de outras variações do método podem ser melhoradas.
 
-A aplicação implementada, \emph{Pulse}, precisa de melhorar as suas estimativas
-do batimento cardíaco, e outros sinais vitais podem ser monitorizar, como
-a taxa respiratória.
+Outros usos para o método \evm{} poderão ser estudados, por exemplo, ser usado
+numa câmara de segurança para detetar pequeno movimentos magnificado-os, ou
+para identificar pessoas suspeitas detetando o seu o seu batimento cardíaco de
+uma forma sem contacto. Outra ideia seria o uso deste método com o objetivo de
+identificar pessoas embriagadas, baseado no trabalho de~\cite{Koukiou2012Drunk}.
 
-Para suportar algumas características da aplicação \emph{Android} implementada,
-parte da biblioteca \emph{OpenCV para Android SDK}, que ainda é recente,
-teve de ser modificada. Estas modificações que podem ser contribuídas de volta
-para a comunidade.
+Ainda, a aplicação implementada, \emph{Pulse}, precisa de melhorar as suas
+estimativas do batimento cardíaco, e o módulo de deteção de faces de modo a
+não perder a face de uma pessoa demasiado. Além disso, outros sinais vitais
+podem ser monitorizados, por exemplo, a taxa respiratória.
 
 \bibliographystyle{unsrt-pt}  % numeric, unsorted refs
 \bibliography{../myrefs}
