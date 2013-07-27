@@ -206,6 +206,28 @@ improvement of 22\%.
 This allowed for the implemented Android application to run at approximately
 15 frames per second on the same Android device previously mentioned.
 
+The tables found on this section can be summarized by
+figure~\ref{fig:profile/chart}.
+
+\fig[h]{profile/chart}{
+  A summary of the performance optimizations milestones. The first legend item
+  is the implementation of the overall algorithm described in
+  section~\ref{sec:impl:overview}. The second is the implementation of the
+  \evm{} described in section~\ref{sec:impl:evm:final}. The rest are operations
+  that belong to these two functions that were optimized. The transition from
+  \emph{20-Mar} to \emph{26-Mar} shows the improvement by replacing the
+  pyramid construction and deconstruction operations by single resize
+  operations and simpler interpolation methods for the resize operations.
+  The transition to \emph{3-Apr} is the restriction of the face detection
+  operation to once a second instead of every frame. And the final transition,
+  \emph{23-May}, is the removal of the last two resize operations by taking
+  advantage of the improvement from \emph{20-Mar} to \emph{26-Mar} which
+  removes the requirement of the input matrix for the \evm{} method to be always
+  of the same size.
+}
+
+\pagebreak
+
 \section{Heart rate comparison} \label{sec:results:heart}
 
 To validate the heart rate values obtained by the implemented Android
@@ -230,8 +252,6 @@ In order to interpret the measurements, Bland-Altman
 plots~\cite{Martin1986Statistical} were used.
 The mean and standard deviation~(SD) of the differences, mean of the absolute
 differences and 95\% limits of agreement ($\pm$ 1.96 SD) were calculated.
-
-\pagebreak
 
 Comparing the Bland-Altman plots in figure~\ref{fig:plots:heart}, the ViTrox
 application shows the best agreement against the sphygmomanometer,
@@ -306,23 +326,23 @@ the validation of the heart rate estimation algorithm.
 \begin{table}[p]
   \begin{subtable}{0.5\textwidth}
     \centering
-    \begin{tabular}{crr}
+    \begin{tabular}{crrr}
       \hline
-        Participant & \multilinecell{Pulse\\(bpm)} & \multilinecell{Sphy.\\(bpm)} \\
+        Participant &
+        \multilinecell{Pulse\\(bpm)} &
+        \multilinecell{Sphy.\\(bpm)} &
+        \multilinecell{Diff.\\(bpm)} \\
       \hline
-        A & 55 & 57 \\
-        B & 60 & 60 \\
-        C & 57 & 76 \\
-        D & 54 & 66 \\
-        E & 47 & 75 \\
-        F & 54 & 57 \\
-        G & 55 & 84 \\
-        H & 62 & 83 \\
-        I & 56 & 59 \\
-        I & 55 & 58 \\
-      \hline
-        Mean & 55.50 & 67.50 \\
-        SD   &  3.98 & 10.97 \\
+        A & 55 & 57 &  -2 \\
+        B & 60 & 60 &   0 \\
+        C & 57 & 76 & -19 \\
+        D & 54 & 66 & -12 \\
+        E & 47 & 75 & -28 \\
+        F & 54 & 57 &  -3 \\
+        G & 55 & 84 & -29 \\
+        H & 62 & 83 & -21 \\
+        I & 56 & 59 &  -3 \\
+        I & 55 & 58 &  -3 \\
       \hline
     \end{tabular}
     \caption{
@@ -334,22 +354,22 @@ the validation of the heart rate estimation algorithm.
   ~
   \begin{subtable}{0.5\textwidth}
     \centering
-    \begin{tabular}{crr}
+    \begin{tabular}{crrr}
       \hline
-        Participant & \multilinecell{ViTrox\\(bpm)} & \multilinecell{Sphy.\\(bpm)} \\
+        Participant &
+        \multilinecell{ViTrox\\(bpm)} &
+        \multilinecell{Sphy.\\(bpm)} &
+        \multilinecell{Diff.\\(bpm)} \\
       \hline
-        A & 66 & 61 \\
-        B & 61 & 57 \\
-        C & 72 & 72 \\
-        D & 65 & 63 \\
-        E & 81 & 77 \\
-        F & 55 & 56 \\
-        G & 87 & 87 \\
-        H & 79 & 82 \\
-        I & 55 & 54 \\
-      \hline
-        Mean & 69.00 & 67.67 \\
-        SD   & 11.50 & 12.19 \\
+        A & 66 & 61 &  5 \\
+        B & 61 & 57 &  4 \\
+        C & 72 & 72 &  0 \\
+        D & 65 & 63 &  2 \\
+        E & 81 & 77 &  4 \\
+        F & 55 & 56 & -1 \\
+        G & 87 & 87 &  0 \\
+        H & 79 & 82 & -3 \\
+        I & 55 & 54 &  1 \\
       \hline
     \end{tabular}
     \caption{
@@ -361,22 +381,22 @@ the validation of the heart rate estimation algorithm.
 
   \begin{subtable}{0.5\textwidth}
     \centering
-    \begin{tabular}{crr}
+    \begin{tabular}{crrr}
       \hline
-        Participant & \multilinecell{Pulse\\(bpm)} & \multilinecell{Sphy.\\(bpm)} \\
+        Participant &
+        \multilinecell{Pulse\\(bpm)} &
+        \multilinecell{Sphy.\\(bpm)} &
+        \multilinecell{Diff.\\(bpm)} \\
       \hline
-        A & 54 &  87 \\
-        B & 66 &  65 \\
-        C & 57 &  98 \\
-        D & 48 &  71 \\
-        E & 64 &  84 \\
-        F & 51 &  63 \\
-        G & 69 & 102 \\
-        H & 66 & 105 \\
-        I & 47 &  80 \\
-      \hline
-        Mean & 58.00 & 83.89\\
-        SD   &  8.46 & 15.64 \\
+        A & 54 &  87 & -33 \\
+        B & 66 &  65 &   1 \\
+        C & 57 &  98 & -41 \\
+        D & 48 &  71 & -23 \\
+        E & 64 &  84 & -20 \\
+        F & 51 &  63 & -12 \\
+        G & 69 & 102 & -33 \\
+        H & 66 & 105 & -39 \\
+        I & 47 &  80 & -33 \\
       \hline
     \end{tabular}
     \caption{
@@ -389,21 +409,21 @@ the validation of the heart rate estimation algorithm.
   ~
   \begin{subtable}{0.5\textwidth}
     \centering
-    \begin{tabular}{crr}
+    \begin{tabular}{crrr}
       \hline
-        Participant & \multilinecell{Pulse\\(bpm)} & \multilinecell{Sphy.\\(bpm)} \\
+        Participant &
+        \multilinecell{Pulse\\(bpm)} &
+        \multilinecell{Sphy.\\(bpm)} &
+        \multilinecell{Diff.\\(bpm)} \\
       \hline
-        A & 55 & 57 \\
-        B & 60 & 60 \\
-        B & 66 & 65 \\
-        D & 54 & 66 \\
-        F & 54 & 57 \\
-        F & 51 & 63 \\
-        I & 56 & 59 \\
-        I & 55 & 58 \\
-      \hline
-        Mean & 56.38 & 60.63 \\
-        SD   &  4.63 &  3.58 \\
+        A & 55 & 57 &  -2 \\
+        B & 60 & 60 &   0 \\
+        B & 66 & 65 &   1 \\
+        D & 54 & 66 & -12 \\
+        F & 54 & 57 &  -3 \\
+        F & 51 & 63 & -12 \\
+        I & 56 & 59 &  -3 \\
+        I & 55 & 58 &  -3 \\
       \hline
     \end{tabular}
     \caption{
@@ -458,8 +478,6 @@ the validation of the heart rate estimation algorithm.
   }
   \label{fig:plots:heart}
 \end{figure}
-
-\pagebreak
 
 \section{Summary}
 

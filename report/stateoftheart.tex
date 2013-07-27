@@ -116,7 +116,9 @@ Poh2011Advancements}.
 
 \subsection{\evm} \label{sec:sota:post:evm}
 
-\fig{evm}{Overview of the \evm{} method.}
+\fig{evm}{
+  Overview of the \evm{} method. (source:~\cite{Wu2012Eulerian})
+}
 
 In contrast to the \ica{} model that focuses on extracting a single number,
 the \evm{} uses localized spatial pooling and temporal filtering to extract
@@ -193,7 +195,9 @@ $k$ is a constant that depends on the shape of the low pass filter.
 
 \subsubsection{Temporal filtering} \label{sec:sota:post:evm:temporal}
 
-\fig{temporal-filters}{Examples of temporal filters.}
+\fig{temporal-filters}{
+  Examples of temporal filters. (source:~\cite{Wu2012Eulerian})
+}
 
 Temporal filtering is used to extract the motions or signals to be amplified.
 Thus, the filter choice is application dependent. For motion magnification,
@@ -207,7 +211,10 @@ on~\ref{fig:temporal-filters}.
 
 \subsubsection{Emphasize color variations for human pulse} \label{sec:sota:evm:color}
 
-\fig{evm-color}{Emphasis of face color changes using the \evm{} method.}
+\fig{evm-color}{
+  Emphasis of face color changes using the \evm{} method.
+  (source:~\cite{Wu2012Eulerian})
+}
 
 The extraction of a person's cardiac pulse using the \evm{} method
 was demonstrated in~\cite{Wu2012Eulerian}. It was also presented that
@@ -261,7 +268,8 @@ where $I$ is the identity matrix, $D_2$ is the discrete approximation of the
 second order, and $\lambda$ is the regularization parameter.
 
 \fig{detrend}{
-  Original RR series and fitted trends (above) and detrended series (below).
+  Original RR series and fitted trends (above) and detrended series without
+  magnitude distortion (below). (source:~\cite{Tarvainen2002Advanced})
 }
 
 Figure~\ref{fig:detrend} presents an example of what this method is able to
