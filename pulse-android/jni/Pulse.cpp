@@ -1,7 +1,7 @@
 #include "Pulse.hpp"
 #include <sstream>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/core/core.hpp>
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/types_c.h>
 #include "ext/opencv.hpp"
 #include "profiler/Profiler.h"
 
@@ -15,7 +15,7 @@ Pulse::Pulse() {
     holdPulseFor = 30;
     fps = 0;
     evm.magnify = true;
-    evm.alpha = 50;
+    evm.alpha = 100;
 }
 
 Pulse::~Pulse() {

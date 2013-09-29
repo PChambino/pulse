@@ -2,7 +2,7 @@
 #include <string>
 #include <opencv2/core/core.hpp>
 
-#include "pulse.hpp"
+#include "Pulse.hpp"
 
 #include <android/log.h>
 #define LOG_TAG "Pulse::Pulse"

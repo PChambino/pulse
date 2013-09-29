@@ -34,7 +34,7 @@ void interpolate(const Rect& a, const Rect& b, Rect& c, double p) {
     c.height = a.height * np + b.height * p + 0.5;
 }
 
-void printMatInfo(const string& name, InputArray _a) {
+void printMatInfo(const std::string& name, InputArray _a) {
     Mat a = _a.getMat();
     cout << name << ": " << a.rows << "x" << a.cols
             << " channels=" << a.channels()
