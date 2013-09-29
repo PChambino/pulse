@@ -22,13 +22,13 @@ public class ConfigDialog extends DialogFragment {
     private Switch magnificationSwitch;
     private SeekBar magnificationSeekBar;
     private Switch fpsSwitch;
-        
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.config);
         builder.setNeutralButton(R.string.done, null);
-        
+
         View dialogView = getActivity().getLayoutInflater().inflate(R.layout.config, null);
         builder.setView(dialogView);
 
@@ -37,7 +37,7 @@ public class ConfigDialog extends DialogFragment {
 
         magnificationSeekBar = ((SeekBar)dialogView.findViewById(R.id.magnificationFactor));
         magnificationSeekBar.setOnSeekBarChangeListener(new MagnificationSeekBarConfig());
-        
+
         fpsSwitch = ((Switch)dialogView.findViewById(R.id.fps));
         fpsSwitch.setOnCheckedChangeListener(new FpsSwitchConfig());
 
@@ -56,7 +56,7 @@ public class ConfigDialog extends DialogFragment {
         camera = app.getCamera();
         pulse = app.getPulse();
     }
-    
+
     private class MagnificationSwitchConfig implements CompoundButton.OnCheckedChangeListener {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -64,7 +64,7 @@ public class ConfigDialog extends DialogFragment {
             pulse.setMagnification(isChecked);
         }
     }
-    
+
     private class MagnificationSeekBarConfig implements SeekBar.OnSeekBarChangeListener {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -77,9 +77,9 @@ public class ConfigDialog extends DialogFragment {
 
         @Override
         public void onStopTrackingTouch(SeekBar seekBar) {
-        }        
+        }
     }
-    
+
     private class FpsSwitchConfig implements CompoundButton.OnCheckedChangeListener {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

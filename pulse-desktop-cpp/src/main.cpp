@@ -47,17 +47,17 @@ int main(int argc, const char** argv) {
     Mat frame;
     while (true) {
         PROFILE_SCOPED_DESC("loop");
-        
+
         PROFILE_START_DESC("capture");
         capture >> frame;
         PROFILE_STOP();
-        
+
         if (frame.empty()) {
             PROFILE_PAUSE_SCOPED(); // loop
             while (waitKey() != 27) {}
             break;
         }
-        
+
         PROFILE_START_DESC("flip");
         if (shouldFlip)
             flip(frame, frame, 1);
@@ -76,7 +76,7 @@ int main(int argc, const char** argv) {
         }
         PROFILE_STOP();
     }
-    
+
     Profiler::detect(argc, argv);
     Profiler::dumphtml();
     return 0;
@@ -86,7 +86,7 @@ static void writeVideo(VideoCapture& capture, const Mat& frame) {
     static VideoWriter writer("out.avi",
             CV_FOURCC('X', 'V', 'I', 'D'),
             capture.get(CV_CAP_PROP_FPS),
-            Size(capture.get(CV_CAP_PROP_FRAME_WIDTH), 
+            Size(capture.get(CV_CAP_PROP_FRAME_WIDTH),
             capture.get(CV_CAP_PROP_FRAME_HEIGHT)));
 
     writer << frame;

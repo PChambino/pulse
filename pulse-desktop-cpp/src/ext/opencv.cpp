@@ -6,7 +6,7 @@ namespace cv {
 
 void normalization(InputArray _a, OutputArray _b) {
     PROFILE_SCOPED();
-    
+
     _a.getMat().copyTo(_b);
     Mat b = _b.getMat();
     Scalar mean, stdDev;
@@ -16,7 +16,7 @@ void normalization(InputArray _a, OutputArray _b) {
 
 void meanFilter(InputArray _a, OutputArray _b, size_t n, Size s) {
     PROFILE_SCOPED();
-    
+
     _a.getMat().copyTo(_b);
     Mat b = _b.getMat();
     for (size_t i = 0 ; i < n; i++) {
@@ -26,7 +26,7 @@ void meanFilter(InputArray _a, OutputArray _b, size_t n, Size s) {
 
 void interpolate(const Rect& a, const Rect& b, Rect& c, double p) {
     PROFILE_SCOPED();
-    
+
     double np = 1 - p;
     c.x = a.x * np + b.x * p + 0.5;
     c.y = a.y * np + b.y * p + 0.5;

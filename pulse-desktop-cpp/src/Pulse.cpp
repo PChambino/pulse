@@ -148,7 +148,7 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
     // only show magnified face when there is pulse
     Mat roi = !evm.magnify || evm.magnify && face.existsPulse ?
         frame(face.evm.box) : face.evm.out;
-    
+
     // if magnification is on
     if (evm.magnify) {
         if (face.evm.evm.first || face.evm.evm.alpha != evm.alpha) {
@@ -158,7 +158,7 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
 
         // update face Eulerian video magnification values
         face.evm.evm.alpha = evm.alpha;
-        
+
         // apply Eulerian video magnification on face box
         face.evm.evm.onFrame(frame(face.evm.box), roi);
 
@@ -193,8 +193,8 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
         if (currentFps == 0) {
             const double diff = (face.timestamps(face.timestamps.rows - 1) - face.timestamps(0)) * 1000. / getTickFrequency();
             currentFps = face.timestamps.rows * 1000 / diff;
-        }        
-        
+        }
+
         // process raw signal
         detrend<double>(face.raw, face.pulse, currentFps / 2);
         normalization(face.pulse, face.pulse);
@@ -226,7 +226,7 @@ void Pulse::onFace(Mat& frame, Face& face, const Rect& box) {
         face.bpms.pop_back(face.bpms.rows);
         face.bpm = 0;
     }
-    
+
 #ifndef __ANDROID__
     draw(frame, face, box);
 #endif

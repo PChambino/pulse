@@ -27,7 +27,7 @@ void interpolate(const Rect& a, const Rect& b, Rect& c, double p);
 template<typename T>
 void detrend(InputArray _z, OutputArray _r, int lambda = 10) {
     PROFILE_SCOPED();
-    
+
     CV_DbgAssert((_z.type() == CV_32F || _z.type() == CV_64F)
             && _z.total() == max(_z.size().width, _z.size().height));
 
@@ -69,7 +69,7 @@ int countZeros(InputArray _a) {
 }
 
 /**
- * Print Mat info such as rows, cols, channels, depth, isContinuous, 
+ * Print Mat info such as rows, cols, channels, depth, isContinuous,
  * and isSubmatrix.
  */
 void printMatInfo(const string& name, InputArray _a);

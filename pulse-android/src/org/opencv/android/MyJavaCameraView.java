@@ -114,7 +114,7 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
 
                 if (sizes != null) {
                     for (android.hardware.Camera.Size s : sizes) Log.d(TAG, s.width+"x"+s.height);
-                    
+
                     /* Select the size that fits surface considering maximum size allowed */
                     Size frameSize = calculateCameraFrameSize(sizes, new MyJavaCameraView.JavaCameraSizeAccessor(), width, height);
 
@@ -127,16 +127,16 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
                     {
                         params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
                     }
-                    
+
                     if (params.isVideoStabilizationSupported()) {
                         params.setVideoStabilization(true);
                     }
-                    
+
                     params.setRecordingHint(true);
 
                     mCamera.setParameters(params);
                     params = mCamera.getParameters();
-                    
+
                     mFrameWidth = params.getPreviewSize().width;
                     mFrameHeight = params.getPreviewSize().height;
 
@@ -157,7 +157,7 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
                         mFrameWidth = params.getPreviewSize().height;
                         mFrameHeight = params.getPreviewSize().width;
                     }
-                    
+
                     AllocateCache();
 
                     if ((getLayoutParams().width == LayoutParams.MATCH_PARENT) && (getLayoutParams().height == LayoutParams.MATCH_PARENT)) {
@@ -274,11 +274,11 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
             Imgproc.cvtColor(mYuvFrameData, mRgb, Imgproc.COLOR_YUV2BGR_NV12);
             return rotate(mRgb);
         }
-        
+
         private Mat rotate(Mat frame) {
             Camera.CameraInfo info = new Camera.CameraInfo();
             Camera.getCameraInfo(mCameraIndex, info);
-            
+
             // FIXME all this flipping and transposing is very performance expensive
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
                 if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {

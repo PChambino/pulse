@@ -166,7 +166,7 @@ public class EvmGdownIdeal extends Evm {
         }
 
         t++;
-        
+
         return output;
     }
 

@@ -14,13 +14,13 @@ public class BpmDialog extends DialogFragment {
 
     private BpmView bpmView;
     private double bpm;
-        
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.average_bpm);
         builder.setNeutralButton(android.R.string.ok, null);
-        
+
         View dialogView = getActivity().getLayoutInflater().inflate(R.layout.bpm, null);
         builder.setView(dialogView);
 
@@ -36,5 +36,5 @@ public class BpmDialog extends DialogFragment {
         App app = (App)activity;
         bpm = app.getRecordedBpmAverage();
     }
-    
+
 }

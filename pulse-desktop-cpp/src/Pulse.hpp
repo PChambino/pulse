@@ -19,7 +19,7 @@ class Pulse {
 public:
     Pulse();
     virtual ~Pulse();
-    
+
     void load(const string& filename);
     void start(int width, int height);
     void onFrame(Mat& frame);
@@ -36,7 +36,7 @@ public:
         int id;
         int deleteIn;
         bool selected;
-        
+
         Rect box;
         Mat1d timestamps;
         Mat1d raw;
@@ -52,17 +52,17 @@ public:
             Mat out;
             Rect box;
         } evm;
-        
+
         struct Peaks {
             Mat1i indices;
             Mat1d timestamps;
             Mat1d values;
-            
+
             void push(int index, double timestamp, double value);
             void pop();
             void clear();
         } peaks;
-        
+
         Face(int id, const Rect& box, int deleteIn);
         int nearestBox(const vector<Rect>& boxes);
         void updateBox(const Rect& box);
@@ -70,14 +70,14 @@ public:
     };
 
     vector<Face> faces;
-    
+
 private:
     int nearestFace(const Rect& box);
     void onFace(Mat& frame, Face& face, const Rect& box);
     void peaks(Face& face);
     void bpm(Face& face);
     void draw(Mat& frame, const Face& face, const Rect& box);
-    
+
     double now;
     double lastFaceDetectionTimestamp;
     double lastBpmTimestamp;

@@ -21,7 +21,7 @@ EvmGdownIIR::~EvmGdownIIR() {
 
 void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
     PROFILE_SCOPED();
-    
+
     // convert to float
     PROFILE_START_DESC("convert to float");
     src.convertTo(srcFloat, CV_32F);
@@ -50,7 +50,7 @@ void EvmGdownIIR::onFrame(const Mat& src, Mat& out) {
         PROFILE_START_DESC("amplify");
         blurred *= alpha;
         PROFILE_STOP();
-        
+
         // resize back to original size
         PROFILE_START_DESC("pyrUp");
         resize(blurred, outFloat, src.size(), 0, 0, CV_INTER_LINEAR);

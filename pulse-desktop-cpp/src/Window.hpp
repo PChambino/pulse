@@ -28,7 +28,7 @@ private:
 
     int trackbarAlpha;
     int trackbarMagnify;
-        
+
     class Fps {
     public:
         int deltaFrames;
@@ -44,7 +44,7 @@ private:
     Fps fps;
     string fpsString;
     Point fpsPoint;
-    
+
 };
 
 #endif	/* WINDOW_HPP */

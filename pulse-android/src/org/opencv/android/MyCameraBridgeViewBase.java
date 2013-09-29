@@ -97,7 +97,7 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
          * TODO: pass the parameters specifying the format of the frame (BPP, YUV or RGB and etc)
          */
         public Mat onCameraFrame(Mat inputFrame);
-        
+
         public void onCameraFrame(Canvas canvas);
     }
 
@@ -162,7 +162,7 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
         public void onCameraFrame(Canvas canvas) {
             mOldStyleListener.onCameraFrame(canvas);
         }
-        
+
         public void setFrameFormat(int format) {
             mPreviewFormat = format;
         }
@@ -223,15 +223,15 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
             checkCurrentState();
         }
     }
-    
+
     public void switchCamera() {
         setCameraId((mCameraIndex + 1) % 2);
     }
-    
+
     public int getCameraId() {
         return mCameraIndex;
     }
-    
+
     public void setCameraId(int cameraId) {
         if (mCameraIndex != cameraId) {
             mCameraIndex = cameraId;
@@ -277,11 +277,11 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
     public void disableFpsMeter() {
             mFpsMeter = null;
     }
-    
+
     public boolean isFpsMeterEnabled() {
         return mFpsMeter != null;
     }
-    
+
     public void setFpsMeter(boolean enable) {
         if (enable) enableFpsMeter();
         else disableFpsMeter();

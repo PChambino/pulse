@@ -20,10 +20,10 @@ public class App {
 //                "../../vidmagSIGGRAPH2012/baby2_source.mp4"
                 );
         reader.setBufferedImageTypeToGenerate(BufferedImage.TYPE_3BYTE_BGR);
-        
+
         // original viewer
 //        reader.addListener(ToolFactory.makeViewer(IMediaViewer.Mode.FAST_VIDEO_ONLY, false, JFrame.EXIT_ON_CLOSE));
-        
+
         // evm
         reader.addListener(new EvmMediaToolAdapter(
 //                new EvmGdownIdeal
@@ -40,5 +40,5 @@ public class App {
         while (reader.readPacket() == null) {}
         System.exit(0);
     }
-    
+
 }

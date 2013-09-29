@@ -16,7 +16,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.TextView;
 
 public class BpmView extends TextView {
-    
+
     public BpmView(Context context) {
         super(context);
         init();
@@ -31,21 +31,21 @@ public class BpmView extends TextView {
         super(context, attrs, defStyle);
         init();
     }
-    
+
     private double bpm;
-    
+
     private Paint circlePaint;
     private ValueAnimator circlePaintAnimator;
 
     private void init() {
         setNoBpm();
-        
+
         setTextSize(TypedValue.COMPLEX_UNIT_FRACTION_PARENT, 60f);
         setTypeface(Typeface.createFromAsset(getContext().getAssets(), "fonts/ds_digital/DS-DIGIB.TTF"));
         setGravity(Gravity.CENTER);
-        
+
         circlePaint = initCirclePaint();
-        
+
         circlePaintAnimator = ObjectAnimator.ofInt(circlePaint, "Alpha", 0, 256);
         circlePaintAnimator.setInterpolator(new AccelerateInterpolator());
         circlePaintAnimator.setDuration(1000);
@@ -66,7 +66,7 @@ public class BpmView extends TextView {
             }
         });
     }
-    
+
     private Paint initCirclePaint() {
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         p.setColor(Color.RED);
@@ -74,11 +74,11 @@ public class BpmView extends TextView {
         p.setStyle(Paint.Style.FILL);
         return p;
     }
-    
+
     public double getBpm() {
         return bpm;
     }
-    
+
     public void setBpm(double bpm) {
         this.bpm = bpm;
         long rounded = Math.round(bpm);
@@ -88,7 +88,7 @@ public class BpmView extends TextView {
             setText(String.valueOf(rounded));
         }
     }
-    
+
     public void setNoBpm() {
         setBpm(0);
     }
@@ -101,5 +101,5 @@ public class BpmView extends TextView {
             circlePaintAnimator.start();
         }
     }
-    
+
 }
