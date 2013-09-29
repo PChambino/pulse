@@ -72,14 +72,14 @@ int countZeros(InputArray _a) {
  * Print Mat info such as rows, cols, channels, depth, isContinuous, 
  * and isSubmatrix.
  */
-void printMatInfo(const string& name, InputArray _a);
+void printMatInfo(const std::string& name, InputArray _a);
 
 /**
  * Same as printMatInfo plus the actual values of the Mat.
  * @see printMatInfo
  */
 template<typename T>
-void printMat(const string& name, InputArray _a,
+void printMat(const std::string& name, InputArray _a,
         int rows = -1,
         int cols = -1,
         int channels = -1)
