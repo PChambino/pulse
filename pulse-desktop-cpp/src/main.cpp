@@ -16,18 +16,10 @@ using cv::flip;
 static void writeVideo(VideoCapture& capture, const Mat& frame);
 
 int main(int argc, const char** argv) {
-    const bool shouldWrite = true;
-//    const bool shouldFlip = true;
-    const bool shouldFlip = false;
+    const bool shouldWrite = false;
+    const bool shouldFlip = true;
 
-//    VideoCapture capture("../../vidmagSIGGRAPH2012/baby2_source.mp4");
-//    VideoCapture capture("../../vidmagSIGGRAPH2012/face.wmv");
-//    VideoCapture capture("../../vidmagSIGGRAPH2012/face2_source.mp4");
-//    VideoCapture capture("../../vidmagSIGGRAPH2012/face_source.wmv");
-//    VideoCapture capture("../../videos/eva.mov");
-//    VideoCapture capture("../../videos/me-high-pulse.mov");
-    VideoCapture capture("../../videos/me2.mov");
-//    VideoCapture capture(0);
+    VideoCapture capture(0);
 
     const int WIDTH  = capture.get(CV_CAP_PROP_FRAME_WIDTH);
     const int HEIGHT = capture.get(CV_CAP_PROP_FRAME_HEIGHT);
