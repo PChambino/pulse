@@ -1,24 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="pulse-android-custom-rules">
-  
+
   <!-- quick check on ndk.dir -->
   <fail
           message="ndk.dir is missing in your local.properties file."
           unless="ndk.dir"
   />
+  <!-- quick check on pulse-cpp.dir -->
+  <fail
+          message="pulse-cpp.dir is missing in your local.properties file."
+          unless="pulse-cpp.dir"
+  />
 
   <target name="-pre-build">
-    
+
     <!-- rsync pulse-android-cpp files to jni folder -->
     <exec executable="rsync">
       <arg value="-au"/>
       <!-- src -->
-      <arg value="../pulse-desktop-cpp/src/Pulse.hpp"/>
-      <arg value="../pulse-desktop-cpp/src/Pulse.cpp"/>
-      <arg value="../pulse-desktop-cpp/src/EvmGdownIIR.hpp"/>
-      <arg value="../pulse-desktop-cpp/src/EvmGdownIIR.cpp"/>
-      <arg value="../pulse-desktop-cpp/src/ext"/>
-      <arg value="../pulse-desktop-cpp/src/profiler"/>
+      <arg value="${pulse-cpp.dir}/src/Pulse.hpp"/>
+      <arg value="${pulse-cpp.dir}/src/Pulse.cpp"/>
+      <arg value="${pulse-cpp.dir}/src/EvmGdownIIR.hpp"/>
+      <arg value="${pulse-cpp.dir}/src/EvmGdownIIR.cpp"/>
+      <arg value="${pulse-cpp.dir}/src/ext"/>
+      <arg value="${pulse-cpp.dir}/src/profiler"/>
       <!-- dst -->
       <arg value="jni"/>
     </exec>
@@ -34,7 +39,7 @@
     <exec executable="${ndk.dir}/ndk-build">
       <arg value="clean"/>
     </exec>
-    
+
   </target>
 
 </project>

@@ -63,9 +63,14 @@ Local properties
 Create or edit your `local.properties` file and add the following properties:
   - `sdk.dir` with the path to the Android SDK
   - `ndk.dir` with the path to the Android NDK
+  - `pulse-cpp.dir` with the path to the [pulse-cpp] repository
 
+[pulse-cpp]: https://github.com/pchambino/pulse-cpp
 
 Attribution
 ===========
 
-[Heart](http://thenounproject.com/noun/heart/#icon-No15259) designed by [Diego Naive](http://thenounproject.com/diegonaive) from The Noun Project
+[Heart] designed by [Diego Naive] from The Noun Project
+
+[Heart]: http://thenounproject.com/noun/heart/#icon-No15259
+[Diego Naive]: http://thenounproject.com/diegonaive
