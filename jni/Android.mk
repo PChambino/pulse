@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-include libs/OpenCV-2.4.5-android-sdk/sdk/native/jni/OpenCV.mk
+include libs/OpenCV-android-sdk/sdk/native/jni/OpenCV.mk
 
 LOCAL_SRC_FILES  := pt_fraunhofer_pulse_Pulse_Face.cpp
 LOCAL_SRC_FILES  += pt_fraunhofer_pulse_Pulse.cpp

@@ -31,41 +31,29 @@ evaluated through tests with several individuals and compared to the ones
 detected by the ViTrox application and to the readings of a sphygmomanometer.
 
 
+Dependencies
+============
+
+* Android SDK (v17)
+* Android NDK (r8d)
+* OpenCV Android SDK (2.4.5)
+* [pulse-cpp]
+
+[pulse-cpp]: https://github.com/pchambino/pulse-cpp
+
+
 Setup
 =====
 
-Android SDK
------------
+    cd pulse
+    android update project -p . -t android-17
+    # a local.properties file with sdk.dir should have been created
+    echo ndk.dir=PATH_TO_ANDROID_NDK >> local.properties
+    echo pulse-cpp.dir=PATH_TO_PULSE_CPP >> local.properties
+    # copy OpenCV Android SDK to libs directory
+    android update lib-project -p libs/OpenCV-android-sdk/sdk/java -t android-17
+    ant debug install
 
-It is an Android application after all.
-
-
-OpenCV Android SDK
-------------------
-
-Download `OpenCV-2.4.5-android-sdk`.
-Copy to `./libs`, then:
-
-    cd ./libs/OpenCV-2.4.5-android-sdk/sdk/java
-    android update lib-project -p . -t android-17
-
-
-Android NDK
------------
-
-Download `android-ndk-r8d`.
-Copy to wherever you want it.
-
-
-Local properties
-----------------
-
-Create or edit your `local.properties` file and add the following properties:
-  - `sdk.dir` with the path to the Android SDK
-  - `ndk.dir` with the path to the Android NDK
-  - `pulse-cpp.dir` with the path to the [pulse-cpp] repository
-
-[pulse-cpp]: https://github.com/pchambino/pulse-cpp
 
 Attribution
 ===========
