@@ -73,6 +73,22 @@ JNIEXPORT jint JNICALL Java_pt_fraunhofer_pulse_Pulse__1maxSignalSize
 
 /*
  * Class:     pt_fraunhofer_pulse_Pulse
+ * Method:    _faceDetection
+ * Signature: (J)Z
+ */
+JNIEXPORT jboolean JNICALL Java_pt_fraunhofer_pulse_Pulse__1faceDetection__J
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     pt_fraunhofer_pulse_Pulse
+ * Method:    _faceDetection
+ * Signature: (JZ)V
+ */
+JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse__1faceDetection__JZ
+  (JNIEnv *, jclass, jlong, jboolean);
+
+/*
+ * Class:     pt_fraunhofer_pulse_Pulse
  * Method:    _magnification
  * Signature: (J)Z
  */
