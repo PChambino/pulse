@@ -9,15 +9,11 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
-import org.opencv.android.MyCameraBridgeViewBase;
 import pt.fraunhofer.pulse.App;
 import pt.fraunhofer.pulse.Pulse;
 import pt.fraunhofer.pulse.R;
 
 public class ConfigDialog extends DialogFragment {
-
-    private MyCameraBridgeViewBase camera;
-    private Pulse pulse;
 
     private Switch faceDetectionSwitch;
     private Switch magnificationSwitch;
@@ -45,27 +41,27 @@ public class ConfigDialog extends DialogFragment {
         fpsSwitch = ((Switch)dialogView.findViewById(R.id.fps));
         fpsSwitch.setOnCheckedChangeListener(new FpsSwitchConfig());
 
-        faceDetectionSwitch.setChecked(pulse.hasFaceDetection());
-        magnificationSwitch.setChecked(pulse.hasMagnification());
-        magnificationSeekBar.setEnabled(pulse.hasMagnification());
-        magnificationSeekBar.setProgress(pulse.getMagnificationFactor());
-        fpsSwitch.setChecked(camera.isFpsMeterEnabled());
+        Pulse pulse = getApp().getPulse();
+        // on configuration change Pulse may not have loaded yet
+        if (pulse != null) {
+            faceDetectionSwitch.setChecked(pulse.hasFaceDetection());
+            magnificationSwitch.setChecked(pulse.hasMagnification());
+            magnificationSeekBar.setEnabled(pulse.hasMagnification());
+            magnificationSeekBar.setProgress(pulse.getMagnificationFactor());
+        }
+        fpsSwitch.setChecked(getApp().getCamera().isFpsMeterEnabled());
 
         return builder.create();
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        App app = (App)activity;
-        camera = app.getCamera();
-        pulse = app.getPulse();
+    private App getApp() {
+        return (App)getActivity();
     }
 
     private class FaceDetectionSwitchConfig implements CompoundButton.OnCheckedChangeListener {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            pulse.setFaceDetection(isChecked);
+            if (getApp().getPulse() != null) getApp().getPulse().setFaceDetection(isChecked);
         }
     }
 
@@ -73,14 +69,14 @@ public class ConfigDialog extends DialogFragment {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             magnificationSeekBar.setEnabled(isChecked);
-            pulse.setMagnification(isChecked);
+            if (getApp().getPulse() != null) getApp().getPulse().setMagnification(isChecked);
         }
     }
 
     private class MagnificationSeekBarConfig implements SeekBar.OnSeekBarChangeListener {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            pulse.setMagnificationFactor(progress);
+            if (getApp().getPulse() != null) getApp().getPulse().setMagnificationFactor(progress);
         }
 
         @Override
@@ -95,7 +91,7 @@ public class ConfigDialog extends DialogFragment {
     private class FpsSwitchConfig implements CompoundButton.OnCheckedChangeListener {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            camera.setFpsMeter(isChecked);
+            getApp().getCamera().setFpsMeter(isChecked);
         }
     }
 }
