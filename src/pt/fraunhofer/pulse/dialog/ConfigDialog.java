@@ -19,6 +19,7 @@ public class ConfigDialog extends DialogFragment {
     private MyCameraBridgeViewBase camera;
     private Pulse pulse;
 
+    private Switch faceDetectionSwitch;
     private Switch magnificationSwitch;
     private SeekBar magnificationSeekBar;
     private Switch fpsSwitch;
@@ -32,6 +33,9 @@ public class ConfigDialog extends DialogFragment {
         View dialogView = getActivity().getLayoutInflater().inflate(R.layout.config, null);
         builder.setView(dialogView);
 
+        faceDetectionSwitch = ((Switch)dialogView.findViewById(R.id.face_detection));
+        faceDetectionSwitch.setOnCheckedChangeListener(new FaceDetectionSwitchConfig());
+
         magnificationSwitch = ((Switch)dialogView.findViewById(R.id.magnification));
         magnificationSwitch.setOnCheckedChangeListener(new MagnificationSwitchConfig());
 
@@ -41,6 +45,7 @@ public class ConfigDialog extends DialogFragment {
         fpsSwitch = ((Switch)dialogView.findViewById(R.id.fps));
         fpsSwitch.setOnCheckedChangeListener(new FpsSwitchConfig());
 
+        faceDetectionSwitch.setChecked(pulse.hasFaceDetection());
         magnificationSwitch.setChecked(pulse.hasMagnification());
         magnificationSeekBar.setEnabled(pulse.hasMagnification());
         magnificationSeekBar.setProgress(pulse.getMagnificationFactor());
@@ -55,6 +60,13 @@ public class ConfigDialog extends DialogFragment {
         App app = (App)activity;
         camera = app.getCamera();
         pulse = app.getPulse();
+    }
+
+    private class FaceDetectionSwitchConfig implements CompoundButton.OnCheckedChangeListener {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            pulse.setFaceDetection(isChecked);
+        }
     }
 
     private class MagnificationSwitchConfig implements CompoundButton.OnCheckedChangeListener {

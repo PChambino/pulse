@@ -8,6 +8,7 @@
     <string name="config">Config</string>
 
     <!-- Config Dialog -->
+    <string name="face_detection">Face Detection</string>
     <string name="magnification">Magnification</string>
     <string name="fps">FPS</string>
     <string name="done">Done</string>

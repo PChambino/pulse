@@ -40,6 +40,14 @@ public class Pulse {
         return _maxSignalSize(self);
     }
 
+    public boolean hasFaceDetection() {
+        return _faceDetection(self);
+    }
+
+    public void setFaceDetection(boolean m) {
+        _faceDetection(self, m);
+    }
+
     public boolean hasMagnification() {
         return _magnification(self);
     }
@@ -76,6 +84,8 @@ public class Pulse {
     private static native long _face(long self, int i);
     private static native double _relativeMinFaceSize(long self);
     private static native int _maxSignalSize(long self);
+    private static native boolean _faceDetection(long self);
+    private static native void _faceDetection(long self, boolean m);
     private static native boolean _magnification(long self);
     private static native void _magnification(long self, boolean m);
     private static native int _magnificationFactor(long self);
