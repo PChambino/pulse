@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.15">
-        
+
         <pt.fraunhofer.pulse.view.BpmView
             android:id="@+id/bpm"
             android:layout_width="0dp"
@@ -20,7 +20,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.7"/>
-        
+
     </LinearLayout>
 
     <FrameLayout
@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             opencv:camera_id="0"/>
-        
+
     </FrameLayout>
-    
+
 </LinearLayout>

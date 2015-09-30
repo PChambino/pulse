@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Pulse</string>
-        
+
     <!-- App Menu -->
     <string name="record">Record</string>
     <string name="switch_camera">Switch Camera</string>
     <string name="config">Config</string>
-    
+
     <!-- Config Dialog -->
     <string name="magnification">Magnification</string>
     <string name="fps">FPS</string>
