@@ -67,6 +67,7 @@ public class App extends Activity implements CvCameraViewListener {
         System.loadLibrary("pulse");
 
         pulse = new Pulse();
+        pulse.setFaceDetection(initFaceDetection);
         pulse.setMagnification(initMagnification);
         pulse.setMagnificationFactor(initMagnificationFactor);
 
@@ -126,9 +127,11 @@ public class App extends Activity implements CvCameraViewListener {
 
     private static final String CAMERA_ID = "camera-id";
     private static final String FPS_METER = "fps-meter";
+    private static final String FACE_DETECTION = "face-detection";
     private static final String MAGNIFICATION = "magnification";
     private static final String MAGNIFICATION_FACTOR = "magnification-factor";
 
+    private boolean initFaceDetection = true;
     private boolean initMagnification = true;
     private int initMagnificationFactor = 100;
 
@@ -139,6 +142,7 @@ public class App extends Activity implements CvCameraViewListener {
         camera.setCameraId(savedInstanceState.getInt(CAMERA_ID));
         camera.setFpsMeter(savedInstanceState.getBoolean(FPS_METER));
 
+        initFaceDetection = savedInstanceState.getBoolean(FACE_DETECTION, initFaceDetection);
         initMagnification = savedInstanceState.getBoolean(MAGNIFICATION, initMagnification);
         initMagnificationFactor = savedInstanceState.getInt(MAGNIFICATION_FACTOR, initMagnificationFactor);
     }
@@ -150,6 +154,7 @@ public class App extends Activity implements CvCameraViewListener {
         outState.putInt(CAMERA_ID, camera.getCameraId());
         outState.putBoolean(FPS_METER, camera.isFpsMeterEnabled());
 
+        outState.putBoolean(FACE_DETECTION, pulse.hasFaceDetection());
         outState.putBoolean(MAGNIFICATION, pulse.hasMagnification());
         outState.putInt(MAGNIFICATION_FACTOR, pulse.getMagnificationFactor());
     }
