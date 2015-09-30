@@ -35,8 +35,8 @@ Dependencies
 ============
 
 * Android SDK (v17)
-* Android NDK (r8d)
-* OpenCV Android SDK (2.4.5)
+* Android NDK (r10e)
+* OpenCV Android SDK (2.4.11)
 * [pulse-cpp]
 
 [pulse-cpp]: https://github.com/pchambino/pulse-cpp
