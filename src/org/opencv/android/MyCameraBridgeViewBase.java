@@ -2,7 +2,6 @@ package org.opencv.android;
 
 import java.util.List;
 
-import org.opencv.R;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
@@ -20,6 +19,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import static android.view.View.VISIBLE;
+
+import pt.fraunhofer.pulse.R;
 
 /**
  * This is a basic class, implementing the interaction with Camera and OpenCV library.

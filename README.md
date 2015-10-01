@@ -52,6 +52,7 @@ Setup
     echo pulse-cpp.dir=PATH_TO_PULSE_CPP >> local.properties
     # copy OpenCV Android SDK to libs directory
     android update lib-project -p libs/OpenCV-android-sdk/sdk/java -t android-17
+    echo android.library=true >> project.properties
     ant debug install
 
 
