@@ -1,4 +1,4 @@
-#include <pt_fraunhofer_pulse_Pulse_Face.h>
+#include <pt_chambino_p_pulse_Pulse_Face.h>
 #include <vector>
 #include <opencv2/core/core.hpp>
 
@@ -14,14 +14,14 @@ using cv::Mat1d;
 using cv::Rect;
 
 /*
- * Class:     pt_fraunhofer_pulse_Pulse_Face
+ * Class:     pt_chambino_p_pulse_Pulse_Face
  * Method:    _id
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1id
+JNIEXPORT jint JNICALL Java_pt_chambino_p_pulse_Pulse_00024Face__1id
   (JNIEnv *jenv, jclass, jlong self)
   {
-    LOGD("Java_pt_fraunhofer_pulse_Pulse_00024Face__1id enter");
+    LOGD("Java_pt_chambino_p_pulse_Pulse_00024Face__1id enter");
     jint id = 0;
     try
     {
@@ -39,19 +39,19 @@ JNIEXPORT jint JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1id
         jclass je = jenv->FindClass("java/lang/Exception");
         jenv->ThrowNew(je, "Unknown exception in JNI code.");
     }
-    LOGD("Java_pt_fraunhofer_pulse_Pulse_00024Face__1id exit");
+    LOGD("Java_pt_chambino_p_pulse_Pulse_00024Face__1id exit");
     return id;
   }
 
 /*
- * Class:     pt_fraunhofer_pulse_Pulse_Face
+ * Class:     pt_chambino_p_pulse_Pulse_Face
  * Method:    _box
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1box
+JNIEXPORT void JNICALL Java_pt_chambino_p_pulse_Pulse_00024Face__1box
   (JNIEnv *jenv, jclass, jlong self, jlong mat)
   {
-    LOGD("Java_pt_fraunhofer_pulse_Pulse_00024Face__1box enter");
+    LOGD("Java_pt_chambino_p_pulse_Pulse_00024Face__1box enter");
     try
     {
         if (self) {
@@ -71,18 +71,18 @@ JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1box
         jclass je = jenv->FindClass("java/lang/Exception");
         jenv->ThrowNew(je, "Unknown exception in JNI code.");
     }
-    LOGD("Java_pt_fraunhofer_pulse_Pulse_00024Face__1box exit");
+    LOGD("Java_pt_chambino_p_pulse_Pulse_00024Face__1box exit");
   }
 
 /*
- * Class:     pt_fraunhofer_pulse_Pulse_Face
+ * Class:     pt_chambino_p_pulse_Pulse_Face
  * Method:    _bpm
  * Signature: (J)D
  */
-JNIEXPORT jdouble JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1bpm
+JNIEXPORT jdouble JNICALL Java_pt_chambino_p_pulse_Pulse_00024Face__1bpm
   (JNIEnv *jenv, jclass, jlong self)
   {
-    LOGD("Java_pt_fraunhofer_pulse_Pulse_00024Face__1bpm enter");
+    LOGD("Java_pt_chambino_p_pulse_Pulse_00024Face__1bpm enter");
     jdouble bpm = 0;
     try
     {
@@ -100,19 +100,19 @@ JNIEXPORT jdouble JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1bpm
         jclass je = jenv->FindClass("java/lang/Exception");
         jenv->ThrowNew(je, "Unknown exception in JNI code.");
     }
-    LOGD("Java_pt_fraunhofer_pulse_Pulse_00024Face__1bpm exit");
+    LOGD("Java_pt_chambino_p_pulse_Pulse_00024Face__1bpm exit");
     return bpm;
   }
 
 /*
- * Class:     pt_fraunhofer_pulse_Pulse_Face
+ * Class:     pt_chambino_p_pulse_Pulse_Face
  * Method:    _pulse
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1pulse
+JNIEXPORT void JNICALL Java_pt_chambino_p_pulse_Pulse_00024Face__1pulse
   (JNIEnv *jenv, jclass, jlong self, jlong mat)
   {
-    LOGD("Java_pt_fraunhofer_pulse_Pulse_00024Face__1pulse enter");
+    LOGD("Java_pt_chambino_p_pulse_Pulse_00024Face__1pulse enter");
     try
     {
         if (self)
@@ -129,18 +129,18 @@ JNIEXPORT void JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1pulse
         jclass je = jenv->FindClass("java/lang/Exception");
         jenv->ThrowNew(je, "Unknown exception in JNI code.");
     }
-    LOGD("Java_pt_fraunhofer_pulse_Pulse_00024Face__1pulse exit");
+    LOGD("Java_pt_chambino_p_pulse_Pulse_00024Face__1pulse exit");
   }
 
 /*
- * Class:     pt_fraunhofer_pulse_Pulse_Face
+ * Class:     pt_chambino_p_pulse_Pulse_Face
  * Method:    _existsPulse
  * Signature: (J)Z
  */
-JNIEXPORT jboolean JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1existsPulse
+JNIEXPORT jboolean JNICALL Java_pt_chambino_p_pulse_Pulse_00024Face__1existsPulse
   (JNIEnv *jenv, jclass, jlong self)
   {
-    LOGD("Java_pt_fraunhofer_pulse_Pulse_00024Face__1existsPulse enter");
+    LOGD("Java_pt_chambino_p_pulse_Pulse_00024Face__1existsPulse enter");
     jboolean result = false;
     try
     {
@@ -158,6 +158,6 @@ JNIEXPORT jboolean JNICALL Java_pt_fraunhofer_pulse_Pulse_00024Face__1existsPuls
         jclass je = jenv->FindClass("java/lang/Exception");
         jenv->ThrowNew(je, "Unknown exception in JNI code.");
     }
-    LOGD("Java_pt_fraunhofer_pulse_Pulse_00024Face__1existsPulse exit");
+    LOGD("Java_pt_chambino_p_pulse_Pulse_00024Face__1existsPulse exit");
     return result;
   }
