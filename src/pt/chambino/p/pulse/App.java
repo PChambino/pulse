@@ -1,4 +1,4 @@
-package pt.fraunhofer.pulse;
+package pt.chambino.p.pulse;
 
 import android.app.Activity;
 import android.content.Context;
@@ -27,11 +27,11 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.highgui.Highgui;
-import pt.fraunhofer.pulse.Pulse.Face;
-import pt.fraunhofer.pulse.dialog.BpmDialog;
-import pt.fraunhofer.pulse.dialog.ConfigDialog;
-import pt.fraunhofer.pulse.view.BpmView;
-import pt.fraunhofer.pulse.view.PulseView;
+import pt.chambino.p.pulse.Pulse.Face;
+import pt.chambino.p.pulse.dialog.BpmDialog;
+import pt.chambino.p.pulse.dialog.ConfigDialog;
+import pt.chambino.p.pulse.view.BpmView;
+import pt.chambino.p.pulse.view.PulseView;
 
 public class App extends Activity implements CvCameraViewListener {
 

@@ -20,7 +20,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import static android.view.View.VISIBLE;
 
-import pt.fraunhofer.pulse.R;
+import pt.chambino.p.pulse.R;
 
 /**
  * This is a basic class, implementing the interaction with Camera and OpenCV library.

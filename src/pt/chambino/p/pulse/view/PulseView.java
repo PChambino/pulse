@@ -1,4 +1,4 @@
-package pt.fraunhofer.pulse.view;
+package pt.chambino.p.pulse.view;
 
 import android.content.Context;
 import android.graphics.Canvas;

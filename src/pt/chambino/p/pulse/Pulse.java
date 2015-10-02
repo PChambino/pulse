@@ -1,4 +1,4 @@
-package pt.fraunhofer.pulse;
+package pt.chambino.p.pulse;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfDouble;

@@ -1,4 +1,4 @@
-package pt.fraunhofer.pulse.dialog;
+package pt.chambino.p.pulse.dialog;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -6,9 +6,9 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
 import android.view.View;
-import pt.fraunhofer.pulse.App;
-import pt.fraunhofer.pulse.R;
-import pt.fraunhofer.pulse.view.BpmView;
+import pt.chambino.p.pulse.App;
+import pt.chambino.p.pulse.R;
+import pt.chambino.p.pulse.view.BpmView;
 
 public class BpmDialog extends DialogFragment {
 

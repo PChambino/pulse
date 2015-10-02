@@ -4,8 +4,8 @@ include $(CLEAR_VARS)
 
 include libs/OpenCV-android-sdk/sdk/native/jni/OpenCV.mk
 
-LOCAL_SRC_FILES  := pt_fraunhofer_pulse_Pulse_Face.cpp
-LOCAL_SRC_FILES  += pt_fraunhofer_pulse_Pulse.cpp
+LOCAL_SRC_FILES  := pt_chambino_p_pulse_Pulse_Face.cpp
+LOCAL_SRC_FILES  += pt_chambino_p_pulse_Pulse.cpp
 LOCAL_SRC_FILES  += Pulse.cpp
 LOCAL_SRC_FILES  += EvmGdownIIR.cpp
 LOCAL_SRC_FILES  += ext/opencv.cpp

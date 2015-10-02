@@ -1,4 +1,4 @@
-package pt.fraunhofer.pulse.dialog;
+package pt.chambino.p.pulse.dialog;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -9,9 +9,9 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
-import pt.fraunhofer.pulse.App;
-import pt.fraunhofer.pulse.Pulse;
-import pt.fraunhofer.pulse.R;
+import pt.chambino.p.pulse.App;
+import pt.chambino.p.pulse.Pulse;
+import pt.chambino.p.pulse.R;
 
 public class ConfigDialog extends DialogFragment {
 

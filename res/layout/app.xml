@@ -9,13 +9,13 @@
         android:layout_height="0dp"
         android:layout_weight="0.15">
 
-        <pt.fraunhofer.pulse.view.BpmView
+        <pt.chambino.p.pulse.view.BpmView
             android:id="@+id/bpm"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.3"/>
 
-        <pt.fraunhofer.pulse.view.PulseView
+        <pt.chambino.p.pulse.view.PulseView
             android:id="@+id/pulse"
             android:layout_width="0dp"
             android:layout_height="match_parent"

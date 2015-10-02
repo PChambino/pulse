@@ -1,4 +1,4 @@
-package pt.fraunhofer.pulse.view;
+package pt.chambino.p.pulse.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
