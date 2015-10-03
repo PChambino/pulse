@@ -154,9 +154,12 @@ public class App extends Activity implements CvCameraViewListener {
         outState.putInt(CAMERA_ID, camera.getCameraId());
         outState.putBoolean(FPS_METER, camera.isFpsMeterEnabled());
 
-        outState.putBoolean(FACE_DETECTION, pulse.hasFaceDetection());
-        outState.putBoolean(MAGNIFICATION, pulse.hasMagnification());
-        outState.putInt(MAGNIFICATION_FACTOR, pulse.getMagnificationFactor());
+        // if OpenCV Manager is not installed, pulse hasn't loaded
+        if (pulse != null) {
+            outState.putBoolean(FACE_DETECTION, pulse.hasFaceDetection());
+            outState.putBoolean(MAGNIFICATION, pulse.hasMagnification());
+            outState.putInt(MAGNIFICATION_FACTOR, pulse.getMagnificationFactor());
+        }
     }
 
 
