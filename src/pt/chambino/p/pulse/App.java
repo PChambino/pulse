@@ -323,28 +323,26 @@ public class App extends Activity implements CvCameraViewListener {
     }
 
     private void onFace(Canvas canvas, Face face) {
-        if (pulse.hasFaceDetection()) {
-            // grab face box
-            Rect box = face.getBox();
+        // grab face box
+        Rect box = face.getBox();
 
-            // draw face box
-            canvas.drawPath(createFaceBoxPath(box), faceBoxPaint);
+        // draw face box
+        canvas.drawPath(createFaceBoxPath(box), faceBoxPaint);
 
-            if (!face.existsPulse()) {
-                // draw hint text
-                canvas.drawText("Hold still",
-                        box.x + box.width / 2f,
-                        box.y + box.height / 2f - 20,
-                        faceBoxTextPaint);
-                canvas.drawText("in a",
-                        box.x + box.width / 2f,
-                        box.y + box.height / 2f,
-                        faceBoxTextPaint);
-                canvas.drawText("bright place",
-                        box.x + box.width / 2f,
-                        box.y + box.height / 2f + 20,
-                        faceBoxTextPaint);
-            }
+        if (pulse.hasFaceDetection() && !face.existsPulse()) {
+            // draw hint text
+            canvas.drawText("Hold still",
+                    box.x + box.width / 2f,
+                    box.y + box.height / 2f - 20,
+                    faceBoxTextPaint);
+            canvas.drawText("in a",
+                    box.x + box.width / 2f,
+                    box.y + box.height / 2f,
+                    faceBoxTextPaint);
+            canvas.drawText("bright place",
+                    box.x + box.width / 2f,
+                    box.y + box.height / 2f + 20,
+                    faceBoxTextPaint);
         }
 
         // update views
