@@ -2,9 +2,9 @@ package org.opencv.android;
 
 import java.util.List;
 
+import org.opencv.R;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -13,14 +13,11 @@ import android.content.DialogInterface;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import static android.view.View.VISIBLE;
-
-import pt.chambino.p.pulse.R;
 
 /**
  * This is a basic class, implementing the interaction with Camera and OpenCV library.
@@ -38,7 +35,7 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
 
     private int mState = STOPPED;
     private Bitmap mCacheBitmap;
-    private MyCameraBridgeViewBase.CvCameraViewListener2 mListener;
+    private CvCameraViewListener2 mListener;
     private boolean mSurfaceExist;
     private Object mSyncObject = new Object();
 
@@ -46,11 +43,18 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
     protected int mFrameHeight;
     protected int mMaxHeight;
     protected int mMaxWidth;
-    protected float mScale = 1;
-    protected int mPreviewFormat = Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA;
-    protected int mCameraIndex = -1;
+    protected float mScale = 0;
+    protected int mPreviewFormat = RGBA;
+    protected int mCameraIndex = CAMERA_ID_ANY;
     protected boolean mEnabled;
     protected FpsMeter mFpsMeter = null;
+
+    public static final int CAMERA_ID_ANY   = -1;
+    public static final int CAMERA_ID_BACK  = 99;
+    public static final int CAMERA_ID_FRONT = 98;
+    public static final int RGB = 0;
+    public static final int RGBA = 1;
+    public static final int GRAY = 2;
 
     public MyCameraBridgeViewBase(Context context, int cameraId) {
         super(context);
@@ -75,6 +79,26 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
         getHolder().addCallback(this);
         mMaxWidth = MAX_UNSPECIFIED;
         mMaxHeight = MAX_UNSPECIFIED;
+        styledAttrs.recycle();
+    }
+
+    public void switchCamera() {
+        if (getCameraIndex() == CAMERA_ID_BACK)
+            setCameraIndex(CAMERA_ID_FRONT);
+        else
+            setCameraIndex(CAMERA_ID_BACK);
+    }
+
+    public int getCameraIndex() {
+        return this.mCameraIndex;
+    }
+
+    /**
+     * Sets the camera index
+     * @param cameraIndex new camera index
+     */
+    public void setCameraIndex(int cameraIndex) {
+        this.mCameraIndex = cameraIndex;
     }
 
     public interface CvCameraViewListener {
@@ -122,13 +146,13 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
          * The returned values - is a modified frame which needs to be displayed on the screen.
          * TODO: pass the parameters specifying the format of the frame (BPP, YUV or RGB and etc)
          */
-        public Mat onCameraFrame(MyCameraBridgeViewBase.CvCameraViewFrame inputFrame);
+        public Mat onCameraFrame(CvCameraViewFrame inputFrame);
 
         public void onCameraFrame(Canvas canvas);
     };
 
-    protected class CvCameraViewListenerAdapter implements MyCameraBridgeViewBase.CvCameraViewListener2  {
-        public CvCameraViewListenerAdapter(MyCameraBridgeViewBase.CvCameraViewListener oldStypeListener) {
+    protected class CvCameraViewListenerAdapter implements CvCameraViewListener2  {
+        public CvCameraViewListenerAdapter(CvCameraViewListener oldStypeListener) {
             mOldStyleListener = oldStypeListener;
         }
 
@@ -140,20 +164,20 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
             mOldStyleListener.onCameraViewStopped();
         }
 
-        public Mat onCameraFrame(MyCameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+        public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
              Mat result = null;
              switch (mPreviewFormat) {
-                case Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB:
+                case RGB:
                     result = mOldStyleListener.onCameraFrame(inputFrame.rgb());
                     break;
-                case Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA:
+                case RGBA:
                     result = mOldStyleListener.onCameraFrame(inputFrame.rgba());
                     break;
-                case Highgui.CV_CAP_ANDROID_GREY_FRAME:
+                case GRAY:
                     result = mOldStyleListener.onCameraFrame(inputFrame.gray());
                     break;
                 default:
-                    Log.e(TAG, "Invalid frame format! Only RGBA and Gray Scale are supported!");
+                    Log.e(TAG, "Invalid frame format! Only RGB, RGBA and Gray Scale are supported!");
             };
 
             return result;
@@ -168,10 +192,8 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
             mPreviewFormat = format;
         }
 
-        private CvCameraViewListenerAdapter() {}
-
-        private int mPreviewFormat = Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGBA;
-        private MyCameraBridgeViewBase.CvCameraViewListener mOldStyleListener;
+        private int mPreviewFormat = RGBA;
+        private CvCameraViewListener mOldStyleListener;
     };
 
     /**
@@ -225,24 +247,6 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
         }
     }
 
-    public void switchCamera() {
-        setCameraId((mCameraIndex + 1) % 2);
-    }
-
-    public int getCameraId() {
-        return mCameraIndex;
-    }
-
-    public void setCameraId(int cameraId) {
-        if (mCameraIndex != cameraId) {
-            mCameraIndex = cameraId;
-            if (mEnabled) {
-                disableView();
-                enableView();
-            }
-        }
-    }
-
     /**
      * This method is provided for clients, so they can enable the camera connection.
      * The actual onCameraViewStarted callback will be delivered only after both this method is called and surface is available
@@ -279,13 +283,13 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
             mFpsMeter = null;
     }
 
-    public boolean isFpsMeterEnabled() {
-        return mFpsMeter != null;
-    }
-
     public void setFpsMeter(boolean enable) {
         if (enable) enableFpsMeter();
         else disableFpsMeter();
+    }
+
+    public boolean isFpsMeterEnabled() {
+        return mFpsMeter != null;
     }
 
     /**
@@ -293,12 +297,12 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
      * @param listener
      */
 
-    public void setCvCameraViewListener(MyCameraBridgeViewBase.CvCameraViewListener2 listener) {
+    public void setCvCameraViewListener(CvCameraViewListener2 listener) {
         mListener = listener;
     }
 
-    public void setCvCameraViewListener(MyCameraBridgeViewBase.CvCameraViewListener listener) {
-        MyCameraBridgeViewBase.CvCameraViewListenerAdapter adapter = new MyCameraBridgeViewBase.CvCameraViewListenerAdapter(listener);
+    public void setCvCameraViewListener(CvCameraViewListener listener) {
+        CvCameraViewListenerAdapter adapter = new CvCameraViewListenerAdapter(listener);
         adapter.setFrameFormat(mPreviewFormat);
         mListener = adapter;
     }
@@ -320,8 +324,8 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
     public void SetCaptureFormat(int format)
     {
         mPreviewFormat = format;
-        if (mListener instanceof MyCameraBridgeViewBase.CvCameraViewListenerAdapter) {
-            MyCameraBridgeViewBase.CvCameraViewListenerAdapter adapter = (MyCameraBridgeViewBase.CvCameraViewListenerAdapter) mListener;
+        if (mListener instanceof CvCameraViewListenerAdapter) {
+            CvCameraViewListenerAdapter adapter = (CvCameraViewListenerAdapter) mListener;
             adapter.setFrameFormat(mPreviewFormat);
         }
     }
@@ -330,6 +334,7 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
      * Called when mSyncObject lock is held
      */
     private void checkCurrentState() {
+        Log.d(TAG, "call checkCurrentState");
         int targetState;
 
         if (mEnabled && mSurfaceExist && getVisibility() == VISIBLE) {
@@ -347,6 +352,7 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
     }
 
     private void processEnterState(int state) {
+        Log.d(TAG, "call processEnterState: " + state);
         switch(state) {
         case STARTED:
             onEnterStartedState();
@@ -364,6 +370,7 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
     }
 
     private void processExitState(int state) {
+        Log.d(TAG, "call processExitState: " + state);
         switch(state) {
         case STARTED:
             onExitStartedState();
@@ -385,6 +392,7 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
     // NOTE: The order of bitmap constructor and camera connection is important for android 4.1.x
     // Bitmap must be constructed before surface
     private void onEnterStartedState() {
+        Log.d(TAG, "call onEnterStartedState");
         /* Connect camera */
         if (!connectCamera(getWidth(), getHeight())) {
             AlertDialog ad = new AlertDialog.Builder(getContext()).create();
@@ -414,7 +422,7 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
      * then displayed on the screen.
      * @param frame - the current frame to be delivered
      */
-    protected void deliverAndDrawFrame(MyCameraBridgeViewBase.CvCameraViewFrame frame) {
+    protected void deliverAndDrawFrame(CvCameraViewFrame frame) {
         Mat modified;
 
         if (mListener != null) {
@@ -436,19 +444,24 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
         }
 
         if (bmpValid && mCacheBitmap != null) {
-            if (mListener != null) {
-                mListener.onCameraFrame(new Canvas(mCacheBitmap));
-            }
             Canvas canvas = getHolder().lockCanvas();
             if (canvas != null) {
                 canvas.drawColor(0, android.graphics.PorterDuff.Mode.CLEAR);
                 Log.d(TAG, "mStretch value: " + mScale);
 
-                Matrix matrix = new Matrix();
-                matrix.preTranslate((canvas.getWidth() - mCacheBitmap.getWidth()) / 2,
-                                    (canvas.getHeight() - mCacheBitmap.getHeight()) / 2);
-                matrix.postScale(mScale, mScale, canvas.getWidth() / 2, canvas.getHeight() / 2);
-                canvas.drawBitmap(mCacheBitmap, matrix, null);
+                if (mScale != 0) {
+                    canvas.drawBitmap(mCacheBitmap, new Rect(0,0,mCacheBitmap.getWidth(), mCacheBitmap.getHeight()),
+                         new Rect((int)((canvas.getWidth() - mScale*mCacheBitmap.getWidth()) / 2),
+                         (int)((canvas.getHeight() - mScale*mCacheBitmap.getHeight()) / 2),
+                         (int)((canvas.getWidth() - mScale*mCacheBitmap.getWidth()) / 2 + mScale*mCacheBitmap.getWidth()),
+                         (int)((canvas.getHeight() - mScale*mCacheBitmap.getHeight()) / 2 + mScale*mCacheBitmap.getHeight())), null);
+                } else {
+                     canvas.drawBitmap(mCacheBitmap, new Rect(0,0,mCacheBitmap.getWidth(), mCacheBitmap.getHeight()),
+                         new Rect((canvas.getWidth() - mCacheBitmap.getWidth()) / 2,
+                         (canvas.getHeight() - mCacheBitmap.getHeight()) / 2,
+                         (canvas.getWidth() - mCacheBitmap.getWidth()) / 2 + mCacheBitmap.getWidth(),
+                         (canvas.getHeight() - mCacheBitmap.getHeight()) / 2 + mCacheBitmap.getHeight()), null);
+                }
 
                 if (mFpsMeter != null) {
                     mFpsMeter.measure();
@@ -474,7 +487,7 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
      */
     protected abstract void disconnectCamera();
 
-    // NOTE: On Android 4.1.x the function must be called before SurfaceTextre constructor!
+    // NOTE: On Android 4.1.x the function must be called before SurfaceTexture constructor!
     protected void AllocateCache()
     {
         mCacheBitmap = Bitmap.createBitmap(mFrameWidth, mFrameHeight, Bitmap.Config.ARGB_8888);
@@ -494,7 +507,7 @@ public abstract class MyCameraBridgeViewBase extends SurfaceView implements Surf
      * @param surfaceHeight
      * @return optimal frame size
      */
-    protected Size calculateCameraFrameSize(List<?> supportedSizes, MyCameraBridgeViewBase.ListItemAccessor accessor, int surfaceWidth, int surfaceHeight) {
+    protected Size calculateCameraFrameSize(List<?> supportedSizes, ListItemAccessor accessor, int surfaceWidth, int surfaceHeight) {
         int calcWidth = 0;
         int calcHeight = 0;
 

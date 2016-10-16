@@ -34,9 +34,9 @@ detected by the ViTrox application and to the readings of a sphygmomanometer.
 Dependencies
 ============
 
-* Android SDK (v17)
-* Android NDK (r10e)
-* OpenCV Android SDK (2.4.11)
+* Android SDK (v23)
+* Android NDK (r13)
+* OpenCV Android SDK (3.1.0)
 * [pulse-cpp]
 
 [pulse-cpp]: https://github.com/pchambino/pulse-cpp
@@ -46,12 +46,12 @@ Setup
 =====
 
     cd pulse
-    android update project -p . -t android-17
+    android update project -p . -t android-23
     # a local.properties file with sdk.dir should have been created
     echo ndk.dir=PATH_TO_ANDROID_NDK >> local.properties
     echo pulse-cpp.dir=PATH_TO_PULSE_CPP >> local.properties
     # copy OpenCV Android SDK to libs directory
-    android update lib-project -p libs/OpenCV-android-sdk/sdk/java -t android-17
+    android update lib-project -p libs/OpenCV-android-sdk/sdk/java -t android-23
     echo android.library=true >> project.properties
     ant debug install
 

@@ -3,7 +3,6 @@ package org.opencv.android;
 import java.util.List;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -12,7 +11,6 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ViewGroup.LayoutParams;
-import org.opencv.core.Core;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -40,16 +38,18 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
     private boolean mStopThread;
 
     protected Camera mCamera;
-    protected MyJavaCameraView.JavaCameraFrame mCameraFrame;
+    protected JavaCameraFrame[] mCameraFrame;
     private SurfaceTexture mSurfaceTexture;
 
-    public static class JavaCameraSizeAccessor implements MyCameraBridgeViewBase.ListItemAccessor {
+    public static class JavaCameraSizeAccessor implements ListItemAccessor {
 
+        @Override
         public int getWidth(Object obj) {
             Camera.Size size = (Camera.Size) obj;
             return size.width;
         }
 
+        @Override
         public int getHeight(Object obj) {
             Camera.Size size = (Camera.Size) obj;
             return size.height;
@@ -70,7 +70,7 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
         synchronized (this) {
             mCamera = null;
 
-            if (mCameraIndex == -1) {
+            if (mCameraIndex == CAMERA_ID_ANY) {
                 Log.d(TAG, "Trying to open camera with old open()");
                 try {
                     mCamera = Camera.open();
@@ -94,11 +94,39 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
                 }
             } else {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-                    Log.d(TAG, "Trying to open camera with new open(" + Integer.valueOf(mCameraIndex) + ")");
-                    try {
-                        mCamera = Camera.open(mCameraIndex);
-                    } catch (RuntimeException e) {
-                        Log.e(TAG, "Camera #" + mCameraIndex + "failed to open: " + e.getLocalizedMessage());
+                    int localCameraIndex = mCameraIndex;
+                    if (mCameraIndex == CAMERA_ID_BACK) {
+                        Log.i(TAG, "Trying to open back camera");
+                        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+                        for (int camIdx = 0; camIdx < Camera.getNumberOfCameras(); ++camIdx) {
+                            Camera.getCameraInfo( camIdx, cameraInfo );
+                            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+                                localCameraIndex = camIdx;
+                                break;
+                            }
+                        }
+                    } else if (mCameraIndex == CAMERA_ID_FRONT) {
+                        Log.i(TAG, "Trying to open front camera");
+                        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+                        for (int camIdx = 0; camIdx < Camera.getNumberOfCameras(); ++camIdx) {
+                            Camera.getCameraInfo( camIdx, cameraInfo );
+                            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                                localCameraIndex = camIdx;
+                                break;
+                            }
+                        }
+                    }
+                    if (localCameraIndex == CAMERA_ID_BACK) {
+                        Log.e(TAG, "Back camera not found!");
+                    } else if (localCameraIndex == CAMERA_ID_FRONT) {
+                        Log.e(TAG, "Front camera not found!");
+                    } else {
+                        Log.d(TAG, "Trying to open camera with new open(" + Integer.valueOf(localCameraIndex) + ")");
+                        try {
+                            mCamera = Camera.open(localCameraIndex);
+                        } catch (RuntimeException e) {
+                            Log.e(TAG, "Camera #" + localCameraIndex + "failed to open: " + e.getLocalizedMessage());
+                        }
                     }
                 }
             }
@@ -113,14 +141,15 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
                 List<android.hardware.Camera.Size> sizes = params.getSupportedPreviewSizes();
 
                 if (sizes != null) {
-                    for (android.hardware.Camera.Size s : sizes) Log.d(TAG, s.width+"x"+s.height);
-
                     /* Select the size that fits surface considering maximum size allowed */
-                    Size frameSize = calculateCameraFrameSize(sizes, new MyJavaCameraView.JavaCameraSizeAccessor(), width, height);
+                    Size frameSize = calculateCameraFrameSize(sizes, new JavaCameraSizeAccessor(), width, height);
 
                     params.setPreviewFormat(ImageFormat.NV21);
                     Log.d(TAG, "Set preview size to " + Integer.valueOf((int)frameSize.width) + "x" + Integer.valueOf((int)frameSize.height));
                     params.setPreviewSize((int)frameSize.width, (int)frameSize.height);
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH && !android.os.Build.MODEL.equals("GT-I9100"))
+                        params.setRecordingHint(true);
 
                     List<String> FocusModes = params.getSupportedFocusModes();
                     if (FocusModes != null && FocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
@@ -128,17 +157,20 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
                         params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
                     }
 
-                    if (params.isVideoStabilizationSupported()) {
-                        params.setVideoStabilization(true);
-                    }
-
-                    params.setRecordingHint(true);
-
                     mCamera.setParameters(params);
                     params = mCamera.getParameters();
 
                     mFrameWidth = params.getPreviewSize().width;
                     mFrameHeight = params.getPreviewSize().height;
+
+                    if ((getLayoutParams().width == LayoutParams.MATCH_PARENT) && (getLayoutParams().height == LayoutParams.MATCH_PARENT))
+                        mScale = Math.min(((float)height)/mFrameHeight, ((float)width)/mFrameWidth);
+                    else
+                        mScale = 0;
+
+                    if (mFpsMeter != null) {
+                        mFpsMeter.setResolution(mFrameWidth, mFrameHeight);
+                    }
 
                     int size = mFrameWidth * mFrameHeight;
                     size  = size * ImageFormat.getBitsPerPixel(params.getPreviewFormat()) / 8;
@@ -151,22 +183,11 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
                     mFrameChain[0] = new Mat(mFrameHeight + (mFrameHeight/2), mFrameWidth, CvType.CV_8UC1);
                     mFrameChain[1] = new Mat(mFrameHeight + (mFrameHeight/2), mFrameWidth, CvType.CV_8UC1);
 
-                    mCameraFrame = new MyJavaCameraView.JavaCameraFrame(mFrameChain[mChainIdx], mFrameWidth, mFrameHeight);
-
-                    if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                        mFrameWidth = params.getPreviewSize().height;
-                        mFrameHeight = params.getPreviewSize().width;
-                    }
-
                     AllocateCache();
 
-                    if ((getLayoutParams().width == LayoutParams.MATCH_PARENT) && (getLayoutParams().height == LayoutParams.MATCH_PARENT)) {
-                        mScale = Math.max(((float)width)/mFrameWidth, ((float)height)/mFrameHeight);
-                    }
-
-                    if (mFpsMeter != null) {
-                        mFpsMeter.setResolution(mFrameWidth, mFrameHeight);
-                    }
+                    mCameraFrame = new JavaCameraFrame[2];
+                    mCameraFrame[0] = new JavaCameraFrame(mFrameChain[0], mFrameWidth, mFrameHeight);
+                    mCameraFrame[1] = new JavaCameraFrame(mFrameChain[1], mFrameWidth, mFrameHeight);
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                         mSurfaceTexture = new SurfaceTexture(MAGIC_TEXTURE_ID);
@@ -193,6 +214,8 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
         synchronized (this) {
             if (mCamera != null) {
                 mCamera.stopPreview();
+                mCamera.setPreviewCallback(null);
+
                 mCamera.release();
             }
             mCamera = null;
@@ -200,10 +223,14 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
                 mFrameChain[0].release();
                 mFrameChain[1].release();
             }
-            if (mCameraFrame != null)
-                mCameraFrame.release();
+            if (mCameraFrame != null) {
+                mCameraFrame[0].release();
+                mCameraFrame[1].release();
+            }
         }
     }
+
+    private boolean mCameraFrameReady = false;
 
     @Override
     protected boolean connectCamera(int width, int height) {
@@ -216,15 +243,18 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
         if (!initializeCamera(width, height))
             return false;
 
+        mCameraFrameReady = false;
+
         /* now we can start update thread */
         Log.d(TAG, "Starting processing thread");
         mStopThread = false;
-        mThread = new Thread(new MyJavaCameraView.CameraWorker());
+        mThread = new Thread(new CameraWorker());
         mThread.start();
 
         return true;
     }
 
+    @Override
     protected void disconnectCamera() {
         /* 1. We need to stop thread which updating the frames
          * 2. Stop camera and release it
@@ -247,51 +277,37 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
 
         /* Now release camera */
         releaseCamera();
+
+        mCameraFrameReady = false;
     }
 
+    @Override
     public void onPreviewFrame(byte[] frame, Camera arg1) {
         Log.d(TAG, "Preview Frame received. Frame size: " + frame.length);
         synchronized (this) {
-            mFrameChain[1 - mChainIdx].put(0, 0, frame);
+            mFrameChain[mChainIdx].put(0, 0, frame);
+            mCameraFrameReady = true;
             this.notify();
         }
         if (mCamera != null)
             mCamera.addCallbackBuffer(mBuffer);
     }
 
-    public class JavaCameraFrame implements MyCameraBridgeViewBase.CvCameraViewFrame {
+    private class JavaCameraFrame implements CvCameraViewFrame {
+        @Override
         public Mat gray() {
-            mGray = mYuvFrameData.submat(0, mHeight, 0, mWidth);
-            return rotate(mGray);
+            return mYuvFrameData.submat(0, mHeight, 0, mWidth);
         }
 
+        @Override
         public Mat rgba() {
-            Imgproc.cvtColor(mYuvFrameData, mRgba, Imgproc.COLOR_YUV2BGR_NV12, 4);
-            return rotate(mRgba);
+            Imgproc.cvtColor(mYuvFrameData, mRgba, Imgproc.COLOR_YUV2RGBA_NV21, 4);
+            return mRgba;
         }
 
         public Mat rgb() {
-            Imgproc.cvtColor(mYuvFrameData, mRgb, Imgproc.COLOR_YUV2BGR_NV12);
-            return rotate(mRgb);
-        }
-
-        private Mat rotate(Mat frame) {
-            Camera.CameraInfo info = new Camera.CameraInfo();
-            Camera.getCameraInfo(mCameraIndex, info);
-
-            // FIXME all this flipping and transposing is very performance expensive
-            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                    Core.flip(frame.t(), frame, -1);
-                } else {
-                    Core.flip(frame.t(), frame, 1);
-                }
-            } else {
-                if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                    Core.flip(frame, frame, 1);
-                }
-            }
-            return frame;
+            Imgproc.cvtColor(mYuvFrameData, mRgb, Imgproc.COLOR_YUV2RGB_NV21);
+            return mRgb;
         }
 
         public JavaCameraFrame(Mat Yuv420sp, int width, int height) {
@@ -301,43 +317,45 @@ public class MyJavaCameraView extends MyCameraBridgeViewBase implements PreviewC
             mYuvFrameData = Yuv420sp;
             mRgba = new Mat();
             mRgb = new Mat();
-            mGray = new Mat();
         }
 
         public void release() {
             mRgba.release();
             mRgb.release();
-            mGray.release();
-        }
-
-        private JavaCameraFrame(MyCameraBridgeViewBase.CvCameraViewFrame obj) {
         }
 
         private Mat mYuvFrameData;
         private Mat mRgba;
         private Mat mRgb;
-        private Mat mGray;
         private int mWidth;
         private int mHeight;
     };
 
     private class CameraWorker implements Runnable {
 
+        @Override
         public void run() {
             do {
+                boolean hasFrame = false;
                 synchronized (MyJavaCameraView.this) {
                     try {
-                        MyJavaCameraView.this.wait();
+                        while (!mCameraFrameReady && !mStopThread) {
+                            MyJavaCameraView.this.wait();
+                        }
                     } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
+                    }
+                    if (mCameraFrameReady)
+                    {
+                        mChainIdx = 1 - mChainIdx;
+                        mCameraFrameReady = false;
+                        hasFrame = true;
                     }
                 }
 
-                if (!mStopThread) {
-                    if (!mFrameChain[mChainIdx].empty())
-                        deliverAndDrawFrame(mCameraFrame);
-                    mChainIdx = 1 - mChainIdx;
+                if (!mStopThread && hasFrame) {
+                    if (!mFrameChain[1 - mChainIdx].empty())
+                        deliverAndDrawFrame(mCameraFrame[1 - mChainIdx]);
                 }
             } while (!mStopThread);
             Log.d(TAG, "Finish processing thread");

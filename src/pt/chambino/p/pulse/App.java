@@ -26,7 +26,6 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
-import org.opencv.highgui.Highgui;
 import pt.chambino.p.pulse.Pulse.Face;
 import pt.chambino.p.pulse.dialog.BpmDialog;
 import pt.chambino.p.pulse.dialog.ConfigDialog;
@@ -112,7 +111,7 @@ public class App extends Activity implements CvCameraViewListener {
 
         camera = (MyCameraBridgeViewBase) findViewById(R.id.camera);
         camera.setCvCameraViewListener(this);
-        camera.SetCaptureFormat(Highgui.CV_CAP_ANDROID_COLOR_FRAME_RGB);
+        camera.SetCaptureFormat(MyCameraBridgeViewBase.RGB);
         camera.setMaxFrameSize(600, 600);
 
         bpmView = (BpmView) findViewById(R.id.bpm);
@@ -139,7 +138,7 @@ public class App extends Activity implements CvCameraViewListener {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        camera.setCameraId(savedInstanceState.getInt(CAMERA_ID));
+        camera.setCameraIndex(savedInstanceState.getInt(CAMERA_ID));
         camera.setFpsMeter(savedInstanceState.getBoolean(FPS_METER));
 
         initFaceDetection = savedInstanceState.getBoolean(FACE_DETECTION, initFaceDetection);
@@ -151,7 +150,7 @@ public class App extends Activity implements CvCameraViewListener {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putInt(CAMERA_ID, camera.getCameraId());
+        outState.putInt(CAMERA_ID, camera.getCameraIndex());
         outState.putBoolean(FPS_METER, camera.isFpsMeterEnabled());
 
         // if OpenCV Manager is not installed, pulse hasn't loaded
